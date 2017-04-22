@@ -1,0 +1,6 @@
+# Directories to ignore for GIT
+.idea/
+temp/
+
+# Files to ignore for GIT
+*.tmp
