@@ -2,6 +2,23 @@
 
 import random
 
+""" Solution: randomly shuffle all numbers. If 0 is on the 0th position,
+              randomly swap it with any of nine positions in the list.
+
+    Proof
+    Lets count probability for 0 to be in position 7. It is equal to probability 1/10 
+  after shuffle, plus probability to be randomly swapped in the 7th position if
+  0 come to be on the 0th position: (1/10 * 1/9). In total: (1/10 + 1/10 * 1/9).
+    Lets count probability for 3 to be in position 7. It is equal to probability 1/10
+  after shuffle, minus probability to be randomly swapped in the 0th position (1/9)
+  if 0 come to be on the 0th position (1/10) and if 3 come to be on the 7th position
+  when 0 is on the 0th position (1/9). In total: (1/10 - 1/9 * 1/10 * 1/9).
+    Total probability of all numbers [0-9] in position 7 is:
+  9 * (1/10 - 1/9 * 1/10 * 1/9) + (1/10 + 1/10 * 1/9) = 1
+    Continue to prove in the same way that total probability is equal to
+  1 for all other positions.
+    End of proof. """
+
 # 1.
 l = [0,1,2,3,4,5,6,7,8,9]
 random.shuffle(l)
