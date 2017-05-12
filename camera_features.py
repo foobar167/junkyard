@@ -3,16 +3,16 @@ import cv2  # import OpenCV 3 module
 import numpy as np
 
 camera = cv2.VideoCapture(0)  # get default camera
+modes = ['0', '1', '2', '3', '4', '5', '6']
 window_name    = 'My camera'
-mode_unchanged = '1'  # show unchanged frame
-mode_canny     = '2'  # apply Canny edge detection
-mode_adaptive  = '3'  # adaptive Gaussian thresholding
-mode_harris    = '4'  # detect corners in an image
-mode_sirf      = '5'  # Scale-Invariant Feature Transform (SIFT) - patented
-mode_surf      = '6'  # Speeded-Up Robust Features (SURF) - patented
-mode_orb       = '7'  # Oriented FAST and Rotated BRIEF (ORB) - not patented!
+mode_unchanged = modes[0]  # show unchanged frame
+mode_canny     = modes[1]  # apply Canny edge detection
+mode_adaptive  = modes[2]  # adaptive Gaussian thresholding
+mode_harris    = modes[3]  # detect corners in an image
+mode_sirf      = modes[4]  # Scale-Invariant Feature Transform (SIFT) - patented
+mode_surf      = modes[5]  # Speeded-Up Robust Features (SURF) - patented
+mode_orb       = modes[6]  # Oriented FAST and Rotated BRIEF (ORB) - not patented!
 
-modes = ['1', '2', '3', '4', '5', '6', '7']
 mode = mode_canny  # default mode
 algorithms = {
     mode_sirf: cv2.xfeatures2d.SIFT_create(),
