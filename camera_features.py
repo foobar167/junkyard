@@ -4,13 +4,21 @@ import numpy as np
 
 camera = cv2.VideoCapture(0)  # get default camera
 window_name    = 'My camera'
-mode_unchanged = '1'
-mode_canny     = '2'
-mode_adaptive  = '3'
-mode_harris    = '4'
-mode_sirf      = '5'
-mode_surf      = '6'
+mode_unchanged = '1'  # show unchanged frame
+mode_canny     = '2'  # apply Canny edge detection
+mode_adaptive  = '3'  # adaptive Gaussian thresholding
+mode_harris    = '4'  # detect corners in an image
+mode_sirf      = '5'  # Scale-Invariant Feature Transform (SIFT) - patented
+mode_surf      = '6'  # Speeded-Up Robust Features (SURF) - patented
+mode_orb       = '7'  # Oriented FAST and Rotated BRIEF (ORB) - not patented!
+
+modes = ['1', '2', '3', '4', '5', '6', '7']
 mode = mode_canny  # default mode
+algorithms = {
+    mode_sirf: cv2.xfeatures2d.SIFT_create(),
+    mode_surf: cv2.xfeatures2d.SURF_create(4000),
+    mode_orb:  cv2.ORB_create()
+}
 
 while True:
     ok, frame = camera.read()  # read frame
@@ -26,14 +34,9 @@ while True:
         gray = np.float32(gray)
         dst = cv2.cornerHarris(gray, 2, 23, 0.04)  # 3rd parameter is odd and must be [3,31]
         frame[dst > 0.01 * dst.max()] = [0, 0, 255]
-    if mode == mode_sirf:
-        sift = cv2.xfeatures2d.SIFT_create()
-        keypoints, descriptor = sift.detectAndCompute(gray, None)
-        frame = cv2.drawKeypoints(image=frame, outImage=frame, keypoints=keypoints,
-                                  flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS, color=(51, 163, 236))
-    if mode == mode_surf:
-        surf = cv2.xfeatures2d.SURF_create(4000)
-        keypoints, descriptor = surf.detectAndCompute(gray, None)
+    if mode in [mode_sirf, mode_surf, mode_orb]:
+        algorithm = algorithms[mode]
+        keypoints, descriptor = algorithm.detectAndCompute(gray, None)
         frame = cv2.drawKeypoints(image=frame, outImage=frame, keypoints=keypoints,
                                   flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS, color=(51, 163, 236))
 
@@ -41,12 +44,8 @@ while True:
     key = cv2.waitKey(1) & 0xff  # read keystroke
     if key == 255: continue  # skip underlying part, if key hasn't been pressed
     if key == 27: break  # <Escape> key pressed, exit from cycle
-    if key == ord(mode_unchanged): mode = mode_unchanged  # show unchanged frame
-    if key == ord(mode_canny):     mode = mode_canny      # apply Canny edge detection
-    if key == ord(mode_adaptive):  mode = mode_adaptive   # adaptive Gaussian thresholding
-    if key == ord(mode_harris):    mode = mode_harris     # detect corners in an image
-    if key == ord(mode_sirf):      mode = mode_sirf       # Scale-Invariant Feature Transform (SIFT)
-    if key == ord(mode_surf):      mode = mode_surf       # Speeded-Up Robust Features (SURF)
+    for m in modes:
+        if key == ord(m): mode = m  # if key coincide, set the appropriate mode
 
 camera.release()  # release web camera
 cv2.destroyAllWindows()
