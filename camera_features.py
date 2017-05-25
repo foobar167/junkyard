@@ -12,6 +12,9 @@ modes = {
     '4': 'SIRF',       # Scale-Invariant Feature Transform (SIFT) - patented
     '5': 'SURF',       # Speeded-Up Robust Features (SURF) - patented
     '6': 'ORB',        # Oriented FAST and Rotated BRIEF (ORB) - not patented!
+    '7': 'Motion',     # Motion detection
+    '8': 'Blur',       # Blur
+    '9': 'Contours',   # Draw contours and mean colors inside contours
 }
 mode_unchanged = modes['0']
 mode_canny     = modes['1']
@@ -20,6 +23,9 @@ mode_harris    = modes['3']
 mode_sirf      = modes['4']
 mode_surf      = modes['5']
 mode_orb       = modes['6']
+mode_motion    = modes['7']
+mode_blur      = modes['8']
+mode_contours  = modes['9']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -47,6 +53,25 @@ while True:
         keypoints, descriptor = algorithm.detectAndCompute(gray, None)
         frame = cv2.drawKeypoints(image=frame, outImage=frame, keypoints=keypoints,
                                   flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS, color=(51, 163, 236))
+    if mode == mode_motion:
+        ok, frame2 = camera.read()  # read second frame
+        if not ok: continue  # skip underlying part, if frame didn't read correctly
+        gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)  # convert to grayscale
+        frame = cv2.absdiff(gray, gray2)  # get absolute difference between two frames
+    if mode == mode_blur:
+        frame = cv2.GaussianBlur(frame, (41, 41), 0)
+    if mode == mode_contours:
+        frame2 = frame.copy()  # make a copy
+        for threshold in [15, 50, 100, 240]:  # use various thresholds
+            ret, thresh = cv2.threshold(gray, threshold, 255, 0)
+            image, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            for contour in contours:
+                mask = np.zeros(gray.shape, np.uint8)  # create empty mask
+                cv2.drawContours(mask, [contour], 0, 255, -1)  # fill mask with white color
+                mean = cv2.mean(frame, mask=mask)  # find mean color inside mask
+                cv2.drawContours(frame2, [contour], 0, mean, -1)  # draw frame with masked mean color
+            cv2.drawContours(frame2, contours, -1, (0,0,0), 1)  # draw contours with black color
+        frame = frame2
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
