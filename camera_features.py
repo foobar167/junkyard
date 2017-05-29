@@ -15,6 +15,7 @@ modes = {
     '7': 'Motion',     # Motion detection
     '8': 'Blur',       # Blur
     '9': 'Contours',   # Draw contours and mean colors inside contours
+    'a': 'Background', # Background substractor (KNN, MOG2 or GMG)
 }
 mode_unchanged = modes['0']
 mode_canny     = modes['1']
@@ -26,6 +27,7 @@ mode_orb       = modes['6']
 mode_motion    = modes['7']
 mode_blur      = modes['8']
 mode_contours  = modes['9']
+mode_bground   = modes['a']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -33,6 +35,7 @@ algorithms = {
     mode_surf: cv2.xfeatures2d.SURF_create(4000),
     mode_orb:  cv2.ORB_create()
 }
+bs = None
 
 while True:
     ok, frame = camera.read()  # read frame
@@ -72,6 +75,11 @@ while True:
                 cv2.drawContours(frame2, [contour], 0, mean, -1)  # draw frame with masked mean color
             cv2.drawContours(frame2, contours, -1, (0,0,0), 1)  # draw contours with black color
         frame = frame2
+    if mode == mode_bground:
+        if bs is None:
+            bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)
+        fgmask = bs.apply(frame)
+        frame = frame & cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR)
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
