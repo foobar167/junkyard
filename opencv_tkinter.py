@@ -1,9 +1,14 @@
 from PIL import Image, ImageTk
-import Tkinter as tk
 import argparse
 import datetime
 import cv2
+import sys
 import os
+
+if sys.version_info.major < 3:  # for Python 3.x
+    import Tkinter as tk
+else:  # for Python 2.x
+    import tkinter as tk
 
 class Application:
     def __init__(self, output_path = "./"):
