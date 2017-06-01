@@ -1,9 +1,9 @@
-from PIL import Image, ImageTk
-import argparse
-import datetime
+import os
 import cv2
 import sys
-import os
+import argparse
+import datetime
+from PIL import Image, ImageTk
 
 if sys.version_info.major < 3:  # for Python 3.x
     import Tkinter as tk
@@ -14,14 +14,14 @@ class Application:
     def __init__(self, output_path = "./"):
         """ Initialize application which uses OpenCV + Tkinter. It displays
             a video stream in a Tkinter window and stores current snapshot on disk """
-        self.vs = cv2.VideoCapture(0) # capture video frames, 0 is your default video camera
+        self.vs = cv2.VideoCapture(0)  # capture video frames, 0 is your default video camera
         self.output_path = output_path  # store output path
         self.current_image = None  # current image from the camera
 
         self.root = tk.Tk()  # initialize root window
-        self.root.title("PyImageSearch PhotoBooth")  # set window title
+        self.root.title("OpenCV and Tkinter")  # set window title
         # self.destructor function gets fired when the window is closed
-        self.root.protocol('WM_DELETE_WINDOW', self.destructor)
+        self.root.protocol("WM_DELETE_WINDOW", self.destructor)
 
         self.panel = tk.Label(self.root)  # initialize image panel
         self.panel.pack(padx=10, pady=10)
