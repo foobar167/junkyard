@@ -9,31 +9,35 @@ modes = {
     '1': 'Canny',      # apply Canny edge detection
     '2': 'Threshold',  # adaptive Gaussian thresholding
     '3': 'Harris',     # detect corners in an image
-    '4': 'SIRF',       # Scale-Invariant Feature Transform (SIFT) - patented
+    '4': 'SIFT',       # Scale-Invariant Feature Transform (SIFT) - patented
     '5': 'SURF',       # Speeded-Up Robust Features (SURF) - patented
     '6': 'ORB',        # Oriented FAST and Rotated BRIEF (ORB) - not patented!
-    '7': 'Motion',     # Motion detection
-    '8': 'Blur',       # Blur
-    '9': 'Contours',   # Draw contours and mean colors inside contours
-    'a': 'Background', # Background substractor (KNN, MOG2 or GMG)
+    '7': 'BRIEF',      # BRIEF descriptors with the help of CenSurE (STAR) detector
+    '8': 'Motion',     # Motion detection
+    '9': 'Blur',       # Blur
+    'a': 'Contours',   # Draw contours and mean colors inside contours
+    'b': 'Background', # Background substractor (KNN, MOG2 or GMG)
 }
 mode_unchanged = modes['0']
 mode_canny     = modes['1']
 mode_threshold = modes['2']
 mode_harris    = modes['3']
-mode_sirf      = modes['4']
+mode_sift      = modes['4']
 mode_surf      = modes['5']
 mode_orb       = modes['6']
-mode_motion    = modes['7']
-mode_blur      = modes['8']
-mode_contours  = modes['9']
-mode_bground   = modes['a']
+mode_brief     = modes['7']
+mode_motion    = modes['8']
+mode_blur      = modes['9']
+mode_contours  = modes['a']
+mode_bground   = modes['b']
 
 mode = mode_canny  # default mode
 algorithms = {
-    mode_sirf: cv2.xfeatures2d.SIFT_create(),
-    mode_surf: cv2.xfeatures2d.SURF_create(4000),
-    mode_orb:  cv2.ORB_create()
+    mode_sift:  cv2.xfeatures2d.SIFT_create(),
+    mode_surf:  cv2.xfeatures2d.SURF_create(4000),
+    mode_orb:   cv2.ORB_create(),
+    mode_brief: [cv2.xfeatures2d.StarDetector_create(),
+                 cv2.xfeatures2d.BriefDescriptorExtractor_create()]
 }
 bs = None
 
@@ -51,9 +55,13 @@ while True:
         gray = np.float32(gray)
         dst = cv2.cornerHarris(gray, 2, 23, 0.04)  # 3rd parameter is odd and must be [3,31]
         frame[dst > 0.01 * dst.max()] = [0, 0, 255]
-    if mode in [mode_sirf, mode_surf, mode_orb]:
+    if mode in [mode_sift, mode_surf, mode_orb, mode_brief]:
         algorithm = algorithms[mode]
-        keypoints, descriptor = algorithm.detectAndCompute(gray, None)
+        if mode == mode_brief:
+            keypoints = algorithm[0].detect(gray, None)
+            keypoints, descriptor = algorithm[1].compute(gray, keypoints)
+        else:
+            keypoints, descriptor = algorithm.detectAndCompute(gray, None)
         frame = cv2.drawKeypoints(image=frame, outImage=frame, keypoints=keypoints,
                                   flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS, color=(51, 163, 236))
     if mode == mode_motion:
