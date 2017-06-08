@@ -17,6 +17,7 @@ modes = {
     '9': 'Blur',       # Blur
     'a': 'Contours',   # Draw contours and mean colors inside contours
     'b': 'Background', # Background substractor (KNN, MOG2 or GMG)
+    'c': 'Skin',       # Detect skin tones
 }
 mode_unchanged = modes['0']
 mode_canny     = modes['1']
@@ -30,6 +31,7 @@ mode_motion    = modes['8']
 mode_blur      = modes['9']
 mode_contours  = modes['a']
 mode_bground   = modes['b']
+mode_skin      = modes['c']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -88,6 +90,24 @@ while True:
             bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)
         fgmask = bs.apply(frame)
         frame = frame & cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR)
+    if mode == mode_skin:
+        # determine upper and lower HSV limits for (my) skin tones
+        lower = np.array([0, 100, 0], dtype="uint8")
+        upper = np.array([50, 255, 255], dtype="uint8")
+        # switch to HSV
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        # find mask of pixels within HSV range
+        skinMask = cv2.inRange(hsv, lower, upper)
+        # denoise
+        skinMask = cv2.GaussianBlur(skinMask, (9, 9), 0)
+        # kernel for morphology operation
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4, 4))
+        # CLOSE (dilate / erode)
+        skinMask = cv2.morphologyEx(skinMask, cv2.MORPH_CLOSE, kernel, iterations=3)
+        # denoise the mask
+        skinMask = cv2.GaussianBlur(skinMask, (9, 9), 0)
+        # only display the masked pixels
+        frame = cv2.bitwise_and(frame, frame, mask=skinMask)
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
