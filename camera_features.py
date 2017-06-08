@@ -18,6 +18,7 @@ modes = {
     'a': 'Contours',   # Draw contours and mean colors inside contours
     'b': 'Background', # Background substractor (KNN, MOG2 or GMG)
     'c': 'Skin',       # Detect skin tones
+    'd': 'OptFlow',    # Lucas Kanade optical flow
 }
 mode_unchanged = modes['0']
 mode_canny     = modes['1']
@@ -32,6 +33,7 @@ mode_blur      = modes['9']
 mode_contours  = modes['a']
 mode_bground   = modes['b']
 mode_skin      = modes['c']
+mode_optflow   = modes['d']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -42,6 +44,7 @@ algorithms = {
                  cv2.xfeatures2d.BriefDescriptorExtractor_create()]
 }
 bs = None
+old_gray = None
 
 while True:
     ok, frame = camera.read()  # read frame
@@ -108,6 +111,45 @@ while True:
         skinMask = cv2.GaussianBlur(skinMask, (9, 9), 0)
         # only display the masked pixels
         frame = cv2.bitwise_and(frame, frame, mask=skinMask)
+    if mode == mode_optflow:
+        if old_gray is None:
+            # params for ShiTomasi corner detection
+            feature_params = dict(maxCorners=100,
+                                  qualityLevel=0.3,
+                                  minDistance=7,
+                                  blockSize=7)
+            # Parameters for lucas kanade optical flow
+            lk_params = dict(winSize=(15, 15),
+                             maxLevel=2,
+                             criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+            # Create some random colors
+            color = np.random.randint(0, 255, (100, 3))
+            # Take first frame and find corners in it
+            old_frame = frame.copy()
+            old_gray = gray.copy()
+            ret, frame = camera.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
+            # Create a mask image for drawing purposes
+            mask = np.zeros_like(old_frame)
+        try:  # sometimes good_new throws TypeError, ignore it
+            # calculate optical flow
+            p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, **lk_params)
+            # Select good points
+            good_new = p1[st == 1]
+            good_old = p0[st == 1]
+            # draw the tracks
+            for i, (new, old) in enumerate(zip(good_new, good_old)):
+                a, b = new.ravel()
+                c, d = old.ravel()
+                mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 2)
+                frame = cv2.circle(frame, (a, b), 5, color[i].tolist(), -1)
+            frame = cv2.add(frame, mask)
+            # Now update the previous frame and previous points
+            old_gray = gray.copy()
+            p0 = good_new.reshape(-1, 1, 2)
+        except:
+            old_gray = None  # set optical flow to None if exception occurred
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
