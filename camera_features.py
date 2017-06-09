@@ -1,39 +1,46 @@
 """ Apply different filters here """
-import cv2  # import OpenCV 3 module
+import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
+import random
 import numpy as np
 
 camera = cv2.VideoCapture(0)  # get default camera
 window_name = 'My camera'
 modes = {
-    '0': 'Unchanged',  # show unchanged frame
-    '1': 'Canny',      # apply Canny edge detection
-    '2': 'Threshold',  # adaptive Gaussian thresholding
-    '3': 'Harris',     # detect corners in an image
-    '4': 'SIFT',       # Scale-Invariant Feature Transform (SIFT) - patented
-    '5': 'SURF',       # Speeded-Up Robust Features (SURF) - patented
-    '6': 'ORB',        # Oriented FAST and Rotated BRIEF (ORB) - not patented!
-    '7': 'BRIEF',      # BRIEF descriptors with the help of CenSurE (STAR) detector
-    '8': 'Motion',     # Motion detection
-    '9': 'Blur',       # Blur
-    'a': 'Contours',   # Draw contours and mean colors inside contours
-    'b': 'Background', # Background substractor (KNN, MOG2 or GMG)
-    'c': 'Skin',       # Detect skin tones
-    'd': 'OptFlow',    # Lucas Kanade optical flow
+    '0': 'Unchanged',   # show unchanged frame
+    '1': 'Canny',       # apply Canny edge detection
+    '2': 'Threshold',   # adaptive Gaussian thresholding
+    '3': 'Harris',      # detect corners in an image
+    '4': 'SIFT',        # Scale-Invariant Feature Transform (SIFT) - patented
+    '5': 'SURF',        # Speeded-Up Robust Features (SURF) - patented
+    '6': 'ORB',         # Oriented FAST and Rotated BRIEF (ORB) - not patented!
+    '7': 'BRIEF',       # BRIEF descriptors with the help of CenSurE (STAR) detector
+    '8': 'Motion',      # Motion detection
+    '9': 'Blur',        # Blur
+    'a': 'Contours',    # Draw contours and mean colors inside contours
+    'b': 'Background',  # Background substractor (KNN, MOG2 or GMG)
+    'c': 'Skin',        # Detect skin tones
+    'd': 'OptFlow',     # Lucas Kanade optical flow
+    'e': 'Affine1',     # Affine random rotation and shift
+    'f': 'Affine2',     # Affine random transformations
+    'g': 'Perspective', # Perspective random transformations
 }
-mode_unchanged = modes['0']
-mode_canny     = modes['1']
-mode_threshold = modes['2']
-mode_harris    = modes['3']
-mode_sift      = modes['4']
-mode_surf      = modes['5']
-mode_orb       = modes['6']
-mode_brief     = modes['7']
-mode_motion    = modes['8']
-mode_blur      = modes['9']
-mode_contours  = modes['a']
-mode_bground   = modes['b']
-mode_skin      = modes['c']
-mode_optflow   = modes['d']
+mode_unchanged   = modes['0']
+mode_canny       = modes['1']
+mode_threshold   = modes['2']
+mode_harris      = modes['3']
+mode_sift        = modes['4']
+mode_surf        = modes['5']
+mode_orb         = modes['6']
+mode_brief       = modes['7']
+mode_motion      = modes['8']
+mode_blur        = modes['9']
+mode_contours    = modes['a']
+mode_bground     = modes['b']
+mode_skin        = modes['c']
+mode_optflow     = modes['d']
+mode_affine1     = modes['e']
+mode_affine2     = modes['f']
+mode_perspective = modes['g']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -45,6 +52,12 @@ algorithms = {
 }
 bs = None
 old_gray = None
+rotation = 0
+shift = [0, 0]
+ptrs1 = np.float32([[0,0],[400,0],[0,400]])
+ptrs2 = np.copy(ptrs1)
+ptrs3 = np.float32([[0,0],[400,0],[0,400],[400,400]])
+ptrs4 = np.copy(ptrs3)
 
 while True:
     ok, frame = camera.read()  # read frame
@@ -150,6 +163,27 @@ while True:
             p0 = good_new.reshape(-1, 1, 2)
         except:
             old_gray = None  # set optical flow to None if exception occurred
+    if mode == mode_affine1:
+        rotation += random.choice([-1, 1])  # random rotation anticlockwise/clockwise
+        shift[0] += random.choice([-1, 1])  # random shift left/right on 1 pixel
+        shift[1] += random.choice([-1, 1])  # random shift up/bottom on 1 pixel
+        rows, cols = frame.shape[:2]
+        m = cv2.getRotationMatrix2D((cols/2, rows/2), rotation, 1)  # rotation matrix
+        frame = cv2.warpAffine(frame, m, (cols, rows))
+        m = np.float32([[1, 0, shift[0]], [0, 1, shift[1]]])  # translation matrix
+        frame = cv2.warpAffine(frame, m, (cols, rows))
+    if mode == mode_affine2:
+        for ptr in np.nditer(ptrs2, op_flags=['readwrite']):
+            ptr += random.choice([-1, 1])  # apply random shift on 1 pixel foreach element
+        rows, cols = frame.shape[:2]
+        m = cv2.getAffineTransform(ptrs1, ptrs2)
+        frame = cv2.warpAffine(frame, m, (cols, rows))
+    if mode == mode_perspective:
+        for ptr in np.nditer(ptrs4, op_flags=['readwrite']):
+            ptr += random.choice([-1, 1])  # apply random shift on 1 pixel foreach element
+        rows, cols = frame.shape[:2]
+        m = cv2.getPerspectiveTransform(ptrs3, ptrs4)
+        frame = cv2.warpPerspective(frame, m, (cols, rows))
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
