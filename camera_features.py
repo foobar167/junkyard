@@ -14,15 +14,18 @@ modes = {
     '5': 'SURF',        # Speeded-Up Robust Features (SURF) - patented
     '6': 'ORB',         # Oriented FAST and Rotated BRIEF (ORB) - not patented!
     '7': 'BRIEF',       # BRIEF descriptors with the help of CenSurE (STAR) detector
-    '8': 'Motion',      # Motion detection
+    '8': 'Contours',    # Draw contours and mean colors inside contours
     '9': 'Blur',        # Blur
-    'a': 'Contours',    # Draw contours and mean colors inside contours
+    'a': 'Motion',      # Motion detection
     'b': 'Background',  # Background substractor (KNN, MOG2 or GMG)
     'c': 'Skin',        # Detect skin tones
     'd': 'OptFlow',     # Lucas Kanade optical flow
     'e': 'Affine1',     # Affine random rotation and shift
     'f': 'Affine2',     # Affine random transformations
     'g': 'Perspective', # Perspective random transformations
+    'h': 'Equalize',    # Histogram Equalization
+    'i': 'CLAHE',       # CLAHE Contrast Limited Adaptive Histogram Equalization
+    'j': 'LAB',         # Increase the contrast of an image (LAB color space + CLAHE)
 }
 mode_unchanged   = modes['0']
 mode_canny       = modes['1']
@@ -32,15 +35,18 @@ mode_sift        = modes['4']
 mode_surf        = modes['5']
 mode_orb         = modes['6']
 mode_brief       = modes['7']
-mode_motion      = modes['8']
+mode_contours    = modes['8']
 mode_blur        = modes['9']
-mode_contours    = modes['a']
+mode_motion      = modes['a']
 mode_bground     = modes['b']
 mode_skin        = modes['c']
 mode_optflow     = modes['d']
 mode_affine1     = modes['e']
 mode_affine2     = modes['f']
 mode_perspective = modes['g']
+mode_equalize    = modes['h']
+mode_clahe       = modes['i']
+mode_lab         = modes['j']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -184,6 +190,27 @@ while True:
         rows, cols = frame.shape[:2]
         m = cv2.getPerspectiveTransform(ptrs3, ptrs4)
         frame = cv2.warpPerspective(frame, m, (cols, rows))
+    if mode == mode_equalize:
+        b, g, r = cv2.split(frame)  # split on blue, green and red channels
+        b2 = cv2.equalizeHist(b)  # apply Histogram Equalization to each channel
+        g2 = cv2.equalizeHist(g)
+        r2 = cv2.equalizeHist(r)
+        frame = cv2.merge((b2,g2,r2))  # merge changed channels to the current frame
+    if mode == mode_clahe:
+        # clipLimit is 40 by default; tileSize is 8x8 by default
+        clahe = cv2.createCLAHE(clipLimit=10., tileGridSize=(8,8))
+        b, g, r = cv2.split(frame)  # split on blue, green and red channels
+        b2 = clahe.apply(b)  # apply CLAHE to each channel
+        g2 = clahe.apply(g)
+        r2 = clahe.apply(r)
+        frame = cv2.merge((b2, g2, r2))  # merge changed channels to the current frame
+    if mode == mode_lab:
+        lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)  # convert image to LAB color model
+        l, a, b = cv2.split(lab)  # split on l, a, b channels
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+        l2 = clahe.apply(l)  # apply CLAHE to L-channel
+        lab = cv2.merge((l2,a,b))  # merge enhanced L-channel with the a and b channels
+        frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
