@@ -94,7 +94,9 @@ while True:
         gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)  # convert to grayscale
         frame = cv2.absdiff(gray, gray2)  # get absolute difference between two frames
     if mode == mode_blur:
-        frame = cv2.GaussianBlur(frame, (41, 41), 0)
+        #frame = cv2.GaussianBlur(frame, (29, 29), 0)  # Gaussian blur
+        #frame = cv2.blur(frame, (29, 29))  # Blur
+        frame = cv2.medianBlur(frame, 29)  # Median blur
     if mode == mode_contours:
         frame2 = frame.copy()  # make a copy
         for threshold in [15, 50, 100, 240]:  # use various thresholds
