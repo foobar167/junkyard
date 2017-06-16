@@ -96,7 +96,8 @@ while True:
     if mode == mode_blur:
         #frame = cv2.GaussianBlur(frame, (29, 29), 0)  # Gaussian blur
         #frame = cv2.blur(frame, (29, 29))  # Blur
-        frame = cv2.medianBlur(frame, 29)  # Median blur
+        #frame = cv2.medianBlur(frame, 29)  # Median blur
+        frame = cv2.bilateralFilter(frame, 11, 80, 80)  # Bilateral filter preserves the edges
     if mode == mode_contours:
         frame2 = frame.copy()  # make a copy
         for threshold in [15, 50, 100, 240]:  # use various thresholds
