@@ -227,7 +227,7 @@ while True:
         x, y = 0, int(h+h/2)
         image = np.zeros((y, w, 3), np.uint8)  # empty matrix filled with zeros
         image[:h, :w, :3] = frame
-        for i in range(9):
+        for i in range(8):
             frame = cv2.pyrDown(frame)
             h, w = frame.shape[:2]
             image[y-h:y, x:x+w] = frame
