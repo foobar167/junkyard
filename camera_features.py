@@ -26,6 +26,10 @@ modes = {
     'h': 'Equalize',    # Histogram Equalization
     'i': 'CLAHE',       # CLAHE Contrast Limited Adaptive Histogram Equalization
     'j': 'LAB',         # Increase the contrast of an image (LAB color space + CLAHE)
+
+    'l': 'Laplacian',   # Laplacian gradient filter
+    'm': 'Sobel X',     # Sobel / Scharr vertical gradient filter
+    'n': 'Sobel Y',     # Sobel / Scharr horizontal gradient filter
 }
 mode_unchanged   = modes['0']
 mode_canny       = modes['1']
@@ -47,6 +51,10 @@ mode_perspective = modes['g']
 mode_equalize    = modes['h']
 mode_clahe       = modes['i']
 mode_lab         = modes['j']
+
+mode_laplacian   = modes['l']
+mode_sobelx      = modes['m']
+mode_sobely      = modes['n']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -214,6 +222,21 @@ while True:
         l2 = clahe.apply(l)  # apply CLAHE to L-channel
         lab = cv2.merge((l2,a,b))  # merge enhanced L-channel with the a and b channels
         frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    if mode == mode_laplacian:
+        #frame = cv2.Laplacian(gray, cv2.CV_8U)
+        frame = np.uint8(np.absolute(cv2.Laplacian(gray, cv2.CV_64F)))
+    if mode == mode_sobelx:
+        #frame = cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=5)
+        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=5)))
+        # If ksize=-1, a 3x3 Scharr filter is used which gives better results than 3x3 Sobel filter
+        frame = cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=-1)
+        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=-1)))
+    if mode == mode_sobely:
+        #frame = cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=5)
+        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=5)))
+        # If ksize=-1, a 3x3 Scharr filter is used which gives better results than 3x3 Sobel filter
+        frame = cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=-1)
+        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=-1)))
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
