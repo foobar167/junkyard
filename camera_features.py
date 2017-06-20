@@ -26,7 +26,7 @@ modes = {
     'h': 'Equalize',    # Histogram Equalization
     'i': 'CLAHE',       # CLAHE Contrast Limited Adaptive Histogram Equalization
     'j': 'LAB',         # Increase the contrast of an image (LAB color space + CLAHE)
-
+    'k': 'Pyramid',     # Image pyramid
     'l': 'Laplacian',   # Laplacian gradient filter
     'm': 'Sobel X',     # Sobel / Scharr vertical gradient filter
     'n': 'Sobel Y',     # Sobel / Scharr horizontal gradient filter
@@ -51,7 +51,7 @@ mode_perspective = modes['g']
 mode_equalize    = modes['h']
 mode_clahe       = modes['i']
 mode_lab         = modes['j']
-
+mode_pyramid     = modes['k']
 mode_laplacian   = modes['l']
 mode_sobelx      = modes['m']
 mode_sobely      = modes['n']
@@ -222,6 +222,17 @@ while True:
         l2 = clahe.apply(l)  # apply CLAHE to L-channel
         lab = cv2.merge((l2,a,b))  # merge enhanced L-channel with the a and b channels
         frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    if mode == mode_pyramid:
+        h, w = frame.shape[:2]
+        x, y = 0, int(h+h/2)
+        image = np.zeros((y, w, 3), np.uint8)  # empty matrix filled with zeros
+        image[:h, :w, :3] = frame
+        for i in range(8):
+            frame = cv2.pyrDown(frame)
+            h, w = frame.shape[:2]
+            image[y-h:y, x:x+w] = frame
+            x += w
+        frame = image
     if mode == mode_laplacian:
         #frame = cv2.Laplacian(gray, cv2.CV_8U)
         frame = np.uint8(np.absolute(cv2.Laplacian(gray, cv2.CV_64F)))
