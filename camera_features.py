@@ -30,6 +30,7 @@ modes = {
     'l': 'Laplacian',   # Laplacian gradient filter
     'm': 'Sobel X',     # Sobel / Scharr vertical gradient filter
     'n': 'Sobel Y',     # Sobel / Scharr horizontal gradient filter
+    'o': 'Blobs',       # Blob detection
 }
 mode_unchanged   = modes['0']
 mode_canny       = modes['1']
@@ -55,6 +56,7 @@ mode_pyramid     = modes['k']
 mode_laplacian   = modes['l']
 mode_sobelx      = modes['m']
 mode_sobely      = modes['n']
+mode_blobs       = modes['o']
 
 mode = mode_canny  # default mode
 algorithms = {
@@ -72,6 +74,7 @@ ptrs1 = np.float32([[0,0],[400,0],[0,400]])
 ptrs2 = np.copy(ptrs1)
 ptrs3 = np.float32([[0,0],[400,0],[0,400],[400,400]])
 ptrs4 = np.copy(ptrs3)
+detector1 = None
 
 while True:
     ok, frame = camera.read()  # read frame
@@ -248,6 +251,28 @@ while True:
         # If ksize=-1, a 3x3 Scharr filter is used which gives better results than 3x3 Sobel filter
         frame = cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=-1)
         #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=-1)))
+    if mode == mode_blobs:
+        if detector1 is None:
+            # Setup SimpleBlobDetector parameters
+            params = cv2.SimpleBlobDetector_Params()
+            params.blobColor = 255  # extract light blobs
+            params.maxArea = 40000
+            # Set up the detector with default parameters.
+            detector1 = cv2.SimpleBlobDetector_create(params)
+            params.blobColor = 0  # extract dark blobs
+            detector2 = cv2.SimpleBlobDetector_create(params)
+
+        # Detect blobs
+        keypoints1 = detector1.detect(frame)
+        keypoints2 = detector2.detect(frame)
+
+        # Draw detected blobs as green and blue circles
+        # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle
+        # corresponds to the size of a blob
+        frame2 = cv2.drawKeypoints(frame, keypoints1, np.array([]), (0, 255, 0),
+                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        frame = cv2.drawKeypoints(frame2, keypoints2, np.array([]), (255, 0, 0),
+                                  cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     # write text on image
     cv2.putText(frame, mode, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (51, 163, 236), 1, cv2.LINE_AA)
