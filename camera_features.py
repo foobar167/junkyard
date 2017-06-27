@@ -255,8 +255,12 @@ while True:
         if detector1 is None:
             # Setup SimpleBlobDetector parameters
             params = cv2.SimpleBlobDetector_Params()
+            params.filterByColor = True
             params.blobColor = 255  # extract light blobs
+            params.filterByArea = True
             params.maxArea = 40000
+            params.filterByCircularity = True
+            params.minCircularity = 0.7  # circularity of a square is 0.785
             # Set up the detector with default parameters.
             detector1 = cv2.SimpleBlobDetector_create(params)
             params.blobColor = 0  # extract dark blobs
