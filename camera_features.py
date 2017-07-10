@@ -165,7 +165,7 @@ while True:
             p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
             # Create a mask image for drawing purposes
             mask = np.zeros_like(old_frame)
-        try:  # sometimes good_new throws TypeError, ignore it
+        try:  # If motion is large this method will fail. Ignore exceptions
             # calculate optical flow
             p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, **lk_params)
             # Select good points
