@@ -5,9 +5,9 @@ import argparse
 import datetime
 from PIL import Image, ImageTk
 
-if sys.version_info.major < 3:  # for Python 3.x
+if sys.version_info.major < 3:  # for Python 2.x
     import Tkinter as tk
-else:  # for Python 2.x
+else:  # for Python 3.x
     import tkinter as tk
 
 class Application:
