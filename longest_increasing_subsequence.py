@@ -31,3 +31,26 @@ print("5 == " + str(longest_increasing_subsequence(tricky)))
 print("5 == " + str(longest_increasing_subsequence(internal)))
 print("6 == " + str(longest_increasing_subsequence(ring)))
 print("6 == " + str(longest_increasing_subsequence(l)))
+
+def longest_increasing_subsequence2(l):
+    if len(l) == 0: return 0  # list is empty
+    lst = l + l
+    length = len(lst)
+    #print(lst)
+    i, tmp, longest = [0, 1, 1]
+    for i in range(length-1):
+        if lst[i] < lst[i+1]:
+            tmp += 1
+        else:
+            if longest < tmp: longest = tmp
+            tmp = 1
+    return longest
+
+print("0 == " + str(longest_increasing_subsequence2(empty)))
+print("1 == " + str(longest_increasing_subsequence2(one)))
+print("2 == " + str(longest_increasing_subsequence2(two)))
+print("3 == " + str(longest_increasing_subsequence2(three)))
+print("5 == " + str(longest_increasing_subsequence2(tricky)))
+print("5 == " + str(longest_increasing_subsequence2(internal)))
+print("6 == " + str(longest_increasing_subsequence2(ring)))
+print("6 == " + str(longest_increasing_subsequence2(l)))
