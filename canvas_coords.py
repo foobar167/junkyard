@@ -1,3 +1,5 @@
+# Display canvas coordinates when hovering cursor over canvas
+# When hover over the canvas, display (x,y) coordinates.
 import tkinter
 
 root = tkinter.Tk()
