@@ -4,25 +4,22 @@ from tkinter import ttk
 
 root = tk.Tk()
 
-w1 = ttk.PanedWindow(root, orient='horizontal')
-w1.pack(fill='both', expand=1)
+w = ttk.PanedWindow(root, orient='horizontal')
+w.pack(fill='both', expand='yes')
 
-left1 = ttk.Label(w1, text='left pane - 1')
-w1.add(left1)
+left = ttk.Frame(w)
+left.rowconfigure(0, weight=1)
+left.columnconfigure(0, weight=1)
+w.add(left, weight=1)
+label_left = ttk.Label(left, text='left side', background='red')
+label_left.grid(row=0, column=0, sticky='nswe')
 
-right1 = ttk.Label(w1, text='right pane - 1')
-w1.add(right1)
-
-one_more = ttk.Label(w1, text='one more pane')
-w1.add(one_more)
-
-w2 = ttk.PanedWindow(root, orient='horizontal')
-w2.pack(fill='both', expand=1)
-
-left2 = ttk.Label(w2, text='left pane - 2')
-w2.add(left2)
-
-right2 = ttk.Label(w2, text='right pane - 2')
-w2.add(right2)
+right = ttk.Frame(w, width=200)
+right.grid_propagate(0)  # fixed width
+right.rowconfigure(0, weight=1)
+right.columnconfigure(0, weight=1)
+w.add(right, weight=0)
+label_right = ttk.Label(right, text='right side', background='blue')
+label_right.grid(row=0, column=0, sticky='nswe')
 
 root.mainloop()
