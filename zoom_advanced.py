@@ -126,7 +126,7 @@ class Zoom_Advanced(ttk.Frame):
         if bbox[1] == bbox2[1] and bbox[3] == bbox2[3]:  # whole image in the visible area
             bbox[1] = bbox1[1]
             bbox[3] = bbox1[3]
-        self.canvas.configure(scrollregion=bbox)  # set scroll region
+        self.canvas.configure(scrollregion=tuple(bbox))  # set scroll region
         x1 = max(bbox2[0] - bbox1[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
         y1 = max(bbox2[1] - bbox1[1], 0)
         x2 = min(bbox2[2], bbox1[2]) - bbox1[0]
