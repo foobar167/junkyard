@@ -29,6 +29,7 @@ class Zoom_Advanced(ttk.Frame):
         ''' Initialize the main Frame '''
         ttk.Frame.__init__(self, master=mainframe)
         self.master.title('Zoom with mouse wheel')
+        self.master.geometry('800x600')
         # Vertical and horizontal scrollbars for canvas
         vbar = AutoScrollbar(self.master, orient='vertical')
         hbar = AutoScrollbar(self.master, orient='horizontal')
