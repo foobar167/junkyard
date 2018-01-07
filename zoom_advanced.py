@@ -91,7 +91,7 @@ class Zoom_Advanced(ttk.Frame):
         ''' Zoom with mouse wheel '''
         x = self.canvas.canvasx(event.x)
         y = self.canvas.canvasy(event.y)
-        bbox = self.canvas.bbox(self.container)  # get image area
+        bbox = self.canvas.coords(self.container)  # get image area
         if bbox[0] < x < bbox[2] and bbox[1] < y < bbox[3]: pass  # Ok! Inside the image
         else: return  # zoom only inside image area
         scale = 1.0
@@ -111,21 +111,21 @@ class Zoom_Advanced(ttk.Frame):
 
     def show_image(self, event=None):
         ''' Show image on the Canvas '''
-        bbox1 = self.canvas.bbox(self.container)  # get image area
-        # Remove 1 pixel shift at the sides of the bbox1
-        bbox1 = (bbox1[0] + 1, bbox1[1] + 1, bbox1[2] - 1, bbox1[3] - 1)
+        bbox1 = self.canvas.coords(self.container)  # get image area
+        # Make bbox1 an integer, otherwise scroll region doesn't work properly
+        bbox1 = tuple(int(i) for i in bbox1)
         bbox2 = (self.canvas.canvasx(0),  # get visible area of the canvas
                  self.canvas.canvasy(0),
                  self.canvas.canvasx(self.canvas.winfo_width()),
                  self.canvas.canvasy(self.canvas.winfo_height()))
         bbox = [min(bbox1[0], bbox2[0]), min(bbox1[1], bbox2[1]),  # get scroll region box
                 max(bbox1[2], bbox2[2]), max(bbox1[3], bbox2[3])]
-        if bbox[0] == bbox2[0] and bbox[2] == bbox2[2]:  # whole image in the visible area
-            bbox[0] = bbox1[0]
-            bbox[2] = bbox1[2]
-        if bbox[1] == bbox2[1] and bbox[3] == bbox2[3]:  # whole image in the visible area
-            bbox[1] = bbox1[1]
-            bbox[3] = bbox1[3]
+        if  bbox[0] == bbox2[0] and bbox[2] == bbox2[2]:  # whole image in the visible area
+            bbox[0]  = bbox1[0]
+            bbox[2]  = bbox1[2]
+        if  bbox[1] == bbox2[1] and bbox[3] == bbox2[3]:  # whole image in the visible area
+            bbox[1]  = bbox1[1]
+            bbox[3]  = bbox1[3]
         self.canvas.configure(scrollregion=tuple(bbox))  # set scroll region
         x1 = max(bbox2[0] - bbox1[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
         y1 = max(bbox2[1] - bbox1[1], 0)
