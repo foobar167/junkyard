@@ -18,7 +18,7 @@ class Video(ttk.Frame):
         self.panel.pack()
         # Prepare directory and file
         path = 'Temp'
-        if not os.path.isdir(path):
+        if not os.path.isdir(path):  # create path if not exist
             os.makedirs(path)
         dt = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')[:-3]
         filename = os.path.join(path, 'video_{dt}.avi'.format(dt=dt))
@@ -42,7 +42,7 @@ class Video(ttk.Frame):
     def destructor(self):
         ''' Destroy the main window and and release all resources '''
         self.video_out.release()  # release video output file
-        self.master.destroy()
+        self.master.destroy()  # destroy main window
         self.vs.release()  # release web camera
         cv2.destroyAllWindows()  # it is not mandatory in this application
 
