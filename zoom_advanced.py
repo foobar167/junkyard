@@ -69,14 +69,14 @@ class Zoom_Advanced(ttk.Frame):
             self.canvas.create_rectangle(x0, y0, x1, y1, fill=color, activefill='black')
         self.show_image()
 
-    def scroll_y(self, *args, **kwargs):
+    def scroll_y(self, *args):
         ''' Scroll canvas vertically and redraw the image '''
-        self.canvas.yview(*args, **kwargs)  # scroll vertically
+        self.canvas.yview(*args)  # scroll vertically
         self.show_image()  # redraw the image
 
-    def scroll_x(self, *args, **kwargs):
+    def scroll_x(self, *args):
         ''' Scroll canvas horizontally and redraw the image '''
-        self.canvas.xview(*args, **kwargs)  # scroll horizontally
+        self.canvas.xview(*args)  # scroll horizontally
         self.show_image()  # redraw the image
 
     def move_from(self, event):
