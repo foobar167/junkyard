@@ -114,7 +114,7 @@ class Zoom_Advanced(ttk.Frame):
         ''' Show image on the Canvas '''
         bbox1 = self.canvas.coords(self.container)  # get image area
         # Make bbox1 an integer, otherwise scroll region doesn't work properly
-        bbox1 = tuple(int(i) for i in bbox1)
+        bbox1 = tuple(map(int, bbox1))
         bbox2 = (self.canvas.canvasx(0),  # get visible area of the canvas
                  self.canvas.canvasy(0),
                  self.canvas.canvasx(self.canvas.winfo_width()),
