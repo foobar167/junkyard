@@ -14,7 +14,7 @@ w.add(left, weight=1)
 label_left = ttk.Label(left, text='left side', background='red')
 label_left.grid(row=0, column=0, sticky='nswe')
 
-right = ttk.Frame(w, width=200)
+right = ttk.Frame(w, width=200, height=200)
 right.grid_propagate(0)  # fixed width
 right.rowconfigure(0, weight=1)
 right.columnconfigure(0, weight=1)
