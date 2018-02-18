@@ -111,31 +111,35 @@ class Zoom_Advanced(ttk.Frame):
         self.show_image()
 
     def show_image(self, event=None):
-        ''' Show image on the Canvas '''
-        bbox1 = self.canvas.coords(self.container)  # get image area
-        bbox2 = (self.canvas.canvasx(0),  # get visible area of the canvas
-                 self.canvas.canvasy(0),
-                 self.canvas.canvasx(self.canvas.winfo_width()),
-                 self.canvas.canvasy(self.canvas.winfo_height()))
-        bbox = list(map(int, bbox1))  # convert to integer, otherwise it will not work properly
-        bbox = [min(bbox[0], bbox2[0]), min(bbox[1], bbox2[1]),  # get scroll region box
-                max(bbox[2], bbox2[2]), max(bbox[3], bbox2[3])]
-        if  bbox[0] == bbox2[0] and bbox[2] == bbox2[2]:  # whole image in the visible area
-            bbox[0]  = bbox1[0]
-            bbox[2]  = bbox1[2]
-        if  bbox[1] == bbox2[1] and bbox[3] == bbox2[3]:  # whole image in the visible area
-            bbox[1]  = bbox1[1]
-            bbox[3]  = bbox1[3]
-        self.canvas.configure(scrollregion=tuple(map(int, bbox)))  # set integer scroll region
-        x1 = max(bbox2[0] - bbox1[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
-        y1 = max(bbox2[1] - bbox1[1], 0)
-        x2 = min(bbox2[2], bbox1[2]) - bbox1[0]
-        y2 = min(bbox2[3], bbox1[3]) - bbox1[1]
+        ''' Show image on the canvas '''
+        box_image = self.canvas.coords(self.container)  # get image area
+        box_canvas = (self.canvas.canvasx(0),  # get visible area of the canvas
+                      self.canvas.canvasy(0),
+                      self.canvas.canvasx(self.canvas.winfo_width()),
+                      self.canvas.canvasy(self.canvas.winfo_height()))
+        box_img_int = list(map(int, box_image))  # convert to integer or it will not work properly
+        # Get scroll region box
+        box_scroll = [min(box_img_int[0], box_canvas[0]), min(box_img_int[1], box_canvas[1]),
+                      max(box_img_int[2], box_canvas[2]), max(box_img_int[3], box_canvas[3])]
+        # Horizontal part of the image is in the visible area
+        if  box_scroll[0] == box_canvas[0] and box_scroll[2] == box_canvas[2]:
+            box_scroll[0]  = box_img_int[0]
+            box_scroll[2]  = box_img_int[2]
+        # Vertical part of the image is in the visible area
+        if  box_scroll[1] == box_canvas[1] and box_scroll[3] == box_canvas[3]:
+            box_scroll[1]  = box_img_int[1]
+            box_scroll[3]  = box_img_int[3]
+        self.canvas.configure(scrollregion=box_scroll)  # set scroll region
+        x1 = max(box_canvas[0] - box_image[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
+        y1 = max(box_canvas[1] - box_image[1], 0)
+        x2 = min(box_canvas[2], box_image[2]) - box_image[0]
+        y2 = min(box_canvas[3], box_image[3]) - box_image[1]
         if int(x2 - x1) > 0 and int(y2 - y1) > 0:  # show image if it in the visible area
             image = self.image.crop((int(x1 / self.imscale), int(y1 / self.imscale),
                                      int(x2 / self.imscale), int(y2 / self.imscale)))
             imagetk = ImageTk.PhotoImage(image.resize((int(x2 - x1), int(y2 - y1))))
-            imageid = self.canvas.create_image(max(bbox2[0], bbox1[0]), max(bbox2[1], bbox1[1]),
+            imageid = self.canvas.create_image(max(box_canvas[0], box_img_int[0]),
+                                               max(box_canvas[1], box_img_int[1]),
                                                anchor='nw', image=imagetk)
             self.canvas.lower(imageid)  # set image into background
             self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
