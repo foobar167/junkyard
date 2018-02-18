@@ -117,7 +117,7 @@ class Zoom_Advanced(ttk.Frame):
                       self.canvas.canvasy(0),
                       self.canvas.canvasx(self.canvas.winfo_width()),
                       self.canvas.canvasy(self.canvas.winfo_height()))
-        box_img_int = list(map(int, box_image))  # convert to integer or it will not work properly
+        box_img_int = tuple(map(int, box_image))  # convert to integer or it will not work properly
         # Get scroll region box
         box_scroll = [min(box_img_int[0], box_canvas[0]), min(box_img_int[1], box_canvas[1]),
                       max(box_img_int[2], box_canvas[2]), max(box_img_int[3], box_canvas[3])]
@@ -129,7 +129,8 @@ class Zoom_Advanced(ttk.Frame):
         if  box_scroll[1] == box_canvas[1] and box_scroll[3] == box_canvas[3]:
             box_scroll[1]  = box_img_int[1]
             box_scroll[3]  = box_img_int[3]
-        self.canvas.configure(scrollregion=box_scroll)  # set scroll region
+        # Convert scroll region to tuple and to integer
+        self.canvas.configure(scrollregion=tuple(map(int, box_scroll)))  # set scroll region
         x1 = max(box_canvas[0] - box_image[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
         y1 = max(box_canvas[1] - box_image[1], 0)
         x2 = min(box_canvas[2], box_image[2]) - box_image[0]
