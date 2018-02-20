@@ -8,14 +8,15 @@ class MainGUI(ttk.Frame):
     ''' Main GUI window '''
     def __init__(self, master):
         ''' Init main window '''
-        ttk.Frame.__init__(self, master)
+        ttk.Frame.__init__(self, master=master)
         self.master.title('Main GUI')
         self.master.geometry('300x200')
         ttk.Button(self.master, text='Settings', command=self.open_settings).pack()
 
     def open_settings(self):
         ''' Open settings modal window '''
-        Settings(root)
+        s = Settings(self.master)  # create settings object
+        self.master.wait_window(s)  # display the settings window and wait for it to close
 
 class Settings(simpledialog.Dialog):
     ''' Settings / configure window for bigger project '''
@@ -24,7 +25,6 @@ class Settings(simpledialog.Dialog):
         tk.Toplevel.__init__(self, master=parent)
         self.create_settings_window()
         self.create_widgets()
-        self.master.wait_window(self)  # display the settings window and wait for it to close
 
     def create_settings_window(self):
         ''' Create setting window '''
@@ -38,15 +38,15 @@ class Settings(simpledialog.Dialog):
         # Set proper settings position over the parent window
         self.geometry('+{x}+{y}'.format(x = self.master.winfo_rootx() + 50,
                                         y = self.master.winfo_rooty() + 50))
-        self.bind("<Escape>", self.cancel)
+        self.bind("<Escape>", self.cancel)  # close when <Escape> key is pressed
 
     def create_widgets(self):
         ''' Widgets for settings window are created here '''
-        body = ttk.Frame(self)
+        body = ttk.Frame(self)  # body frame with settings
         # place listbox here
         body.pack()
         #
-        buttonbox = ttk.Frame(self)
+        buttonbox = ttk.Frame(self)  # frame for 3 buttons: apply, ok and cancel
         ttk.Button(buttonbox, text='Apply', command=self.apply).pack(side='left', padx=5, pady=5)
         ttk.Button(buttonbox, text='Ok', command=self.ok).pack(side='left', padx=5, pady=5)
         ttk.Button(buttonbox, text='Cancel', command=self.cancel).pack(side='left', padx=5, pady=5)
