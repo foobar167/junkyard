@@ -27,21 +27,26 @@ class MainGUI(ttk.Frame):
         ttk.Frame.__init__(self, master=master)
         self.master.title('Main GUI')
         self.master.geometry('300x200')
+        self.frame_size = (320, 240)  # size of the frame in pixels
         self.list = ['one', 'two', 'three', 'four', 'five', 'very long interesting class name', 'six',
                      'seven', 'eight', 'nine', 'ten', 'eleven', 'ok?']
         ttk.Button(self.master, text='Settings', command=self.open_settings).pack()
 
     def open_settings(self):
         ''' Open settings modal window '''
-        s = Settings(self.master, self.list)  # create settings object
+        #state = 'disabled'
+        state = 'normal'
+        s = Settings(self.master, self.frame_size, state, self.list)  # create settings object
         self.master.wait_window(s)  # display the settings window and wait for it to close
 
 class Settings(simpledialog.Dialog):
     ''' Settings / configure window for bigger project '''
-    def __init__(self, parent, list):
+    def __init__(self, parent, size, state, lst):
         ''' Init settings window '''
         tk.Toplevel.__init__(self, master=parent)
-        self.list = list
+        self.size = size
+        self.state = state
+        self.list = lst
         self.create_settings_window()
         self.create_widgets()
 
@@ -62,55 +67,131 @@ class Settings(simpledialog.Dialog):
     def create_widgets(self):
         ''' Widgets for settings window are created here '''
         w = 12  # width of the buttons and entry
-        one = ttk.Frame(self)  # upper frame with settings
-        one.grid(row=0, column=0, sticky='w', pady=5)
-        ttk.Label(one, text='Frame size:')       .pack(side='left')
-        ttk.Entry(one, width=4, state='disabled').pack(side='left')
-        ttk.Label(one, text='x')                 .pack(side='left')
-        ttk.Entry(one, width=4, state='disabled').pack(side='left')
+        vcmd_size = (self.register(self.validate_size),
+                     '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')  # size validator
+        vcmd_classname = (self.register(self.validate_classname),
+                          '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')  # classname validator
         #
-        self.rowconfigure   (1, weight=1)  # make frame two extendable
+        self.rowconfigure(0, weight=1)  # make top frame extendable
         self.columnconfigure(0, weight=1)
-        two = ttk.Frame(self)  # lower frame with settings
-        two.rowconfigure   (0, weight=1)  # make ListBox extendable
-        two.columnconfigure(0, weight=1)
-        two.grid(row=1, column=0, sticky='nswe')
-        # Vertical and horizontal scrollbars for ListBox
-        vbar = AutoScrollbar(two, orient=u'vertical')
-        hbar = AutoScrollbar(two, orient=u'horizontal')
-        vbar.grid(row=0, column=1, sticky=u'ns')
-        hbar.grid(row=1, column=0, sticky=u'we')
-        # Create ListBox
-        listbox = tk.Listbox(two, xscrollcommand=hbar.set, yscrollcommand=vbar.set,
-                             selectmode='browse')  # browse == use only one selection at a time
-        listbox.grid(row=0, column=0, sticky='nswe')
-        hbar.configure(command=listbox.xview)  # bind scrollbars with ListBox
-        vbar.configure(command=listbox.yview)
+        top = ttk.Frame(self)  # upper frame with settings
+        top.grid(row=0, column=0, sticky='nswe')
+        top.rowconfigure(2, weight=1)  # make ListBox extendable
+        top.columnconfigure(1, weight=1)
         #
-        # Fill ListBox with data
-        for classname in self.list:
-            listbox.insert('end', classname)
+        # Frame size widget
+        self.entry1 = tk.IntVar()  # bind the entry widget to the IntVar
+        self.entry2 = tk.IntVar()  # bind the entry widget to the IntVar
+        ttk.Label(top, text='Frame size: ').grid(row=0, column=0, sticky='w', pady=5)
+        sizebox = ttk.Frame(top)  # frame for roi width and height
+        sizebox.grid(row=0, column=1, sticky='w', columnspan=2, pady=5)
+        self.e1 = ttk.Entry(sizebox, state=self.state, textvariable=self.entry1,
+                            validate='key', validatecommand=vcmd_size)  # width
+        self.e1.pack(side='left')
+        ttk.Label(sizebox, text='x').pack(side='left')
+        self.e2 = ttk.Entry(sizebox, state=self.state, textvariable=self.entry2,
+                            validate='key', validatecommand=vcmd_size)  # height
+        self.e2.pack(side='left')
         #
-        right1 = ttk.Frame(two)  # right frame container for buttons and entry widget
-        right1.grid(row=0, column=2, sticky='n')
-        ttk.Entry (right1, width=w)               .grid(row=0, column=0, padx=5)
-        ttk.Button(right1, width=w, text='Add')   .grid(row=1, column=0, padx=5, pady=5)
-        ttk.Button(right1, width=w, text='Remove').grid(row=2, column=0, padx=5)
+        # New classname widget
+        ttk.Label(top, text='New class name: ').grid(row=1, column=0, sticky='w')
+        self.entry3 = tk.StringVar()  # bind the entry widget to the StringVar
+        e3 = ttk.Entry(top, width=w, textvariable=self.entry3,
+                       validate='key', validatecommand=vcmd_classname)
+        e3.grid(row=1, column=1, columnspan=2, sticky='we')
+        e3.focus_set()  # set focus on this entry widget
+        e3.bind('<Return>', self.add)  # add classname when press Enter key
         #
-        right2 = ttk.Frame(two)  # right frame container for buttons
-        right2.grid(row=0, column=2, sticky='s', rowspan=2)
-        ttk.Button(right2, width=w, text='Up')  .grid(row=0, column=0, padx=5, pady=5)
-        ttk.Button(right2, width=w, text='Down').grid(row=1, column=0, padx=5)
+        # ListBox widget
+        vbar = AutoScrollbar(top, orient=u'vertical')  # vertical and horizontal scrollbars
+        hbar = AutoScrollbar(top, orient=u'horizontal')
+        vbar.grid(row=2, column=2, sticky=u'ns')
+        hbar.grid(row=3, column=0, sticky=u'we', columnspan=2)
+        self.listbox = tk.Listbox(top, xscrollcommand=hbar.set, yscrollcommand=vbar.set,
+                                  selectmode='browse')  # browse == use only 1 selection at a time
+        self.listbox.grid(row=2, column=0, sticky='nswe', columnspan=2, pady=5)
+        hbar.configure(command=self.listbox.xview)  # bind scrollbars with ListBox
+        vbar.configure(command=self.listbox.yview)
         #
-        three = ttk.Frame(self)  # lower frame for buttons: ok, cancel and apply
-        three.grid(row=2, column=0, sticky='e')
-        ttk.Button(three, width=w, text='Ok',     command=self.ok)    .pack(side='left', padx=5, pady=5)
-        ttk.Button(three, width=w, text='Cancel', command=self.cancel).pack(side='left', padx=5, pady=5)
-        ttk.Button(three, width=w, text='Apply',  command=self.apply) .pack(side='left', padx=5, pady=5)
+        # Insert data into Settings window
+        self.e1.configure(width=len(str(self.size[0])))  # set width of the entry widgets
+        self.e2.configure(width=len(str(self.size[1])))
+        self.entry1.set(self.size[0])  # set frame size into the entry widgets
+        self.entry2.set(self.size[1])
+        for classname in self.list:  # fill ListBox with data
+            self.listbox.insert('end', classname)
         #
-        self.update_idletasks()
-        #print(self.geometry())
+        box1 = ttk.Frame(top)  # top right frame container with buttons
+        box1.grid(row=1, column=3, sticky='n', rowspan=2)
+        ttk.Button(box1, width=w, text='Add',
+                   command=self.add).grid(row=0, column=0, padx=5)
+        ttk.Button(box1, width=w, text='Remove',
+                   command=self.remove).grid(row=1, column=0, padx=5, pady=5)
+        #
+        box2 = ttk.Frame(top)  # bottom right frame container with buttons
+        box2.grid(row=2, column=3, sticky='s', rowspan=2)
+        ttk.Button(box2, width=w, text='Up',
+                   command=self.up).grid(row=0, column=0, padx=5)
+        ttk.Button(box2, width=w, text='Down',
+                   command=self.down).grid(row=1, column=0, padx=5, pady=5)
+        #
+        box3 = ttk.Frame(self)  # bottom frame with buttons: ok, cancel and apply
+        box3.grid(row=1, column=0, sticky='e')
+        ttk.Button(box3, width=w, text='Ok',
+                   command=self.ok).pack(side='left', padx=5, pady=5)
+        ttk.Button(box3, width=w, text='Cancel',
+                   command=self.cancel).pack(side='left', pady=5)
+        ttk.Button(box3, width=w, text='Apply',
+                   command=self.apply).pack(side='left', padx=5, pady=5)
+        #
+        self.update_idletasks()  # wait untill window is created
         self.minsize(self.winfo_width(), self.winfo_height())  # set minimal size
+
+    def validate_size(self, d, i, P, s, S, v, V, W):
+        ''' Validate only digits for the size in pixels '''
+        # Validation parameters
+        # %d = Type of action (1=insert, 0=delete, -1 for others)
+        # %i = index of char string to be inserted/deleted, or -1
+        # %P = value of the entry if the edit is allowed
+        # %s = value of entry prior to editing
+        # %S = the text string being inserted or deleted, if any
+        # %v = the type of validation that is currently set
+        # %V = the type of validation that triggered the callback
+        #      (key, focusin, focusout, forced)
+        # %W = the tk name of the widget
+        if P.isdigit() or P == '':
+            # Change width of the entry widget according to the new length
+            self.master.nametowidget(W).configure(width=len(str(P)))
+            return True
+        self.bell()
+        return False
+
+    def validate_classname(self, d, i, P, s, S, v, V, W):
+        ''' Validate string for class name '''
+        for j in S:  # Could enter alphanumeric or some other symbols
+            if j.isalpha() or j.isdigit() or j in '., -_@':
+                return True
+        self.bell()
+        return False
+
+    def add(self, event=None):
+        ''' Add classname to the list '''
+        classname = self.entry3.get()  # get classname from the entry
+        classname.strip()  # strip beginning and trailing spaces
+        if classname and classname not in self.listbox.get(0, 'end'):
+            self.listbox.insert(0, classname)
+
+    def remove(self):
+        ''' Remove classname from the list '''
+        pass
+
+    def up(self):
+        ''' Move classname upwards in the list '''
+        pass
+
+    def down(self):
+        ''' Move classname downwards in the list '''
+        pass
 
     def apply(self):
         ''' Apply settings changes '''
