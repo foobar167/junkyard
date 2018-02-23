@@ -154,7 +154,7 @@ class Settings(simpledialog.Dialog):
         self.minsize(self.winfo_width(), self.winfo_height())  # set minimal size
 
     def validate_change(self):
-        ''' Validate changes in the settings window and enable/disable Apply button '''
+        ''' Validate if changes are made and enable/disable Apply button '''
         if  self.entry1.get() == self.master.size[0] and \
             self.entry2.get() == self.master.size[1] and \
             self.listbox.get(0, 'end') == tuple(self.master.list):
