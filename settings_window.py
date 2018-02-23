@@ -15,10 +15,10 @@ class AutoScrollbar(ttk.Scrollbar):
             ttk.Scrollbar.set(self, lo, hi)
 
     def pack(self, **kw):
-        raise tk.TclError(u'Cannot use pack with this widget')
+        raise tk.TclError('Cannot use pack with this widget')
 
     def place(self, **kw):
-        raise tk.TclError(u'Cannot use place with this widget')
+        raise tk.TclError('Cannot use place with this widget')
 
 class MainGUI(ttk.Frame):
     ''' Main GUI window '''
@@ -102,10 +102,10 @@ class Settings(simpledialog.Dialog):
         e3.bind('<Return>', self.add)  # add classname when press Enter key
         #
         # ListBox widget
-        vbar = AutoScrollbar(top, orient=u'vertical')  # vertical and horizontal scrollbars
-        hbar = AutoScrollbar(top, orient=u'horizontal')
-        vbar.grid(row=2, column=2, sticky=u'ns')
-        hbar.grid(row=3, column=0, sticky=u'we', columnspan=2)
+        vbar = AutoScrollbar(top, orient='vertical')  # vertical and horizontal scrollbars
+        hbar = AutoScrollbar(top, orient='horizontal')
+        vbar.grid(row=2, column=2, sticky='ns')
+        hbar.grid(row=3, column=0, sticky='we', columnspan=2)
         self.listbox = tk.Listbox(top, xscrollcommand=hbar.set, yscrollcommand=vbar.set,
                                   selectmode='browse')  # browse == use only 1 selection at a time
         self.listbox.grid(row=2, column=0, sticky='nswe', columnspan=2, pady=5)
