@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Settings / configure window for bigger project
+# Modal dialog settings/configure window for the bigger project
 import tkinter as tk
 from tkinter import ttk
 from tkinter import simpledialog
@@ -27,28 +27,25 @@ class MainGUI(ttk.Frame):
         ttk.Frame.__init__(self, master=master)
         self.master.title('Main GUI')
         self.master.geometry('300x200')
-        self.frame_size = (320, 240)  # size of the frame in pixels
+        self.size = (320, 240)  # size of the frame in pixels
         self.list = ['one', 'two', 'three', 'four', 'five', 'very long interesting class name', 'six',
                      'seven', 'eight', 'nine', 'ten', 'eleven', 'ok?']
+        #self.state = 'disabled'
+        self.state = 'normal'
         b = ttk.Button(self.master, text='Settings', command=self.open_settings)
         b.pack()
         b.focus_set()
 
     def open_settings(self):
         ''' Open settings modal window '''
-        #state = 'disabled'
-        state = 'normal'
-        s = Settings(self.master, self.frame_size, state, self.list)  # create settings object
+        s = Settings(self)  # create settings object
         self.master.wait_window(s)  # display the settings window and wait for it to close
 
 class Settings(simpledialog.Dialog):
     ''' Settings / configure window for bigger project '''
-    def __init__(self, parent, size, state, lst):
+    def __init__(self, parent):
         ''' Init settings window '''
         tk.Toplevel.__init__(self, master=parent)
-        self.size = size
-        self.state = state
-        self.list = lst
         self.create_settings_window()
         self.create_widgets()
 
@@ -87,11 +84,11 @@ class Settings(simpledialog.Dialog):
         ttk.Label(top, text='Frame size: ').grid(row=0, column=0, sticky='w', pady=5)
         sizebox = ttk.Frame(top)  # frame for roi width and height
         sizebox.grid(row=0, column=1, sticky='w', columnspan=3, pady=5)
-        self.e1 = ttk.Entry(sizebox, state=self.state, textvariable=self.entry1,
+        self.e1 = ttk.Entry(sizebox, state=self.master.state, textvariable=self.entry1,
                             validate='key', validatecommand=vcmd_size)  # width
         self.e1.pack(side='left')
         ttk.Label(sizebox, text='x').pack(side='left')
-        self.e2 = ttk.Entry(sizebox, state=self.state, textvariable=self.entry2,
+        self.e2 = ttk.Entry(sizebox, state=self.master.state, textvariable=self.entry2,
                             validate='key', validatecommand=vcmd_size)  # height
         self.e2.pack(side='left')
         #
@@ -119,11 +116,11 @@ class Settings(simpledialog.Dialog):
         vbar.configure(command=self.listbox.yview)
         #
         # Insert data into Settings window
-        self.e1.configure(width=len(str(self.size[0])))  # set width of the entry widgets
-        self.e2.configure(width=len(str(self.size[1])))
-        self.entry1.set(self.size[0])  # set frame size into the entry widgets
-        self.entry2.set(self.size[1])
-        self.listbox.insert('end', *self.list)  # fill ListBox with data
+        self.e1.configure(width=len(str(self.master.size[0])))  # set width of the entry widgets
+        self.e2.configure(width=len(str(self.master.size[1])))
+        self.entry1.set(self.master.size[0])  # set frame size into the entry widgets
+        self.entry2.set(self.master.size[1])
+        self.listbox.insert('end', *self.master.list)  # fill ListBox with data
         #
         box1 = ttk.Frame(top)  # top right frame container with buttons
         box1.grid(row=1, column=3, sticky='n', rowspan=2)
@@ -149,11 +146,23 @@ class Settings(simpledialog.Dialog):
                    command=self.ok).pack(side='left', padx=5, pady=5)
         ttk.Button(box3, width=w, text='Cancel',
                    command=self.cancel).pack(side='left', pady=5)
-        ttk.Button(box3, width=w, text='Apply',
-                   command=self.apply).pack(side='left', padx=5, pady=5)
+        self.button_apply = ttk.Button(box3, width=w, state='disabled',
+                                       text='Apply', command=self.apply)
+        self.button_apply.pack(side='left', padx=5, pady=5)
         #
         self.update_idletasks()  # wait untill window is created
         self.minsize(self.winfo_width(), self.winfo_height())  # set minimal size
+
+    def validate_change(self):
+        ''' Validate changes in the settings window and enable/disable Apply button '''
+        if  self.entry1.get() == self.master.size[0] and \
+            self.entry2.get() == self.master.size[1] and \
+            self.listbox.get(0, 'end') == tuple(self.master.list):
+            self.button_apply.configure(state='disabled')
+            return False
+        else:
+            self.button_apply.configure(state='normal')
+            return True
 
     def validate_size(self, d, i, P, s, S, v, V, W):
         ''' Validate only digits for the size in pixels '''
@@ -169,7 +178,8 @@ class Settings(simpledialog.Dialog):
         # %W = the tk name of the widget
         if P.isdigit() or P == '':
             # Change width of the entry widget according to the new length
-            self.master.nametowidget(W).configure(width=len(str(P)))
+            self.master.nametowidget(W).configure(width=len(str(P)))  # fit the entry width
+            self.after_idle(self.validate_change)  # enable/disable Apply button after some time
             return True
         self.bell()
         return False
@@ -214,6 +224,7 @@ class Settings(simpledialog.Dialog):
             self.listbox.insert(0, classname)  # add new class name to the list
             self.entry3.set('')  # empty entry widget
             self.button_add.configure(state='disabled')  # disable Add button
+            self.validate_change()  # enable/disable Apply button
 
     def remove(self, event=None):
         ''' Remove classname from the list '''
@@ -223,6 +234,7 @@ class Settings(simpledialog.Dialog):
             self.button_remove.configure(state='disabled')  # disable Remove button
             self.button_up.configure(state='disabled')
             self.button_down.configure(state='disabled')
+            self.validate_change()  # enable/disable Apply button
 
     def up(self):
         ''' Move classname upwards in the LisbBox '''
@@ -236,6 +248,7 @@ class Settings(simpledialog.Dialog):
             self.listbox.activate(index-1)  # activate moved item
             self.listbox.selection_set(index-1)  # select moved item
             self.listbox.see(index-1)  # make moved item visible
+            self.validate_change()  # enable/disable Apply button
 
     def down(self):
         ''' Move classname downwards in the LisbBox '''
@@ -249,10 +262,14 @@ class Settings(simpledialog.Dialog):
             self.listbox.activate(index+1)  # activate moved item
             self.listbox.selection_set(index+1)  # select moved item
             self.listbox.see(index+1)  # make moved item visible
+            self.validate_change()  # enable/disable Apply button
 
     def apply(self):
         ''' Apply settings changes '''
-        pass
+        if self.validate_change():
+            self.master.size = (self.entry1.get(), self.entry2.get())
+            self.master.list = list(self.listbox.get(0, 'end'))
+            self.button_apply.configure(state='disabled')
 
     def ok(self, event=None):
         ''' Apply changes and close settings window '''
