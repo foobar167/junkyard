@@ -14,7 +14,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-
 #: choose_language.py:19 choose_language.py:32
 msgid "Hello world!"
 msgstr ""
