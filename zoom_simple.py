@@ -110,7 +110,7 @@ class Zoom(ttk.Frame):
         self.canvas.lower(self.imageid)  # set it into background
         self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
-path = 'doge.jpg'  # place path to your image here
+path = './Data/doge.jpg'  # place path to your image here
 root = tk.Tk()
 app = Zoom(root, path=path)
 root.mainloop()

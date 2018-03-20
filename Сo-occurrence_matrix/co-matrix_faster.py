@@ -40,15 +40,15 @@ class CoMatrix():
 
 if __name__ == u'__main__':
     m = CoMatrix(1, 1)  # take bottom right neighbour
-    d1 = m.comatrix(u'../doge.jpg')
-    d2 = m.comatrix(u'../doge2.jpg')
-    d3 = m.comatrix(u'../doge3.jpg')
-    d4 = m.comatrix(u'../city.jpg')
+    d1 = m.comatrix(u'../Data/doge.jpg')
+    d2 = m.comatrix(u'../Data/doge2.jpg')
+    d3 = m.comatrix(u'../Data/doge3.jpg')
+    d4 = m.comatrix(u'../Data/city.jpg')
     print(u'very small', m.distance(d1, d2))  # doge-doge2
     print(u'small', m.distance(d1, d3))  # doge-doge3
     print(u'large', m.distance(d1, d4))  # doge-city
     n = 100  # number of tests
-    print(timeit.timeit(stmt=u'm.comatrix(u"../doge.jpg")', number=n,
+    print(timeit.timeit(stmt=u'm.comatrix(u"../Data/doge.jpg")', number=n,
                         setup=u'from __main__ import m') / n)
     print(timeit.timeit(stmt=u'm.distance(d1, d4)', number=n,
                         setup=u'from __main__ import m, d1, d4') / n)
