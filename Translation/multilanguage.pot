@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-03-14 01:00+0300\n"
+"POT-Creation-Date: 2018-03-20 14:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,15 +14,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: choose_language.py:19 choose_language.py:32
+
+#: .\choose_language.py:19 .\choose_language.py:25
 msgid "Hello world!"
 msgstr ""
 
-#: choose_language.py:33
+#: .\choose_language.py:26
 msgid "What is your name?"
 msgstr ""
 
-#: second_file.py:1
+#: .\second_file.py:1
 msgid "Guess the number"
 msgstr ""
 

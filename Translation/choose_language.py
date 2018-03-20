@@ -14,16 +14,22 @@ def restart_program():
     python = sys.executable
     os.execl(python, python, * sys.argv)
 
+def get_data():
+    d = {'Hello world!': _('Hello world!'),
+         'What is your name?': _('What is your name?')}
+    print(d.values())
+    #print(_('Hello world!'))
+    #print(_('What is your name?'))
+
 def change_language():
     global _
     if _('Hello world!') == 'Hello world!':
         del(_)
-        ru = gettext.translation('choose_language', localedir='locale', languages=['ru'])
+        ru = gettext.translation('multilanguage', localedir='locale', languages=['ru'])
         ru.install()
     else:
         _ = lambda s: s
-    print(_('Hello world!'))
-    print(_('What is your name?'))
+    get_data()
 
 root = tk.Tk()
 root.geometry('200x150+0+0')
