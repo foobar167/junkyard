@@ -52,6 +52,7 @@ class ImageFrame():
         # when too many key stroke events in the same time
         self.__canvas.bind('<Key>', lambda event: self.__canvas.after_idle(self.__keystroke, event))
         logging.info('Open image: {}'.format(self.path))
+        self.__state = 'hidden'
         self.__image = Image.open(self.path)  # open image
         # Put image into container rectangle and use it to set proper coordinates to the image
         self.__container = self.__canvas.create_rectangle((0, 0, self.__image.size), width=0)
@@ -88,18 +89,22 @@ class ImageFrame():
         # Draw roi rectangle
         if bbox[0] + w <= x < bbox[2] - w and bbox[1] + h <= y < bbox[3] - h:
             self.__canvas.coords(self.__roi_rect, (x - w, y - h, x + w, y + h))  # relocate roi
-            self.__canvas.itemconfigure(self.__roi_rect, state='normal')  # show roi
-            self.__canvas.itemconfigure(self.__text_warning, state='hidden')  # hide warning
+            if self.__state == 'hidden':
+                self.__state = 'normal'
+                self.__canvas.itemconfigure(self.__roi_rect, state='normal')  # show roi
+                self.__canvas.itemconfigure(self.__text_warning, state='hidden')  # hide warning
         else:  # otherwise show warning
             self.__canvas.coords(self.__text_warning, (x, y))  # relocate text
-            self.__canvas.itemconfigure(self.__text_warning, state='normal')
-            self.__canvas.itemconfigure(self.__roi_rect, state='hidden')  # hide roi
+            if self.__state == 'normal':
+                self.__state = 'hidden'
+                self.__canvas.itemconfigure(self.__text_warning, state='normal')  # show warning
+                self.__canvas.itemconfigure(self.__roi_rect, state='hidden')  # hide roi
         self.__get_roi()  # update roi position in the console
 
     def __get_roi(self):
         """ Obtain roi image rectangle and output in the console
             upper left and bottom right corners of the rectangle """
-        if self.__canvas.itemcget(self.__roi_rect, 'state') != 'hidden':  # roi is not hidden
+        if self.__canvas.itemcget(self.__roi_rect, 'state') == 'normal':  # roi is not hidden
             bbox1 = self.__canvas.coords(self.__container)  # get image area
             bbox2 = self.__canvas.coords(self.__roi_rect)  # get roi area
             x1 = int((bbox2[0] - bbox1[0]) / self.__imscale)  # get upper left corner (x1,y1)
