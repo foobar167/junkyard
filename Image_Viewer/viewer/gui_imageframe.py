@@ -69,19 +69,6 @@ class ImageFrame():
         self.__show_image()  # show image on the canvas
         self.__canvas.event_generate('<Enter>')  # set focus on the canvas
 
-    def __get_roi(self):
-        """ Obtain roi image rectangle and output in the console
-            upper left and bottom right corners of the rectangle """
-        if self.__canvas.itemcget(self.__roi_rect, 'state') != 'hidden':  # roi is not hidden
-            bbox1 = self.__canvas.coords(self.__container)  # get image area
-            bbox2 = self.__canvas.coords(self.__roi_rect)  # get roi area
-            x1 = int((bbox2[0] - bbox1[0]) / self.__imscale)  # get upper left corner (x1,y1)
-            y1 = int((bbox2[1] - bbox1[1]) / self.__imscale)
-            x2 = x1 + self.__roi_size[0]  # get bottom right corner (x2,y2)
-            y2 = y1 + self.__roi_size[1]
-            print('({x1}, {y1})\t({x2}, {y2})'.format(x1=x1, y1=y1, x2=x2, y2=y2))
-            return x1, y1, x2, y2
-
     def __move_from(self, event):
         """ Remember previous coordinates for scrolling with the mouse """
         self.__canvas.scan_mark(event.x, event.y)
@@ -108,6 +95,19 @@ class ImageFrame():
             self.__canvas.itemconfigure(self.__text_warning, state='normal')
             self.__canvas.itemconfigure(self.__roi_rect, state='hidden')  # hide roi
         self.__get_roi()  # update roi position in the console
+
+    def __get_roi(self):
+        """ Obtain roi image rectangle and output in the console
+            upper left and bottom right corners of the rectangle """
+        if self.__canvas.itemcget(self.__roi_rect, 'state') != 'hidden':  # roi is not hidden
+            bbox1 = self.__canvas.coords(self.__container)  # get image area
+            bbox2 = self.__canvas.coords(self.__roi_rect)  # get roi area
+            x1 = int((bbox2[0] - bbox1[0]) / self.__imscale)  # get upper left corner (x1,y1)
+            y1 = int((bbox2[1] - bbox1[1]) / self.__imscale)
+            x2 = x1 + self.__roi_size[0]  # get bottom right corner (x2,y2)
+            y2 = y1 + self.__roi_size[1]
+            print('({x1}, {y1})\t({x2}, {y2})'.format(x1=x1, y1=y1, x2=x2, y2=y2))
+            return x1, y1, x2, y2
 
     def __wheel(self, event):
         """ Zoom with mouse wheel """
