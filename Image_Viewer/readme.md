@@ -7,5 +7,7 @@ goes after it.
 There is an output in the console: upper left and bottom right
 corners of the rectangle.
 
-How to start Image Viewer:
+To start Image Viewer:
 c:\path\to\your\python_3.x\version\python.exe runme.py
+
+Tested on Windows for Python 3.6.
