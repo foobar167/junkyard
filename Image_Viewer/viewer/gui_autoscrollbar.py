@@ -2,7 +2,7 @@
 import tkinter as tk
 
 from tkinter import ttk
-from logic_logger import handle_exception
+from .logic_logger import handle_exception
 
 class AutoScrollbar(ttk.Scrollbar):
     """ A scrollbar that hides itself if it's not needed.

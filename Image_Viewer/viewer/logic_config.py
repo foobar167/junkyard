@@ -40,8 +40,8 @@ class Config():
 
     def __check_section(self, section):
         """ Check if section exists and create it if not """
-        if not self.__config[section]:
-            self.__config[section] = {}
+        if not self.__config.has_section(section):
+            self.__config.add_section(section)
 
     def get_win_geometry(self):
         """ Get main window size and position """
@@ -99,13 +99,13 @@ class Config():
         """ Set tuple (width, height) of the roi window """
         self.__check_section(self.__roi)
         if width:
-            self.__config[self.__roi][self.__roi_width] = width
+            self.__config[self.__roi][self.__roi_width] = str(width)
         else:
-            self.__config[self.__roi][self.__roi_width] = self.__default_roi_w
+            self.__config[self.__roi][self.__roi_width] = str(self.__default_roi_w)
         if height:
-            self.__config[self.__roi][self.__roi_height] = height
+            self.__config[self.__roi][self.__roi_height] = str(height)
         else:
-            self.__config[self.__roi][self.__roi_height] = self.__default_roi_h
+            self.__config[self.__roi][self.__roi_height] = str(self.__default_roi_h)
 
     def get_recent_list(self):
         """ Get list of recently opened image paths """
@@ -125,10 +125,10 @@ class Config():
             path = self.__config[self.__recent]['1']
             path = os.path.abspath(os.path.join(path, os.pardir))  # get parent directory
             if not os.path.exists(path):
-                return os.getcwdu()  # return current directory
+                return os.getcwd()  # return current directory
             return path
         except:
-            return os.getcwdu()  # get current directory (in unicode)
+            return os.getcwd()  # get current directory (in unicode)
 
     def set_recent_path(self, path):
         """ Set last opened path to config INI file """
@@ -144,7 +144,7 @@ class Config():
         key = 1
         for name in l:
             if os.path.exists(name):
-                self.__config[self.__recent][key] = name
+                self.__config[self.__recent][str(key)] = name
                 key += 1
             if key > self.__recent_number:
                 break  # exit from the cycle

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
 import tkinter as tk
 
 from tkinter import ttk
 from PIL import Image
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
-from gui_imageframe import ImageFrame
-from logic_config import Config
-from logic_logger import logging, handle_exception
+from .gui_imageframe import ImageFrame
+from .logic_config import Config
+from .logic_logger import logging, handle_exception
 
 class MainGUI(ttk.Frame):
     """ GUI of Image Viewer """
@@ -37,7 +38,7 @@ class MainGUI(ttk.Frame):
         self.master.configure(menu=self.__menubar)  # should be BEFORE iconbitmap, it's important
         # Add menubar to the main window BEFORE iconbitmap command. Otherwise it will shrink
         # in height by 20 pixels after each opening of the window.
-        self.master.iconbitmap('view/logo.ico')  # set logo icon
+        self.master.iconbitmap(os.path.join('viewer', 'logo.ico'))  # set logo icon
         #
         self.__is_fullscreen = False  # enable / disable fullscreen mode
         self.__empty_menu = tk.Menu(self)  # empty menu to hide the real menubar in fullscreen mode
@@ -128,18 +129,19 @@ class MainGUI(ttk.Frame):
     def __create_widgets(self):
         """ Widgets for GUI are created here """
         # Enable/disable these menu labels in the main window
-        self.__label_recent_images = 'Open recent'
+        self.__label_recent = 'Open recent'
         self.__label_close = 'Close image'
         # Create menu for the image.
-        self.__image_menu = tk.Menu(self.__menubar, tearoff=False)
+        self.__image_menu = tk.Menu(self.__menubar, tearoff=False, postcommand=self.__list_recent)
         self.__image_menu.add_command(label='Open image', command=self.__shortcuts[0][2],
                                       accelerator=self.__shortcuts[0][0])
-        self.__recent_images = tk.Menu(self.__image_menu, tearoff=False,
-                                       postcommand=lambda: self.__list_recent)
-        self.__image_menu.add_cascade(label=self.__label_recent_images, menu=self.__recent_images)
+        self.__recent_images = tk.Menu(self.__image_menu, tearoff=False)
+        self.__image_menu.add_cascade(label=self.__label_recent, menu=self.__recent_images)
         self.__image_menu.add_command(label=self.__label_close, command=self.__shortcuts[1][2],
                                       accelerator=self.__shortcuts[1][0], state='disabled')
         self.__menubar.add_cascade(label='File', menu=self.__image_menu)
+        self.__image_menu.add_separator()
+        self.__image_menu.add_command(label='Exit', command=self.destroy, accelerator=u'Alt+F4')
         # Create menu for the view: fullscreen, default size, etc.
         self.__view_menu = tk.Menu(self.__menubar, tearoff=False)
         self.__view_menu.add_command(label='Fullscreen', command=self.__fullscreen_toggle,
@@ -147,8 +149,13 @@ class MainGUI(ttk.Frame):
         self.__view_menu.add_command(label='Default size', command=self.__default_geometry,
                                      accelerator='F5')
         self.__menubar.add_cascade(label='View', menu=self.__view_menu)
-        # Create placeholder for the image frame
-        self.__frame = ttk.Frame(self.master)
+        # Create placeholder frame for the image
+        self.master.rowconfigure(0, weight=1)  # make grid cell expandable
+        self.master.columnconfigure(0, weight=1)
+        self.__placeholder = ttk.Frame(self.master)
+        self.__placeholder.grid(row=0, column=0, sticky='nswe')
+        self.__placeholder.rowconfigure(0, weight=1)  # make grid cell expandable
+        self.__placeholder.columnconfigure(0, weight=1)
         # If image wasn't closed previously, open this image once again
         path = self.__config.get_opened_path()
         if path:
@@ -157,19 +164,21 @@ class MainGUI(ttk.Frame):
     def __list_recent(self):
         """ List of the recent images """
         self.__recent_images.delete(0, 'end')  # empty previous list
-        for path in self.__config.get_recent_list():  # get list of recent image paths
+        l = self.__config.get_recent_list()  # get list of recently opened images
+        for path in l:  # get list of recent image paths
             self.__recent_images.add_command(label=path, command=lambda x=path: self.__set_image(x))
         # Disable recent list menu if it is empty.
         if self.__recent_images.index('end') is None:
-            self.__recent_images.master.entryconfigure(self.__label_recent_images, state='disabled')
+            self.__image_menu.entryconfigure(self.__label_recent, state='disabled')
         else:
-            self.__recent_images.master.entryconfigure(self.__label_recent_images, state='normal')
+            self.__image_menu.entryconfigure(self.__label_recent, state='normal')
 
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
-        self.__imframe = ImageFrame(placeholder=self.__frame, path=path,
+        self.__imframe = ImageFrame(placeholder=self.__placeholder, path=path,
                                     roi_size=self.__config.get_roi_size())
+        self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
         # Enable 'Close image' submenu of the 'File' menu
         self.__image_menu.entryconfigure(self.__label_close, state='normal')
@@ -197,6 +206,7 @@ class MainGUI(ttk.Frame):
         if self.__imframe:
             self.__imframe.destroy()
             self.__imframe = None
+            self.master.title(self.__default_title)  # set default window title
             # Disable 'Close image' submenu of the 'File' menu
             self.__image_menu.entryconfigure(self.__label_close, state='disabled')
 
