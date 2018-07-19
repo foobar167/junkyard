@@ -109,7 +109,7 @@ class Zoom_Advanced(ttk.Frame):
                     bbox = self.canvas.coords(self.container)  # get image area
                     v = list(map((lambda i: (i[0] * self.imscale + bbox[0],
                                              i[1] * self.imscale + bbox[1])), self.vertices))
-                    self.canvas.create_polygon(v, fill='', outline=self.poly_fill,
+                    self.canvas.create_polygon(v, outline=self.poly_fill,
                                                width=self.line_width, tags=self.poly_tag)
                 self.vertices.clear()  # remove all items from vertices list
             elif not self.outside(x, y):  # set edge only inside the image area
