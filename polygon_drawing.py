@@ -105,6 +105,7 @@ class Zoom_Advanced(ttk.Frame):
                 self.canvas.delete(self.edge_tag)
                 self.canvas.delete(self.edge_tag_start)
                 if len(self.vertices) > 2:  # draw polygon on the zoomed image canvas
+                    #print(self.vertices)
                     bbox = self.canvas.coords(self.container)  # get image area
                     v = list(map((lambda i: (i[0] * self.imscale + bbox[0],
                                              i[1] * self.imscale + bbox[1])), self.vertices))
