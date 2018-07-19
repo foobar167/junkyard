@@ -71,7 +71,7 @@ class Zoom_Advanced(ttk.Frame):
         self.sticking_radius = 10  # distance where line sticks to the polygon's staring point
         self.circle_radius = 3  # radius of the sticking circle
         self.edge = None  # current edge of the polygon
-        self.vertices = []  # vertices of the polygon
+        self.vertices = []  # vertices of the polygon figure
         #
         self.show_image()
 
