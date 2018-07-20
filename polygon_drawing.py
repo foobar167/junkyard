@@ -60,18 +60,22 @@ class Zoom_Advanced(ttk.Frame):
         # Put image into container rectangle and use it to set proper coordinates to the image
         self.container = self.canvas.create_rectangle(0, 0, self.im_width, self.im_height, width=0)
         # Polygon parameters
-        self.line_width = 2  # lines width
+        self.width_line = 20  # lines width
         self.dash = (1, 1)  # dash pattern
-        self.line_fill = 'red'  # lines color
-        self.poly_fill = 'gray'  # polygon color
-        self.edge_tag_start = '1st_edge'  # starting edge of the polygon
-        self.edge_tag = 'edge'  # 2nd and subsequent edges of the polygon
-        self.poly_tag = 'polygon'  # polygon tag
-        self.circle_tag = 'circle'  # sticking circle tag
-        self.sticking_radius = 10  # distance where line sticks to the polygon's staring point
-        self.circle_radius = 3  # radius of the sticking circle
+        self.color_draw = 'red'  # color to draw
+        self.color_active = 'yellow'  # color of active figures
+        self.color_point = 'blue'  # color of pointed figures
+        self.color_back = '#808080'  # background color
+        self.stipple = 'gray12'  # value of stipple
+        self.tag_edge_start = '1st_edge'  # starting edge of the polygon
+        self.tag_edge = 'edge'  # 2nd and subsequent edges of the polygon
+        self.tag_poly = 'polygon'  # polygon tag
+        self.tag_circle = 'circle'  # sticking circle tag
+        self.radius_stick = 10  # distance where line sticks to the polygon's staring point
+        self.radius_circle = 3  # radius of the sticking circle
         self.edge = None  # current edge of the polygon
         self.vertices = []  # vertices of the polygon
+        self.selected_poly = []  # selected polygons
         #
         self.show_image()
 
@@ -91,36 +95,38 @@ class Zoom_Advanced(ttk.Frame):
         y = self.canvas.canvasy(event.y)
         if self.edge == None:  # start drawing polygon
             if self.outside(x, y): return  # set edge only inside the image area
-            self.draw_edge(x, y, self.edge_tag_start)
+            self.draw_edge(x, y, (self.tag_edge_start, self.tag_edge))
             # Draw sticking circle
-            self.canvas.create_oval(x - self.circle_radius, y - self.circle_radius,
-                                    x + self.circle_radius, y + self.circle_radius,
-                                    width=0, fill=self.line_fill,
-                                    tags=(self.edge_tag_start, self.circle_tag))
+            self.canvas.create_oval(x - self.radius_circle, y - self.radius_circle,
+                                    x + self.radius_circle, y + self.radius_circle,
+                                    width=0, fill=self.color_draw,
+                                    tags=(self.tag_edge, self.tag_circle))
         else:  # continue drawing polygon
-            x1, y1, x2, y2 = self.canvas.coords(self.edge_tag_start)  # get coords of the 1st edge
+            x1, y1, x2, y2 = self.canvas.coords(self.tag_edge_start)  # get coords of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             if x4 == x1 and y4 == y1:  # finish drawing polygon
                 self.edge = None  # delete all edges and set current edge to None
-                self.canvas.delete(self.edge_tag)
-                self.canvas.delete(self.edge_tag_start)
+                self.canvas.delete(self.tag_edge)  # delete all edges
                 if len(self.vertices) > 2:  # draw polygon on the zoomed image canvas
-                    #print(self.vertices)
+                    #print(self.vertices)  # print polygon vertices
                     bbox = self.canvas.coords(self.container)  # get image area
                     v = list(map((lambda i: (i[0] * self.imscale + bbox[0],
                                              i[1] * self.imscale + bbox[1])), self.vertices))
-                    self.canvas.create_polygon(v, outline=self.poly_fill,
-                                               width=self.line_width, tags=self.poly_tag)
+                    # Create polygon for the mask
+                    self.canvas.create_polygon(v, outline=self.color_back, width=self.width_line,
+                                               fill='', stipple=self.stipple, tags=self.tag_poly)
+                    # Create dummy (fake) invisible polygon for GUI
+                    self.canvas.create_polygon(v, width=0, fill='')
                 self.vertices.clear()  # remove all items from vertices list
             elif not self.outside(x, y):  # set edge only inside the image area
-                self.draw_edge(x, y, self.edge_tag)  # continue drawing polygon, set new edge
+                self.draw_edge(x, y, self.tag_edge)  # continue drawing polygon, set new edge
 
-    def draw_edge(self, x, y, tag):
+    def draw_edge(self, x, y, tags):
         ''' Draw edge of the polygon '''
-        self.edge = self.canvas.create_line(x, y, x, y, fill=self.line_fill,
-                                            width=self.line_width, tags=tag)
+        self.edge = self.canvas.create_line(x, y, x, y, fill=self.color_draw,
+                                            width=self.width_line, tags=tags)
         bbox = self.canvas.coords(self.container)  # get image area
-        x1 = round((x - bbox[0]) / self.imscale)  # get (x,y) on the image
+        x1 = round((x - bbox[0]) / self.imscale)  # get (x,y) on the image without zoom
         y1 = round((y - bbox[1]) / self.imscale)
         self.vertices.append((x1, y1))  # add new vertex to the list of polygon vertices
 
@@ -138,12 +144,12 @@ class Zoom_Advanced(ttk.Frame):
         if self.edge:  # relocate edge of the polygon
             x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
             y = self.canvas.canvasy(event.y)
-            x1, y1, x2, y2 = self.canvas.coords(self.edge_tag_start)  # get coordinates of the 1st edge
+            x1, y1, x2, y2 = self.canvas.coords(self.tag_edge_start)  # get coordinates of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             dx = x - x1
             dy = y - y1
             # Set new coordinates of the edge
-            if self.sticking_radius * self.sticking_radius > dx * dx + dy * dy:
+            if self.radius_stick * self.radius_stick > dx * dx + dy * dy:
                 self.canvas.coords(self.edge, x3, y3, x1, y1)  # stick to the beginning
                 self.canvas.itemconfigure(self.edge, dash='')  # set solid line
             else:
@@ -152,6 +158,23 @@ class Zoom_Advanced(ttk.Frame):
                     self.canvas.itemconfigure(self.edge, dash=self.dash)  # set dashed line
                 else:
                     self.canvas.itemconfigure(self.edge, dash='')  # set solid line
+        # Handle polygons on the canvas
+        self.deselect_roi()  # change color and zeroize selected roi polygon
+        current_id = self.canvas.find_withtag('current')  # id of the current object
+        self.select_roi(current_id)
+
+    def deselect_roi(self):
+        ''' Deselect current roi object '''
+        for id in self.selected_poly:
+            self.canvas.itemconfigure(id, fill='', outline=self.color_back)
+        self.selected_poly.clear()  # clear the list
+
+    def select_roi(self, id):
+        ''' Select and change color of the current roi object '''
+        tags = self.canvas.gettags(id)  # get tags of the current object
+        if self.tag_poly in tags:  # if it's a roi polygon
+            self.canvas.itemconfigure(id, fill=self.color_point, outline=self.color_point)
+            self.selected_poly.append(id)  # remember selected polygon
 
     def outside(self, x, y):
         ''' Checks if the point (x,y) is outside the image area '''
@@ -180,13 +203,13 @@ class Zoom_Advanced(ttk.Frame):
             scale        *= self.delta
         self.canvas.scale('all', x, y, scale, scale)  # rescale all canvas objects
         # Redraw sticking circle
-        bbox = self.canvas.coords(self.circle_tag)
+        bbox = self.canvas.coords(self.tag_circle)
         if bbox:  # radius of sticky circle is unchanged
             cx = (bbox[0] + bbox[2]) / 2  # center of the circle
             cy = (bbox[1] + bbox[3]) / 2
-            self.canvas.coords(self.circle_tag,
-                               cx - self.circle_radius, cy - self.circle_radius,
-                               cx + self.circle_radius, cy + self.circle_radius)
+            self.canvas.coords(self.tag_circle,
+                               cx - self.radius_circle, cy - self.radius_circle,
+                               cx + self.radius_circle, cy + self.radius_circle)
         self.show_image()
 
     def show_image(self, event=None):
