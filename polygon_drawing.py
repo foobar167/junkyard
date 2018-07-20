@@ -4,6 +4,7 @@
 # constant memory and not crams it with a huge resized image for the large zooms.
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 from PIL import Image, ImageTk
 
 class AutoScrollbar(ttk.Scrollbar):
@@ -60,7 +61,7 @@ class Zoom_Advanced(ttk.Frame):
         # Put image into container rectangle and use it to set proper coordinates to the image
         self.container = self.canvas.create_rectangle(0, 0, self.im_width, self.im_height, width=0)
         # Polygon parameters
-        self.width_line = 20  # lines width
+        self.width_line = 2  # lines width
         self.dash = (1, 1)  # dash pattern
         self.color_draw = 'red'  # color to draw
         self.color_active = 'yellow'  # color of active figures
@@ -70,11 +71,13 @@ class Zoom_Advanced(ttk.Frame):
         self.tag_edge_start = '1st_edge'  # starting edge of the polygon
         self.tag_edge = 'edge'  # 2nd and subsequent edges of the polygon
         self.tag_poly = 'polygon'  # polygon tag
+        self.tag_const = 'poly'  # constant tag for polygon
+        self.tag_poly_line = 'poly_line'  # edge of the polygon
         self.tag_circle = 'circle'  # sticking circle tag
         self.radius_stick = 10  # distance where line sticks to the polygon's staring point
         self.radius_circle = 3  # radius of the sticking circle
         self.edge = None  # current edge of the polygon
-        self.vertices = []  # vertices of the polygon
+        self.polygon = []  # vertices of the polygon
         self.selected_poly = []  # selected polygons
         #
         self.show_image()
@@ -107,17 +110,26 @@ class Zoom_Advanced(ttk.Frame):
             if x4 == x1 and y4 == y1:  # finish drawing polygon
                 self.edge = None  # delete all edges and set current edge to None
                 self.canvas.delete(self.tag_edge)  # delete all edges
-                if len(self.vertices) > 2:  # draw polygon on the zoomed image canvas
+                if len(self.polygon) > 2:  # draw polygon on the zoomed image canvas
                     #print(self.vertices)  # print polygon vertices
                     bbox = self.canvas.coords(self.container)  # get image area
-                    v = list(map((lambda i: (i[0] * self.imscale + bbox[0],
-                                             i[1] * self.imscale + bbox[1])), self.vertices))
-                    # Create polygon for the mask
-                    self.canvas.create_polygon(v, outline=self.color_back, width=self.width_line,
-                                               fill='', stipple=self.stipple, tags=self.tag_poly)
-                    # Create dummy (fake) invisible polygon for GUI
-                    self.canvas.create_polygon(v, width=0, fill='')
-                self.vertices.clear()  # remove all items from vertices list
+                    vertices = list(map((lambda i: (i[0] * self.imscale + bbox[0],
+                                                    i[1] * self.imscale + bbox[1])), self.polygon))
+                    # Create identification tag
+                    # [:-3] means microseconds to milliseconds, anyway there are zeros on Windows OS
+                    tag_id = datetime.now().strftime(u'%Y-%m-%d_%H-%M-%S.%f')[:-3]
+                    # Create polygon
+                    self.canvas.create_polygon(vertices, fill=self.color_point,
+                                               stipple=self.stipple, width=0, state='hidden',
+                                               tags=(self.tag_poly, tag_id + self.tag_const))
+                    # Create polyline
+                    for i in range(len(vertices)-1):
+                        self.canvas.create_line(vertices[i], vertices[i+1], width=self.width_line,
+                                                fill=self.color_back, tags=(self.tag_poly_line, tag_id))
+                    self.canvas.create_line(vertices[-1], vertices[0], width=self.width_line,
+                                            fill=self.color_back, tags=(self.tag_poly_line, tag_id))
+
+                self.polygon.clear()  # remove all items from vertices list
             elif not self.outside(x, y):  # set edge only inside the image area
                 self.draw_edge(x, y, self.tag_edge)  # continue drawing polygon, set new edge
 
@@ -128,7 +140,7 @@ class Zoom_Advanced(ttk.Frame):
         bbox = self.canvas.coords(self.container)  # get image area
         x1 = round((x - bbox[0]) / self.imscale)  # get (x,y) on the image without zoom
         y1 = round((y - bbox[1]) / self.imscale)
-        self.vertices.append((x1, y1))  # add new vertex to the list of polygon vertices
+        self.polygon.append((x1, y1))  # add new vertex to the list of polygon vertices
 
     def move_from(self, event):
         ''' Remember previous coordinates for scrolling with the mouse '''
@@ -166,15 +178,17 @@ class Zoom_Advanced(ttk.Frame):
     def deselect_roi(self):
         ''' Deselect current roi object '''
         for id in self.selected_poly:
-            self.canvas.itemconfigure(id, fill='', outline=self.color_back)
+            self.canvas.itemconfigure(id, fill=self.color_back)  # deselect lines
+            self.canvas.itemconfigure(id + self.tag_const, state='hidden')  # hide polygon
         self.selected_poly.clear()  # clear the list
 
     def select_roi(self, id):
         ''' Select and change color of the current roi object '''
         tags = self.canvas.gettags(id)  # get tags of the current object
-        if self.tag_poly in tags:  # if it's a roi polygon
-            self.canvas.itemconfigure(id, fill=self.color_point, outline=self.color_point)
-            self.selected_poly.append(id)  # remember selected polygon
+        if self.tag_poly_line in tags:  # if it's a roi polygon
+            self.canvas.itemconfigure(tags[1], fill=self.color_point)  # select lines
+            self.canvas.itemconfigure(tags[1] + self.tag_const, state='normal')  # show polygon
+            self.selected_poly.append(tags[1])  # remember 2nd tag_id
 
     def outside(self, x, y):
         ''' Checks if the point (x,y) is outside the image area '''
