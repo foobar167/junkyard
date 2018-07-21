@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# Advanced zoom example. Like in Google Maps.
-# It zooms only a tile, but not the whole image. So the zoomed tile occupies
-# constant memory and not crams it with a huge resized image for the large zooms.
+# Drawing polygon on the image.
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
@@ -54,6 +52,7 @@ class Zoom_Advanced(ttk.Frame):
         self.canvas.bind('<MouseWheel>',    self.wheel)  # with Windows and MacOS, but not Linux
         self.canvas.bind('<Button-5>',      self.wheel)  # only with Linux, wheel scroll down
         self.canvas.bind('<Button-4>',      self.wheel)  # only with Linux, wheel scroll up
+        self.canvas.bind('<Delete>',        self.delete_polygon)  # delete selected polygon
         self.image = Image.open(path)  # open image
         self.im_width, self.im_height = self.image.size
         self.imscale = 1.0  # scale for the canvaas image
@@ -76,11 +75,12 @@ class Zoom_Advanced(ttk.Frame):
         self.tag_circle = 'circle'  # sticking circle tag
         self.radius_stick = 10  # distance where line sticks to the polygon's staring point
         self.radius_circle = 3  # radius of the sticking circle
-        self.edge = None  # current edge of the polygon
+        self.edge = None  # current edge of the new polygon
         self.polygon = []  # vertices of the polygon
         self.selected_poly = []  # selected polygons
         #
         self.show_image()
+        self.canvas.focus_set()  # set focus on the canvas
 
     def scroll_y(self, *args):
         ''' Scroll canvas vertically and redraw the image '''
@@ -92,11 +92,46 @@ class Zoom_Advanced(ttk.Frame):
         self.canvas.xview(*args)  # scroll horizontally
         self.show_image()  # redraw the image
 
+    def show_image(self, event=None):
+        ''' Show image on the canvas '''
+        box_image = self.canvas.coords(self.container)  # get image area
+        box_canvas = (self.canvas.canvasx(0),  # get visible area of the canvas
+                      self.canvas.canvasy(0),
+                      self.canvas.canvasx(self.canvas.winfo_width()),
+                      self.canvas.canvasy(self.canvas.winfo_height()))
+        box_img_int = tuple(map(round, box_image))  # convert to integer or it will not work properly
+        # Get scroll region box
+        box_scroll = [min(box_img_int[0], box_canvas[0]), min(box_img_int[1], box_canvas[1]),
+                      max(box_img_int[2], box_canvas[2]), max(box_img_int[3], box_canvas[3])]
+        # Horizontal part of the image is in the visible area
+        if  box_scroll[0] == box_canvas[0] and box_scroll[2] == box_canvas[2]:
+            box_scroll[0]  = box_img_int[0]
+            box_scroll[2]  = box_img_int[2]
+        # Vertical part of the image is in the visible area
+        if  box_scroll[1] == box_canvas[1] and box_scroll[3] == box_canvas[3]:
+            box_scroll[1]  = box_img_int[1]
+            box_scroll[3]  = box_img_int[3]
+        # Convert scroll region to tuple and to integer
+        self.canvas.configure(scrollregion=tuple(map(round, box_scroll)))  # set scroll region
+        x1 = max(box_canvas[0] - box_image[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
+        y1 = max(box_canvas[1] - box_image[1], 0)
+        x2 = min(box_canvas[2], box_image[2]) - box_image[0]
+        y2 = min(box_canvas[3], box_image[3]) - box_image[1]
+        if round(x2 - x1) > 0 and round(y2 - y1) > 0:  # show image if it in the visible area
+            image = self.image.crop((round(x1 / self.imscale), round(y1 / self.imscale),
+                                     round(x2 / self.imscale), round(y2 / self.imscale)))
+            imagetk = ImageTk.PhotoImage(image.resize((round(x2 - x1), round(y2 - y1))))
+            imageid = self.canvas.create_image(max(box_canvas[0], box_img_int[0]),
+                                               max(box_canvas[1], box_img_int[1]),
+                                               anchor='nw', image=imagetk)
+            self.canvas.lower(imageid)  # set image into background
+            self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
+
     def set_edge(self, event):
         ''' Set edge of the polygon '''
         x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
         y = self.canvas.canvasy(event.y)
-        if self.edge == None:  # start drawing polygon
+        if not self.edge:  # start drawing polygon
             if self.outside(x, y): return  # set edge only inside the image area
             self.draw_edge(x, y, (self.tag_edge_start, self.tag_edge))
             # Draw sticking circle
@@ -108,8 +143,6 @@ class Zoom_Advanced(ttk.Frame):
             x1, y1, x2, y2 = self.canvas.coords(self.tag_edge_start)  # get coords of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             if x4 == x1 and y4 == y1:  # finish drawing polygon
-                self.edge = None  # delete all edges and set current edge to None
-                self.canvas.delete(self.tag_edge)  # delete all edges
                 if len(self.polygon) > 2:  # draw polygon on the zoomed image canvas
                     #print(self.vertices)  # print polygon vertices
                     bbox = self.canvas.coords(self.container)  # get image area
@@ -117,19 +150,19 @@ class Zoom_Advanced(ttk.Frame):
                                                     i[1] * self.imscale + bbox[1])), self.polygon))
                     # Create identification tag
                     # [:-3] means microseconds to milliseconds, anyway there are zeros on Windows OS
-                    tag_id = datetime.now().strftime(u'%Y-%m-%d_%H-%M-%S.%f')[:-3]
-                    # Create polygon
+                    tag_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')[:-3]
+                    # Create polygon. 2nd tag is ALWAYS a unique tag ID + constant string.
                     self.canvas.create_polygon(vertices, fill=self.color_point,
                                                stipple=self.stipple, width=0, state='hidden',
                                                tags=(self.tag_poly, tag_id + self.tag_const))
-                    # Create polyline
+                    # Create polyline. 2nd tag is ALWAYS a unique tag ID.
                     for i in range(len(vertices)-1):
                         self.canvas.create_line(vertices[i], vertices[i+1], width=self.width_line,
                                                 fill=self.color_back, tags=(self.tag_poly_line, tag_id))
                     self.canvas.create_line(vertices[-1], vertices[0], width=self.width_line,
                                             fill=self.color_back, tags=(self.tag_poly_line, tag_id))
 
-                self.polygon.clear()  # remove all items from vertices list
+                self.delete_edges()  # delete edges of drawn polygon
             elif not self.outside(x, y):  # set edge only inside the image area
                 self.draw_edge(x, y, self.tag_edge)  # continue drawing polygon, set new edge
 
@@ -172,23 +205,25 @@ class Zoom_Advanced(ttk.Frame):
                     self.canvas.itemconfigure(self.edge, dash='')  # set solid line
         # Handle polygons on the canvas
         self.deselect_roi()  # change color and zeroize selected roi polygon
-        current_id = self.canvas.find_withtag('current')  # id of the current object
-        self.select_roi(current_id)
+        self.select_roi()  # change color and select roi polygon
 
     def deselect_roi(self):
         ''' Deselect current roi object '''
+        if not self.selected_poly: return  # selected polygons list is empty
         for id in self.selected_poly:
             self.canvas.itemconfigure(id, fill=self.color_back)  # deselect lines
             self.canvas.itemconfigure(id + self.tag_const, state='hidden')  # hide polygon
         self.selected_poly.clear()  # clear the list
 
-    def select_roi(self, id):
+    def select_roi(self):
         ''' Select and change color of the current roi object '''
+        if self.edge: return  # new polygon is being created now
+        id = self.canvas.find_withtag('current')  # id of the current object
         tags = self.canvas.gettags(id)  # get tags of the current object
-        if self.tag_poly_line in tags:  # if it's a roi polygon
+        if self.tag_poly_line in tags:  # if it's a roi polygon. 2nd tag is ALWAYS a unique tag ID
             self.canvas.itemconfigure(tags[1], fill=self.color_point)  # select lines
             self.canvas.itemconfigure(tags[1] + self.tag_const, state='normal')  # show polygon
-            self.selected_poly.append(tags[1])  # remember 2nd tag_id
+            self.selected_poly.append(tags[1])  # remember 2nd unique tag_id
 
     def outside(self, x, y):
         ''' Checks if the point (x,y) is outside the image area '''
@@ -226,40 +261,21 @@ class Zoom_Advanced(ttk.Frame):
                                cx + self.radius_circle, cy + self.radius_circle)
         self.show_image()
 
-    def show_image(self, event=None):
-        ''' Show image on the canvas '''
-        box_image = self.canvas.coords(self.container)  # get image area
-        box_canvas = (self.canvas.canvasx(0),  # get visible area of the canvas
-                      self.canvas.canvasy(0),
-                      self.canvas.canvasx(self.canvas.winfo_width()),
-                      self.canvas.canvasy(self.canvas.winfo_height()))
-        box_img_int = tuple(map(round, box_image))  # convert to integer or it will not work properly
-        # Get scroll region box
-        box_scroll = [min(box_img_int[0], box_canvas[0]), min(box_img_int[1], box_canvas[1]),
-                      max(box_img_int[2], box_canvas[2]), max(box_img_int[3], box_canvas[3])]
-        # Horizontal part of the image is in the visible area
-        if  box_scroll[0] == box_canvas[0] and box_scroll[2] == box_canvas[2]:
-            box_scroll[0]  = box_img_int[0]
-            box_scroll[2]  = box_img_int[2]
-        # Vertical part of the image is in the visible area
-        if  box_scroll[1] == box_canvas[1] and box_scroll[3] == box_canvas[3]:
-            box_scroll[1]  = box_img_int[1]
-            box_scroll[3]  = box_img_int[3]
-        # Convert scroll region to tuple and to integer
-        self.canvas.configure(scrollregion=tuple(map(round, box_scroll)))  # set scroll region
-        x1 = max(box_canvas[0] - box_image[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
-        y1 = max(box_canvas[1] - box_image[1], 0)
-        x2 = min(box_canvas[2], box_image[2]) - box_image[0]
-        y2 = min(box_canvas[3], box_image[3]) - box_image[1]
-        if round(x2 - x1) > 0 and round(y2 - y1) > 0:  # show image if it in the visible area
-            image = self.image.crop((round(x1 / self.imscale), round(y1 / self.imscale),
-                                     round(x2 / self.imscale), round(y2 / self.imscale)))
-            imagetk = ImageTk.PhotoImage(image.resize((round(x2 - x1), round(y2 - y1))))
-            imageid = self.canvas.create_image(max(box_canvas[0], box_img_int[0]),
-                                               max(box_canvas[1], box_img_int[1]),
-                                               anchor='nw', image=imagetk)
-            self.canvas.lower(imageid)  # set image into background
-            self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
+    def delete_edges(self):
+        ''' Delete edges of drawn polygon '''
+        self.edge = None  # delete all edges and set current edge to None
+        self.canvas.delete(self.tag_edge)  # delete all edges
+        self.polygon.clear()  # remove all items from vertices list
+
+    def delete_polygon(self, event=None):
+        ''' Delete selected polygon '''
+        if self.edge:  # if polygon is being drawing, delete it
+            self.delete_edges()  # delete edges of drawn polygon
+        elif self.selected_poly:  # delete selected polygon
+            for id in self.selected_poly:
+                self.canvas.delete(id)  # delete lines
+                self.canvas.delete(id + self.tag_const)  # delete polygon
+            self.selected_poly.clear()  # clear the list
 
 filename = './Data/doge.jpg'  # place path to your image here
 root = tk.Tk()

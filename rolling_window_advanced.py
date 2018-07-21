@@ -63,7 +63,7 @@ img = Image.new('1', (width, height), 0)  # better to use bitwise '1' array
 ImageDraw.Draw(img).polygon(polygon, outline=0, fill=1)
 mask = np.array(img)
 
-rolling_window = np.array([[1, 1], [1, 1]])
+rolling_window = np.ones((2, 2), dtype=int)
 dx, dy = 1, 1
 found = np.all(np.all(roll(mask, rolling_window, dx, dy) == rolling_window, axis=2), axis=2)
 print(np.transpose(found.nonzero()) * [dy, dx])
