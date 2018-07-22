@@ -163,7 +163,7 @@ class CanvasImage:
 class Polygons(CanvasImage):
     """ Class of Polygons. Inherit CanvasImage class """
     def __init__(self, parent, impath):
-        ''' Initialize the Polygons '''
+        """ Initialize the Polygons """
         CanvasImage.__init__(self, parent, impath)  # call __init__ of the CanvasImage class
         self.canvas.bind('<ButtonPress-1>', self.set_edge)  # set new edge
         self.canvas.bind('<Motion>', self.motion)  # handle mouse motion
@@ -177,7 +177,8 @@ class Polygons(CanvasImage):
         self.color_back = '#808080'  # background color
         self.stipple = 'gray12'  # value of stipple
         self.tag_edge_start = '1st_edge'  # starting edge of the polygon
-        self.tag_edge = 'edge'  # 2nd and subsequent edges of the polygon
+        self.tag_edge = 'edge'  # edges of the polygon
+        self.tag_edge_id = 'edge_id'  # part of unique ID of the edge
         self.tag_poly = 'polygon'  # polygon tag
         self.tag_const = 'poly'  # constant tag for polygon
         self.tag_poly_line = 'poly_line'  # edge of the polygon
@@ -195,7 +196,7 @@ class Polygons(CanvasImage):
         x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
         y = self.canvas.canvasy(event.y)
         if not self.edge:  # start drawing polygon
-            self.draw_edge(x, y, (self.tag_edge_start, self.tag_edge))
+            self.draw_edge(x, y, self.tag_edge_start)
             # Draw sticking circle
             self.canvas.create_oval(x - self.radius_circle, y - self.radius_circle,
                                     x + self.radius_circle, y + self.radius_circle,
@@ -225,12 +226,17 @@ class Polygons(CanvasImage):
 
                 self.delete_edges()  # delete edges of drawn polygon
             else:
-                self.draw_edge(x, y, self.tag_edge)  # continue drawing polygon, set new edge
+                self.draw_edge(x, y)  # continue drawing polygon, set new edge
 
-    def draw_edge(self, x, y, tags):
+    def draw_edge(self, x, y, tags=None):
         """ Draw edge of the polygon """
-        self.edge = self.canvas.create_line(x, y, x, y, fill=self.color_draw,
-                                            width=self.width_line, tags=tags)
+        if len(self.polygon) > 1:
+            x1, y1, x2, y2 = self.canvas.coords(self.edge)
+            if x1 == x2 and y1 == y2:
+                return  # don't draw edge in the same point, otherwise it'll be self-intersection
+        edge_id = self.tag_edge_id + str(len(self.polygon))
+        self.edge = self.canvas.create_line(x, y, x, y, fill=self.color_draw, width=self.width_line,
+                                            tags=(tags, self.tag_edge, edge_id,))
         bbox = self.canvas.coords(self.container)  # get image area
         x1 = round((x - bbox[0]) / self.imscale)  # get (x,y) on the image without zoom
         y1 = round((y - bbox[1]) / self.imscale)
@@ -248,16 +254,21 @@ class Polygons(CanvasImage):
             # Set new coordinates of the edge
             if self.radius_stick * self.radius_stick > dx * dx + dy * dy:
                 self.canvas.coords(self.edge, x3, y3, x1, y1)  # stick to the beginning
-                self.canvas.itemconfigure(self.edge, dash='')  # set solid line
+                self.set_dash(x1, y1)  # set dash for edge segment
             else:
                 self.canvas.coords(self.edge, x3, y3, x, y)  # follow the mouse movements
-                if self.outside(x, y):
-                    self.canvas.itemconfigure(self.edge, dash=self.dash)  # set dashed line
-                else:
-                    self.canvas.itemconfigure(self.edge, dash='')  # set solid line
+                self.set_dash(x, y)  # set dash for edge segment
         # Handle polygons on the canvas
         self.deselect_roi()  # change color and zeroize selected roi polygon
         self.select_roi()  # change color and select roi polygon
+
+    def set_dash(self, x, y):
+        """ Set dash for edge segment """
+        # If outside of the image or polygon self-intersection is occurred
+        if self.outside(x, y) or self.polygon_selfintersection():
+            self.canvas.itemconfigure(self.edge, dash=self.dash)  # set dashed line
+        else:
+            self.canvas.itemconfigure(self.edge, dash='')  # set solid line
 
     def deselect_roi(self):
         """ Deselect current roi object """
@@ -302,6 +313,77 @@ class Polygons(CanvasImage):
                 self.canvas.delete(i)  # delete lines
                 self.canvas.delete(i + self.tag_const)  # delete polygon
             self.selected_poly.clear()  # clear the list
+
+    @staticmethod
+    def orientation(p1, p2, p3):
+        """ Find orientation of ordered triplet (p1, p2, p3). Returns following values:
+             0 --> p1, p2 and p3 are collinear
+            -1 --> clockwise
+             1 --> counterclockwise """
+        val = (p2[0] - p1[0]) * (p3[1] - p2[1]) - (p2[1] - p1[1]) * (p3[0] - p2[0])
+        if val < 0:   return -1  # clockwise
+        elif val > 0: return  1  # counterclockwise
+        else:         return  0  # collinear
+
+    @staticmethod
+    def on_segment(p1, p2, p3):
+        """ Given three collinear points p1, p2, p3, the function checks
+            if point p2 lies on line segment p1-p3 """
+        # noinspection PyChainedComparisons
+        if p2[0] <= max(p1[0], p3[0]) and p2[0] >= min(p1[0], p3[0]) and \
+           p2[1] <= max(p1[1], p3[1]) and p2[1] >= min(p1[1], p3[1]):
+            return True
+        return False
+
+    def intersect(self, p1, p2, p3, p4):
+        """ Return True if line segments p1-p2 and p3-p4 intersect, otherwise return False """
+        # Find 4 orientations
+        o1 = self.orientation(p1, p2, p3)
+        o2 = self.orientation(p1, p2, p4)
+        o3 = self.orientation(p3, p4, p1)
+        o4 = self.orientation(p3, p4, p2)
+        # General case
+        if o1 != o2 and o3 != o4: return True  # segments intersect
+        # Segments p1-p2 and p3-p4 are collinear
+        if o1 == o2 == 0:
+            # p3 lies on segment p1-p2
+            if self.on_segment(p1, p3, p2): return True
+            # p4 lies on segment p1-p2
+            if self.on_segment(p1, p4, p2): return True
+            # p1 lies on segment p3-p4
+            if self.on_segment(p3, p1, p4): return True
+        return False  # doesn't intersect
+
+    def penultimate_intersect(self, p1, p2, p3):
+        """ Check penultimate (last but one) edge,
+            where p1 and p4 coincide with the current edge """
+        if self.orientation(p1, p2, p3) == 0 and not self.on_segment(p3, p1, p2):
+            return True
+        else:
+            return False
+
+    def first_intersect(self, p1, p2, p3, p4):
+        """ Check the 1st edge, where points p2 and p3 CAN coincide """
+        if p2[0] == p3[0] and p2[1] == p3[1]: return False  # p2 and p3 coincide -- this is OK
+        if p1[0] == p3[0] and p1[1] == p3[1]: return False  # there is only 1 edge
+        if p1[0] == p4[0] and p1[1] == p4[1]: return self.penultimate_intersect(p1, p2, p3)
+        return self.intersect(p1, p2, p3, p4)
+
+    def polygon_selfintersection(self):
+        """ Check if polygon has self-intersections """
+        x1, y1, x2, y2 = self.canvas.coords(self.edge)  # get coords of the current edge
+        for i in range(1, len(self.polygon)-2):  # don't include the 1st ant the last 2 edges
+            x3, y3, x4, y4 = self.canvas.coords(self.tag_edge_id + str(i))
+            if self.intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4)): return True
+        # Check penultimate (last but one) edge, where points p1 and p4 coincide
+        j = len(self.polygon) - 2
+        if j > 0:  # 2 or more edges
+            x3, y3, x4, y4 = self.canvas.coords(self.tag_edge_id + str(j))
+            if self.penultimate_intersect((x1, y1), (x2, y2), (x3, y3)): return True
+        # Check the 1st edge, where points p2 and p3 can coincide
+        x3, y3, x4, y4 = self.canvas.coords(self.tag_edge_start)
+        if self.first_intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4)): return True
+        return False  # there is no self-intersections in the polygon
 
 
 class MainWindow(ttk.Frame):

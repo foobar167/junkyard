@@ -43,3 +43,11 @@ img = Image.new('L', (width, height), 0)  # using gray 'L' array for debug purpo
 ImageDraw.Draw(img).polygon(polygon, outline=1, fill=1)
 mask = np.array(img)
 print(mask, '\n')
+
+from skimage.draw import polygon
+img = np.zeros((31, 31), dtype=np.uint8)
+r = np.array([29, 1, 29, 11, 11])
+c = np.array([8, 15, 22, 4, 26])
+rr, cc = polygon(r, c)
+img[rr, cc] = 1
+print(img)
