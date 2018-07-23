@@ -366,8 +366,9 @@ class Polygons(CanvasImage):
         """ Check the 1st edge, where points p2 and p3 CAN coincide """
         if p2[0] == p3[0] and p2[1] == p3[1]: return False  # p2 and p3 coincide -- this is OK
         if p1[0] == p3[0] and p1[1] == p3[1]: return False  # there is only 1 edge
+        # There is only 2 edges
         if p1[0] == p4[0] and p1[1] == p4[1]: return self.penultimate_intersect(p1, p2, p3)
-        return self.intersect(p1, p2, p3, p4)
+        return self.intersect(p1, p2, p3, p4)  # General case
 
     def polygon_selfintersection(self):
         """ Check if polygon has self-intersections """
