@@ -2,8 +2,8 @@
 import os
 import tkinter as tk
 
-from viewer.logic_logger import init_logging, logging
-from viewer.gui_main import MainGUI
+from polygon.logic_logger import init_logging, logging
+from polygon.gui_main import MainGUI
 
 if __name__ == '__main__':
     init_logging()
@@ -11,6 +11,6 @@ if __name__ == '__main__':
     this_dir = os.path.dirname(os.path.realpath(__file__))  # path to this directory
     os.chdir(this_dir)  # make path to this dir the current path
     root = tk.Tk()
-    app = MainGUI(root)
-    root.mainloop()
+    app = MainGUI(root)  # start the application
+    root.mainloop()  # application is up and running
     logging.info('Finish software')

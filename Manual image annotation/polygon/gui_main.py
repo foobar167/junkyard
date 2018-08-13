@@ -2,8 +2,8 @@
 import os
 import tkinter as tk
 
-from tkinter import ttk
 from PIL import Image
+from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
 from .gui_imageframe import ImageFrame

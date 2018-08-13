@@ -1,13 +1,23 @@
-##### Image Viewer (demo)
+##### Manual image annotation with polygons (demo)
 
-Demo Image Viewer opens image and selects rectangle area
-around the mouse. When user moves the mouse rectangle area
-goes after it.
+Demo manual image annotation opens image
+where user can select polygon areas
+around the objects of interest.
 
-There is an output in the console: upper left and bottom right
-corners of the rectangle.
+After selecting region of interest
+user press menu button and
+program cuts rectangular images from selected polygons
+with a scanning window.
 
-To start Image Viewer:
-c:\path\to\your\python_3.x\version\python.exe runme.py
+Parameters of the scanning window are set in the
+configuration INI file which is in the "Temp"
+directory.
 
-Tested on Windows for Python 3.6.
+The output of the program is the set of rectangular
+images from the polygon areas in the "Images"
+directory.
+
+To start Manual Image Annotation:
+c:\path\to\your\python\version\python.exe runme.py
+
+Tested on Windows for Python 3.7.

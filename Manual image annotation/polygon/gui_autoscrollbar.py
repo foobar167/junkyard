@@ -16,8 +16,8 @@ class AutoScrollbar(ttk.Scrollbar):
 
     @handle_exception(1)
     def pack(self, **kw):
-        raise tk.TclError('Cannot use pack with this widget')
+        raise tk.TclError('Cannot use pack with the widget ' + self.__class__.__name__)
 
     @handle_exception(1)
     def place(self, **kw):
-        raise tk.TclError('Cannot use place with this widget')
+        raise tk.TclError('Cannot use place with the widget ' + self.__class__.__name__)
