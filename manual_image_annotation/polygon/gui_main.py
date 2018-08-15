@@ -38,7 +38,8 @@ class MainGUI(ttk.Frame):
         self.master.configure(menu=self.__menubar)  # should be BEFORE iconbitmap, it's important
         # Add menubar to the main window BEFORE iconbitmap command. Otherwise it will shrink
         # in height by 20 pixels after each opening of the window.
-        self.master.iconbitmap(os.path.join('viewer', 'logo.ico'))  # set logo icon
+        this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
+        self.master.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
         #
         self.__is_fullscreen = False  # enable / disable fullscreen mode
         self.__empty_menu = tk.Menu(self)  # empty menu to hide the real menubar in fullscreen mode

@@ -2,6 +2,7 @@
 import timeit
 import numpy as np
 from PIL import Image
+from skimage.feature import greycomatrix
 
 class CoMatrix():
     ''' Co-occurrence matrix class '''
@@ -19,19 +20,14 @@ class CoMatrix():
         except:
             print(u'This is not an image: {}'.format(path))
             return  # return None
-        array = np.array(img)  # convert PIL image to Numpy array, np.uint8
-        r = array[:,:,0] >> 6  # Red. Leave 2 bit or 4 bins
-        g = array[:,:,1] >> 5  # Green. Leave 3 bit or 8 bins
-        b = array[:,:,2] >> 5  # Blue. Leave 3 bit or 8 bins
+        array = np.array(img)  # convert PIL image to Numpy array
+        r = array[:,:,0].astype(np.uint16) >> 5  # Red. Leave only 3 bit or 8 bins
+        g = array[:,:,1].astype(np.uint16) >> 5  # Green
+        b = array[:,:,2].astype(np.uint16) >> 5  # Blue
         rgb = (r << 6) + (g << 3) + b  # rgb color consists of 9 bit or 512 tints
-        h, w = rgb.shape  # get height and width of the array
-        h -= self.dy
-        w -= self.dx
-        mask =                           rgb[:h, :w] < rgb[self.dy:, self.dx:]
-        rows = np.where(mask,            rgb[:h, :w],  rgb[self.dy:, self.dx:])
-        cols = np.where(np.invert(mask), rgb[:h, :w],  rgb[self.dy:, self.dx:])
-        comatrix = np.zeros((256, 256), dtype=np.uint32)  # create 256x256 matrix
-        np.add.at(comatrix, [rows, cols], 1)
+        comatrix = greycomatrix(rgb, [1], [np.pi / 4], symmetric=True, levels=512)
+        comatrix = np.tril(comatrix[:, :, 0, 0])  # get bottom triangle
+        np.fill_diagonal(comatrix, comatrix.diagonal() >> 1)  # divide diagonal elements on 2
         rows, cols = np.nonzero(comatrix)  # get non-zero rows and columns
         return rows, cols, comatrix[rows, cols]
 
@@ -47,15 +43,15 @@ class CoMatrix():
 
 if __name__ == u'__main__':
     m = CoMatrix(1, 1)  # take bottom right neighbour
-    d1 = m.descriptor(u'../Data/doge.jpg')
-    d2 = m.descriptor(u'../Data/doge2.jpg')
-    d3 = m.descriptor(u'../Data/doge3.jpg')
-    d4 = m.descriptor(u'../Data/city.jpg')
+    d1 = m.descriptor(u'../data/doge.jpg')
+    d2 = m.descriptor(u'../data/doge2.jpg')
+    d3 = m.descriptor(u'../data/doge3.jpg')
+    d4 = m.descriptor(u'../data/city.jpg')
     print(u'very small', m.distance(d1, d2))  # doge-doge2
     print(u'small', m.distance(d1, d3))  # doge-doge3
     print(u'large', m.distance(d1, d4))  # doge-city
     n = 100  # number of tests
-    print(timeit.timeit(stmt=u'm.descriptor(u"../Data/doge.jpg")', number=n,
+    print(timeit.timeit(stmt=u'm.descriptor(u"../data/doge.jpg")', number=n,
                         setup=u'from __main__ import m') / n)
     print(timeit.timeit(stmt=u'm.distance(d1, d4)', number=n,
                         setup=u'from __main__ import m, d1, d4') / n)

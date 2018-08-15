@@ -33,7 +33,7 @@ def get_comatrix2():
 
 dx = 1
 dy = 1
-img = Image.open(u'../Data/doge.jpg')  # open image with PIL
+img = Image.open(u'../data/doge.jpg')  # open image with PIL
 array = np.array(img)  # convert PIL image to Numpy array
 
 rgb  = get_rgb1()

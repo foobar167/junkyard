@@ -2,7 +2,7 @@
 import os
 import configparser
 
-class Config():
+class Config:
     """ This class is responsible for various operations with configuration INI file.
         ConfigParser module is a part of the standard Python library """
     def __init__(self, path='temp'):
@@ -47,7 +47,7 @@ class Config():
         """ Get main window size and position """
         try:
             return self.__config[self.__window][self.__geometry]
-        except:
+        except configparser.Error:
             return self.default_geometry
 
     def set_win_geometry(self, geometry):
@@ -59,7 +59,7 @@ class Config():
         """ Get main window state: normal, zoomed, etc. """
         try:
             return self.__config[self.__window][self.__state]
-        except:
+        except configparser.Error:
             return self.default_state
 
     def set_win_state(self, state):
@@ -75,7 +75,7 @@ class Config():
                 return ''
             else:
                 return path
-        except:
+        except configparser.Error:
             return ''
 
     def set_opened_path(self, path = ''):
@@ -92,7 +92,7 @@ class Config():
             w = self.__config[self.__roi][self.__roi_width]
             h = self.__config[self.__roi][self.__roi_height]
             return int(w), int(h)
-        except:
+        except configparser.Error:
             return self.__default_roi_w, self.__default_roi_h
 
     def set_roi_size(self, width=None, height=None):
@@ -116,25 +116,25 @@ class Config():
                 if not os.path.isfile(path):
                     del l[n]  # delete non-existent file path from the list
             return l
-        except:
+        except configparser.Error:
             return ''
 
     def get_recent_path(self):
-        ''' Get last opened path from config INI file '''
+        """ Get last opened path from config INI file """
         try:
             path = self.__config[self.__recent]['1']
             path = os.path.abspath(os.path.join(path, os.pardir))  # get parent directory
             if not os.path.exists(path):
                 return os.getcwd()  # return current directory
             return path
-        except:
+        except configparser.Error:
             return os.getcwd()  # get current directory (in unicode)
 
     def set_recent_path(self, path):
         """ Set last opened path to config INI file """
         try:
             l = self.__config.items(self.__recent)  # list of (key, value) pairs
-        except:
+        except configparser.Error:
             l = []  # there is no such section
         l = [value for key, value in l]  # leave only path
         if path in l: l.remove(path)  # delete path from list

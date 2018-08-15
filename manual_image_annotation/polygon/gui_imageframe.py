@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from .logic_logger import logging
 from .gui_autoscrollbar import AutoScrollbar
 
-class ImageFrame():
+class ImageFrame:
     """ Display an image and necessary functional for rectangle, zoom, shift, etc. """
     def __init__(self, placeholder, path, roi_size):
         """ Initialize the ImageFrame """

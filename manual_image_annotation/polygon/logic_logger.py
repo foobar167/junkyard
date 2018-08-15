@@ -28,10 +28,10 @@ def init_logging():
     # Override sys.excepthook to log uncaught exceptions
     sys.excepthook = handle_uncaught_exception
 
-def handle_uncaught_exception(type, value, traceback):
+def handle_uncaught_exception(errtype, value, traceback):
     """ Handle all uncaught exceptions """
     logger = logging.getLogger('')
-    logger.error('Uncaught exception occured', exc_info=(type, value, traceback))
+    logger.error('Uncaught exception occured', exc_info=(errtype, value, traceback))
 
 def handle_exception(exit_code = 0):
     """ Use: @land.logger.handle_exception(0)
