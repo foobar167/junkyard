@@ -22,7 +22,7 @@ class Config:
         self.__roi = 'Roi'  # info about the scanning window (region of interest)
         self.__roi_width = 'Width'  # width of scanning window
         self.__roi_height = 'Height'  # height of scanning window
-        self.__default_roi_w, self.__default_roi_h = 320, 240  # default roi width / height
+        self.__default_roi_w, self.__default_roi_h = 256, 256  # default roi width / height
         #
         self.__recent = 'LastOpened'  # list of last opened paths
         self.__recent_number = 10  # number of recent paths
@@ -34,9 +34,9 @@ class Config:
             os.makedirs(path)
         # Create new config file if not exist or read existing one
         if not os.path.isfile(self.__config_path):
-            self.__new_config()
+            self.__new_config()  # create new config
         else:
-            self.__config.read(self.__config_path)
+            self.__config.read(self.__config_path)  # read existing config file
 
     def __check_section(self, section):
         """ Check if section exists and create it if not """
@@ -47,7 +47,7 @@ class Config:
         """ Get main window size and position """
         try:
             return self.__config[self.__window][self.__geometry]
-        except configparser.Error:
+        except KeyError:  # if the key is not in the dictionary of config
             return self.default_geometry
 
     def set_win_geometry(self, geometry):
@@ -59,7 +59,7 @@ class Config:
         """ Get main window state: normal, zoomed, etc. """
         try:
             return self.__config[self.__window][self.__state]
-        except configparser.Error:
+        except KeyError:  # if the key is not in the dictionary of config
             return self.default_state
 
     def set_win_state(self, state):
@@ -75,10 +75,10 @@ class Config:
                 return ''
             else:
                 return path
-        except configparser.Error:
+        except KeyError:  # if the key is not in the dictionary of config
             return ''
 
-    def set_opened_path(self, path = ''):
+    def set_opened_path(self, path = None):
         """ Remember opened path to the config INI file """
         self.__check_section(self.__window)
         if path:
@@ -92,7 +92,7 @@ class Config:
             w = self.__config[self.__roi][self.__roi_width]
             h = self.__config[self.__roi][self.__roi_height]
             return int(w), int(h)
-        except configparser.Error:
+        except KeyError:  # if the key is not in the dictionary of config
             return self.__default_roi_w, self.__default_roi_h
 
     def set_roi_size(self, width=None, height=None):
@@ -116,7 +116,7 @@ class Config:
                 if not os.path.isfile(path):
                     del l[n]  # delete non-existent file path from the list
             return l
-        except configparser.Error:
+        except configparser.NoSectionError:  # no section with the list of last opened paths
             return ''
 
     def get_recent_path(self):
@@ -127,14 +127,14 @@ class Config:
             if not os.path.exists(path):
                 return os.getcwd()  # return current directory
             return path
-        except configparser.Error:
-            return os.getcwd()  # get current directory (in unicode)
+        except KeyError:  # if the key is not in the dictionary of config
+            return os.getcwd()  # get current directory
 
     def set_recent_path(self, path):
         """ Set last opened path to config INI file """
         try:
             l = self.__config.items(self.__recent)  # list of (key, value) pairs
-        except configparser.Error:
+        except configparser.NoSectionError:  # no section with the list of last opened paths
             l = []  # there is no such section
         l = [value for key, value in l]  # leave only path
         if path in l: l.remove(path)  # delete path from list

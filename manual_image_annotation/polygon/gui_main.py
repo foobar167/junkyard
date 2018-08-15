@@ -6,7 +6,7 @@ from PIL import Image
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
-from .gui_imageframe import ImageFrame
+from .gui_polygons import Polygons
 from .logic_config import Config
 from .logic_logger import logging, handle_exception
 
@@ -49,20 +49,19 @@ class MainGUI(ttk.Frame):
         self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 1 open image
                             ['Ctrl+W', 87, self.__close_image]]  # 2 close image
         # Bind events to the main window
-        self.master.bind('<Motion>', self.__motion)  # track and handle mouse pointer position
-        self.master.bind('<F11>', self.__fullscreen_toggle)  # toggle fullscreen mode
-        self.master.bind('<Escape>', lambda e=None, s=False: self.__fullscreen_toggle(e, s))
-        self.master.bind('<F5>', self.__default_geometry)  # reset default window geometry
+        self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
+        self.master.bind('<F11>', lambda event: self.__fullscreen_toggle())  # toggle fullscreen mode
+        self.master.bind('<Escape>', lambda event, s=False: self.__fullscreen_toggle(s))
+        self.master.bind('<F5>', lambda event: self.__default_geometry())  # reset default window geometry
         # Handle main window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
         # don't set default geometry from full screen if resizing is not postponed.
-        self.master.bind('<Configure>', lambda event: self.master.after_idle(
-            self.__resize_master, event))  # window is resized
+        self.master.bind('<Configure>', lambda event: self.master.after_idle(self.__resize_master))
         # Handle keystrokes in the idle mode, because program slows down on a weak computers,
         # when too many key stroke events in the same time.
         self.master.bind('<Key>', lambda event: self.master.after_idle(self.__keystroke, event))
 
-    def __fullscreen_toggle(self, event=None, state=None):
-        """ Enable/disable the fullscreen mode """
+    def __fullscreen_toggle(self, state=None):
+        """ Enable/disable the full screen mode """
         if state is not None:
             self.__is_fullscreen = state
         else:
@@ -82,7 +81,7 @@ class MainGUI(ttk.Frame):
         """ Hide menu bar """
         self.master.configure(menu=self.__empty_menu)
 
-    def __motion(self, event):
+    def __motion(self):
         """ Track mouse pointer and handle its position """
         if self.__is_fullscreen:
             y = self.master.winfo_pointery()
@@ -103,14 +102,14 @@ class MainGUI(ttk.Frame):
         else:  # remember previous state of the event
             self.__previous_state = event.state
 
-    def __default_geometry(self, event=None):
+    def __default_geometry(self):
         """ Reset default geomentry for the main GUI window """
         self.__fullscreen_toggle(state=False)  # exit from fullscreen
         self.master.wm_state(self.__config.default_state)  # exit from zoomed
         self.__config.set_win_geometry(self.__config.default_geometry)  # save default to config
         self.master.geometry(self.__config.default_geometry)  # set default geometry
 
-    def __resize_master(self, event=None):
+    def __resize_master(self):
         """ Save main window size and position into config file.
             There is a bug when changing window from fullscreen to zoomed and then to normal mode.
             Main window somehow remembers zoomed mode as normal, so I have to explicitly set
@@ -177,8 +176,8 @@ class MainGUI(ttk.Frame):
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
-        self.__imframe = ImageFrame(placeholder=self.__placeholder, path=path,
-                                    roi_size=self.__config.get_roi_size())
+        self.__imframe = Polygons(placeholder=self.__placeholder, path=path)
+        self.__imframe.grid()  # show it
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
         # Enable 'Close image' submenu of the 'File' menu
@@ -191,6 +190,7 @@ class MainGUI(ttk.Frame):
                                initialdir=self.__config.get_recent_path())
         if path == '': return
         # Check if it is an image
+        # noinspection PyBroadException
         try:  # try to open and close image with PIL
             img = Image.open(path)
             img.close()
