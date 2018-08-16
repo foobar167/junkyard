@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import tkinter as tk
+import warnings
+import math
 
 from tkinter import ttk
 from PIL import Image, ImageTk
@@ -41,17 +43,20 @@ class CanvasImage:
         self.canvas.bind('<Key>', lambda event: self.canvas.after_idle(self.__keystroke, event))
         logging.info('Open image: {}'.format(self.path))
         # Create image pyramid
-        self.__pyramid = [Image.open(self.path)]  # open image and place it into pyramid
+        with warnings.catch_warnings():  # suppress DecompressionBombWarning for the big image
+            warnings.simplefilter(u'ignore')
+            self.__pyramid = [Image.open(self.path)]  # open image and place it into pyramid
         w, h = self.__pyramid[0].size
-        while w > 512 and h > 512:
-            w >>= 1  # divide on 2
-            h >>= 1  # divide on 2
-            self.__pyramid.append(self.__pyramid[-1].resize((w, h), self.__filter))
-        print(len(self.__pyramid))
+        self.__reduction = 2  # reduction degree of the pyramid
+        while w > 512 and h > 512:  # top pyramid image is around 512 pixels in size
+            w /= self.__reduction  # divide on reduction degree
+            h /= self.__reduction  # divide on reduction degree
+            self.__pyramid.append(self.__pyramid[-1].resize((int(w), int(h)), self.__filter))
+        self.__current_img = 0  # current image from the pyramid
         # Put image into container rectangle and use it to set proper coordinates to the image
         # Public for Polygons class
         self.container = self.canvas.create_rectangle((0, 0, self.__pyramid[0].size), width=0)
-        self.__min_side = min(self.__pyramid[0].size )  # get the smaller image side
+        self.__min_side = min(self.__pyramid[0].size)  # get the smaller image side
         self.__show_image()  # show image on the canvas
         self.canvas.focus_set()  # set focus on the canvas
 
@@ -112,8 +117,10 @@ class CanvasImage:
         x2 = min(box_canvas[2], box_image[2]) - box_image[0]
         y2 = min(box_canvas[3], box_image[3]) - box_image[1]
         if int(x2 - x1) > 0 and int(y2 - y1) > 0:  # show image if it in the visible area
-            image = self.__pyramid[0].crop((int(x1 / self.imscale), int(y1 / self.imscale),
-                                            int(x2 / self.imscale), int(y2 / self.imscale)))
+            imscale = self.imscale * math.pow(self.__reduction, self.__current_img)
+            image = self.__pyramid[self.__current_img].crop(  # crop current image from the pyramid
+                (int(x1 / imscale), int(y1 / imscale),
+                 int(x2 / imscale), int(y2 / imscale)))
             imagetk = ImageTk.PhotoImage(image.resize((int(x2 - x1), int(y2 - y1)), self.__filter))
             imageid = self.canvas.create_image(max(box_canvas[0], box_img_int[0]),
                                                max(box_canvas[1], box_img_int[1]),
@@ -154,6 +161,12 @@ class CanvasImage:
             if i < self.imscale: return  # 1 pixel is bigger than the visible area
             self.imscale *= self.__delta
             scale        *= self.__delta
+        # Take appropriate image from the pyramid
+        self.__current_img = 0  # if self.imscale >= 1, zoom in
+        if self.imscale < 1:  # zoom out, log(x, reduction), because "reduction" is reduction degree
+            self.__current_img = min(int(math.log(1 / self.imscale, self.__reduction)),
+                                     len(self.__pyramid) - 1)
+        #
         self.canvas.scale('all', x, y, scale, scale)  # rescale all objects
         # Redraw some figures before showing image on the screen
         self.redraw_figures()

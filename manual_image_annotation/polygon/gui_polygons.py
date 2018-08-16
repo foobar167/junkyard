@@ -14,21 +14,21 @@ class Polygons(CanvasImage):
         self.width_line = 2  # lines width
         self.dash = (1, 1)  # dash pattern
         self.color_draw = 'red'  # color to draw
-        self.color_active = 'yellow'  # color of active figures
         self.color_point = 'blue'  # color of pointed figures
-        self.color_back = '#808080'  # background color
+        self.color_back = 'yellow'  # background color
         self.stipple = 'gray12'  # value of stipple
-        self.tag_edge_start = '1st_edge'  # starting edge of the polygon
-        self.tag_edge = 'edge'  # edges of the polygon
-        self.tag_edge_id = 'edge_id'  # part of unique ID of the edge
+        self.tag_curr_edge_start = '1st_edge'  # starting edge of the current polygon
+        self.tag_curr_edge = 'edge'  # edges of the polygon
+        self.tag_curr_edge_id = 'edge_id'  # part of unique ID of the current edge
         self.tag_poly = 'polygon'  # polygon tag
         self.tag_const = 'poly'  # constant tag for polygon
         self.tag_poly_line = 'poly_line'  # edge of the polygon
-        self.tag_circle = 'circle'  # sticking circle tag
+        self.tag_curr_circle = 'circle'  # sticking circle tag for the current polyline
         self.radius_stick = 10  # distance where line sticks to the polygon's staring point
         self.radius_circle = 3  # radius of the sticking circle
         self.edge = None  # current edge of the new polygon
-        self.polygon = []  # vertices of the polygon
+        self.polygon = []  # vertices of the current (drawing, red) polygon
+        self.poly_list = []  # list of all polygons on the canvas image
         self.selected_poly = []  # selected polygons
 
     def set_edge(self, event):
@@ -38,14 +38,14 @@ class Polygons(CanvasImage):
         x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
         y = self.canvas.canvasy(event.y)
         if not self.edge:  # start drawing polygon
-            self.draw_edge(x, y, self.tag_edge_start)
+            self.draw_edge(x, y, self.tag_curr_edge_start)
             # Draw sticking circle
             self.canvas.create_oval(x - self.radius_circle, y - self.radius_circle,
                                     x + self.radius_circle, y + self.radius_circle,
                                     width=0, fill=self.color_draw,
-                                    tags=(self.tag_edge, self.tag_circle))
+                                    tags=(self.tag_curr_edge, self.tag_curr_circle))
         else:  # continue drawing polygon
-            x1, y1, x2, y2 = self.canvas.coords(self.tag_edge_start)  # get coords of the 1st edge
+            x1, y1, x2, y2 = self.canvas.coords(self.tag_curr_edge_start)  # get coords of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             if x4 == x1 and y4 == y1:  # finish drawing polygon
                 if len(self.polygon) > 2:  # draw polygon on the zoomed image canvas
@@ -65,7 +65,6 @@ class Polygons(CanvasImage):
                                                 fill=self.color_back, tags=(self.tag_poly_line, tag_id))
                     self.canvas.create_line(vertices[-1], vertices[0], width=self.width_line,
                                             fill=self.color_back, tags=(self.tag_poly_line, tag_id))
-
                 self.delete_edges()  # delete edges of drawn polygon
             else:
                 self.draw_edge(x, y)  # continue drawing polygon, set new edge
@@ -76,9 +75,9 @@ class Polygons(CanvasImage):
             x1, y1, x2, y2 = self.canvas.coords(self.edge)
             if x1 == x2 and y1 == y2:
                 return  # don't draw edge in the same point, otherwise it'll be self-intersection
-        edge_id = self.tag_edge_id + str(len(self.polygon))
+        curr_edge_id = self.tag_curr_edge_id + str(len(self.polygon))  # ID of the edge in the polygon
         self.edge = self.canvas.create_line(x, y, x, y, fill=self.color_draw, width=self.width_line,
-                                            tags=(tags, self.tag_edge, edge_id,))
+                                            tags=(tags, self.tag_curr_edge, curr_edge_id,))
         bbox = self.canvas.coords(self.container)  # get image area
         x1 = round((x - bbox[0]) / self.imscale)  # get (x,y) on the image without zoom
         y1 = round((y - bbox[1]) / self.imscale)
@@ -86,18 +85,18 @@ class Polygons(CanvasImage):
 
     def motion(self, event):
         """ Track mouse position over the canvas """
-        if self.edge:  # relocate edge of the polygon
+        if self.edge:  # relocate edge of the drawn polygon
             x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
             y = self.canvas.canvasy(event.y)
-            x1, y1, x2, y2 = self.canvas.coords(self.tag_edge_start)  # get coordinates of the 1st edge
+            x1, y1, x2, y2 = self.canvas.coords(self.tag_curr_edge_start)  # get coordinates of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             dx = x - x1
             dy = y - y1
             # Set new coordinates of the edge
-            if self.radius_stick * self.radius_stick > dx * dx + dy * dy:
+            if self.radius_stick * self.radius_stick > dx * dx + dy * dy:  # sticking radius
                 self.canvas.coords(self.edge, x3, y3, x1, y1)  # stick to the beginning
                 self.set_dash(x1, y1)  # set dash for edge segment
-            else:
+            else:  # follow the mouse
                 self.canvas.coords(self.edge, x3, y3, x, y)  # follow the mouse movements
                 self.set_dash(x, y)  # set dash for edge segment
         # Handle polygons on the canvas
@@ -122,28 +121,28 @@ class Polygons(CanvasImage):
 
     def select_roi(self):
         """ Select and change color of the current roi object """
-        if self.edge: return  # new polygon is being created now
+        if self.edge: return  # new polygon is being created (drawn) right now
         i = self.canvas.find_withtag('current')  # id of the current object
         tags = self.canvas.gettags(i)  # get tags of the current object
-        if self.tag_poly_line in tags:  # if it's a roi polygon. 2nd tag is ALWAYS a unique tag ID
-            self.canvas.itemconfigure(tags[1], fill=self.color_point)  # select lines
+        if self.tag_poly_line in tags:  # if it's a polygon, 2nd tag is ALWAYS a unique tag ID
+            self.canvas.itemconfigure(tags[1], fill=self.color_point)  # select lines through 2nd tag
             self.canvas.itemconfigure(tags[1] + self.tag_const, state='normal')  # show polygon
             self.selected_poly.append(tags[1])  # remember 2nd unique tag_id
 
     def redraw_figures(self):
-        """ Overwritten method. Redraw sticking circle """
-        bbox = self.canvas.coords(self.tag_circle)
+        """ Overwritten method. Redraw sticking circle for the wheel event """
+        bbox = self.canvas.coords(self.tag_curr_circle)
         if bbox:  # radius of sticky circle is unchanged
             cx = (bbox[0] + bbox[2]) / 2  # center of the circle
             cy = (bbox[1] + bbox[3]) / 2
-            self.canvas.coords(self.tag_circle,
+            self.canvas.coords(self.tag_curr_circle,
                                cx - self.radius_circle, cy - self.radius_circle,
                                cx + self.radius_circle, cy + self.radius_circle)
 
     def delete_edges(self):
         """ Delete edges of drawn polygon """
         self.edge = None  # delete all edges and set current edge to None
-        self.canvas.delete(self.tag_edge)  # delete all edges
+        self.canvas.delete(self.tag_curr_edge)  # delete all edges
         self.polygon.clear()  # remove all items from vertices list
 
     def delete_roi(self):
@@ -216,14 +215,14 @@ class Polygons(CanvasImage):
         """ Check if polygon has self-intersections """
         x1, y1, x2, y2 = self.canvas.coords(self.edge)  # get coords of the current edge
         for i in range(1, len(self.polygon)-2):  # don't include the 1st ant the last 2 edges
-            x3, y3, x4, y4 = self.canvas.coords(self.tag_edge_id + str(i))
+            x3, y3, x4, y4 = self.canvas.coords(self.tag_curr_edge_id + str(i))
             if self.intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4)): return True
         # Check penultimate (last but one) edge, where points p1 and p4 coincide
         j = len(self.polygon) - 2
         if j > 0:  # 2 or more edges
-            x3, y3, x4, y4 = self.canvas.coords(self.tag_edge_id + str(j))
+            x3, y3, x4, y4 = self.canvas.coords(self.tag_curr_edge_id + str(j))
             if self.penultimate_intersect((x1, y1), (x2, y2), (x3, y3)): return True
-        # Check the 1st edge, where points p2 and p3 can coincide
-        x3, y3, x4, y4 = self.canvas.coords(self.tag_edge_start)
+        # Check the 1st edge, where points p2 and p3 CAN coincide
+        x3, y3, x4, y4 = self.canvas.coords(self.tag_curr_edge_start)
         if self.first_intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4)): return True
         return False  # there is no self-intersections in the polygon
