@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import tkinter as tk
+
 from datetime import datetime
 from .gui_canvas import CanvasImage
 
@@ -8,8 +10,14 @@ class Polygons(CanvasImage):
         """ Initialize the Polygons """
         CanvasImage.__init__(self, placeholder, path)  # call __init__ of the CanvasImage class
         self.canvas.bind('<ButtonPress-1>', self.set_edge)  # set new edge
+        self.canvas.bind('<ButtonRelease-3>', self.popup)  # call popup menu
         self.canvas.bind('<Motion>', self.motion)  # handle mouse motion
         self.canvas.bind('<Delete>', lambda event: self.delete_roi())  # delete selected polygon
+        # Create a popup menu for Polygons
+        self.hold_menu1 = False  # popup menu is closed
+        self.hold_menu2 = False
+        self.menu = tk.Menu(self.canvas, tearoff=0)
+        self.menu.add_command(label='Delete', command=self.delete_roi, accelerator=u'Delete')
         # Polygon parameters
         self.width_line = 2  # lines width
         self.dash = (1, 1)  # dash pattern
@@ -28,11 +36,16 @@ class Polygons(CanvasImage):
         self.radius_circle = 3  # radius of the sticking circle
         self.edge = None  # current edge of the new polygon
         self.polygon = []  # vertices of the current (drawing, red) polygon
-        self.poly_list = []  # list of all polygons on the canvas image
+        self.poly_dict = {}  # dictionary of all polygons and their coordinates on the canvas image
         self.selected_poly = []  # selected polygons
 
     def set_edge(self, event):
         """ Set edge of the polygon """
+        if self.hold_menu2:  # popup menu was opened
+            self.hold_menu2 = False
+            self.motion(event)  # motion event for popup menu
+            return
+        self.motion(event)  # generate motion event. It's needed for menu bar, bug otherwise!
         if self.edge and ' '.join(map(str, self.dash)) == self.canvas.itemcget(self.edge, 'dash'):
             return  # the edge is out of scope or self-crossing with other edges
         x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
@@ -65,6 +78,8 @@ class Polygons(CanvasImage):
                                                 fill=self.color_back, tags=(self.tag_poly_line, tag_id))
                     self.canvas.create_line(vertices[-1], vertices[0], width=self.width_line,
                                             fill=self.color_back, tags=(self.tag_poly_line, tag_id))
+                    # Remember polygon in the dictionary of all polygons
+                    self.poly_dict[tag_id] = self.polygon.copy()
                 self.delete_edges()  # delete edges of drawn polygon
             else:
                 self.draw_edge(x, y)  # continue drawing polygon, set new edge
@@ -79,12 +94,22 @@ class Polygons(CanvasImage):
         self.edge = self.canvas.create_line(x, y, x, y, fill=self.color_draw, width=self.width_line,
                                             tags=(tags, self.tag_curr_edge, curr_edge_id,))
         bbox = self.canvas.coords(self.container)  # get image area
-        x1 = round((x - bbox[0]) / self.imscale)  # get (x,y) on the image without zoom
+        x1 = round((x - bbox[0]) / self.imscale)  # get real (x,y) on the image without zoom
         y1 = round((y - bbox[1]) / self.imscale)
         self.polygon.append((x1, y1))  # add new vertex to the list of polygon vertices
 
+    def popup(self, event):
+        """ Popup menu """
+        self.motion(event)  # select polygon with popup menu explicitly to be sure it is selected
+        if self.selected_poly:  # show popup menu only for selected polygon
+            self.hold_menu1 = True  # popup menu is opened
+            self.hold_menu2 = True
+            self.menu.post(event.x_root, event.y_root)  # show popup menu
+            self.hold_menu1 = False  # popup menu is closed
+
     def motion(self, event):
         """ Track mouse position over the canvas """
+        if self.hold_menu1: return  # popup menu is opened
         if self.edge:  # relocate edge of the drawn polygon
             x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
             y = self.canvas.canvasy(event.y)
@@ -153,7 +178,9 @@ class Polygons(CanvasImage):
             for i in self.selected_poly:
                 self.canvas.delete(i)  # delete lines
                 self.canvas.delete(i + self.tag_const)  # delete polygon
+                del(self.poly_dict[i])  # delete polygon from the dictionary of all polygons
             self.selected_poly.clear()  # clear the list
+            self.hold_menu2 = False  # popup menu is closed
 
     @staticmethod
     def orientation(p1, p2, p3):

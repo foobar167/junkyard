@@ -47,7 +47,8 @@ class MainGUI(ttk.Frame):
         self.__previous_state = 0  # previous state of the event
         # List of shortcuts in the following format: [name, keycode, function]
         self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 1 open image
-                            ['Ctrl+W', 87, self.__close_image]]  # 2 close image
+                            ['Ctrl+W', 87, self.__close_image],  # 2 close image
+                            ['Ctrl+R', 82, self.__roll]]         # 3 rolling window
         # Bind events to the main window
         self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
         self.master.bind('<F11>', lambda event: self.__fullscreen_toggle())  # toggle fullscreen mode
@@ -131,17 +132,23 @@ class MainGUI(ttk.Frame):
         # Enable/disable these menu labels in the main window
         self.__label_recent = 'Open recent'
         self.__label_close = 'Close image'
+        self.__label_roll = 'Rolling Window'
         # Create menu for the image.
-        self.__image_menu = tk.Menu(self.__menubar, tearoff=False, postcommand=self.__list_recent)
-        self.__image_menu.add_command(label='Open image', command=self.__shortcuts[0][2],
-                                      accelerator=self.__shortcuts[0][0])
-        self.__recent_images = tk.Menu(self.__image_menu, tearoff=False)
-        self.__image_menu.add_cascade(label=self.__label_recent, menu=self.__recent_images)
-        self.__image_menu.add_command(label=self.__label_close, command=self.__shortcuts[1][2],
-                                      accelerator=self.__shortcuts[1][0], state='disabled')
-        self.__menubar.add_cascade(label='File', menu=self.__image_menu)
-        self.__image_menu.add_separator()
-        self.__image_menu.add_command(label='Exit', command=self.destroy, accelerator=u'Alt+F4')
+        self.__file_menu = tk.Menu(self.__menubar, tearoff=False, postcommand=self.__list_recent)
+        self.__file_menu.add_command(label='Open image', command=self.__shortcuts[0][2],
+                                     accelerator=self.__shortcuts[0][0])
+        self.__recent_images = tk.Menu(self.__file_menu, tearoff=False)
+        self.__file_menu.add_cascade(label=self.__label_recent, menu=self.__recent_images)
+        self.__file_menu.add_command(label=self.__label_close, command=self.__shortcuts[1][2],
+                                     accelerator=self.__shortcuts[1][0], state='disabled')
+        self.__file_menu.add_separator()
+        self.__file_menu.add_command(label='Exit', command=self.destroy, accelerator=u'Alt+F4')
+        self.__menubar.add_cascade(label='File', menu=self.__file_menu)
+        # Create menu for the tools: cut rectangular images with the rolling window, etc.
+        self.__tools_menu = tk.Menu(self.__menubar, tearoff=False, postcommand=self.__check_polygons)
+        self.__tools_menu.add_command(label=self.__label_roll, command=self.__shortcuts[2][2],
+                                     accelerator=self.__shortcuts[2][0], state='disabled')
+        self.__menubar.add_cascade(label='Tools', menu=self.__tools_menu)
         # Create menu for the view: fullscreen, default size, etc.
         self.__view_menu = tk.Menu(self.__menubar, tearoff=False)
         self.__view_menu.add_command(label='Fullscreen', command=self.__fullscreen_toggle,
@@ -169,19 +176,26 @@ class MainGUI(ttk.Frame):
             self.__recent_images.add_command(label=path, command=lambda x=path: self.__set_image(x))
         # Disable recent list menu if it is empty.
         if self.__recent_images.index('end') is None:
-            self.__image_menu.entryconfigure(self.__label_recent, state='disabled')
+            self.__file_menu.entryconfigure(self.__label_recent, state='disabled')
         else:
-            self.__image_menu.entryconfigure(self.__label_recent, state='normal')
+            self.__file_menu.entryconfigure(self.__label_recent, state='normal')
+
+    def __check_polygons(self):
+        """ Check if there are polygons on the image and enable/disable menu 'Rolling Window' """
+        if self.__imframe and len(self.__imframe.poly_dict):  # if there are polygons
+            self.__tools_menu.entryconfigure(self.__label_roll, state='normal')  # enable menu
+        else:  # if there are no polygons
+            self.__tools_menu.entryconfigure(self.__label_roll, state='disabled')  # disable menu
 
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
-        self.__imframe = Polygons(placeholder=self.__placeholder, path=path)
+        self.__imframe = Polygons(placeholder=self.__placeholder, path=path)  # create image frame
         self.__imframe.grid()  # show it
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
         # Enable 'Close image' submenu of the 'File' menu
-        self.__image_menu.entryconfigure(self.__label_close, state='normal')
+        self.__file_menu.entryconfigure(self.__label_close, state='normal')
 
     @handle_exception(0)
     def __open_image(self):
@@ -209,7 +223,14 @@ class MainGUI(ttk.Frame):
             self.__imframe = None
             self.master.title(self.__default_title)  # set default window title
             # Disable 'Close image' submenu of the 'File' menu
-            self.__image_menu.entryconfigure(self.__label_close, state='disabled')
+            self.__file_menu.entryconfigure(self.__label_close, state='disabled')
+
+    def __roll(self):
+        """ Apply rolling window to polygons on the image """
+        if self.__imframe and len(self.__imframe.poly_dict):  # if there are polygons
+            for polygon in self.__imframe.poly_dict.values():  # for all values of the dictionary
+                print(polygon)
+            print('\n')
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """
