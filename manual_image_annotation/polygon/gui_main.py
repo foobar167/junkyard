@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 import os
-import tkinter as tk
+import warnings
 
 from PIL import Image
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
+from .gui_menu import Menu
 from .gui_polygons import Polygons
 from .logic_config import Config
 from .logic_logger import logging, handle_exception
 
 class MainGUI(ttk.Frame):
-    """ GUI of Image Viewer """
+    """ Main GUI Window """
     def __init__(self, mainframe):
         """ Initialize the Frame """
         logging.info('Open GUI')
@@ -34,15 +35,7 @@ class MainGUI(ttk.Frame):
         # self.destructor gets fired when the window is destroyed
         self.master.protocol('WM_DELETE_WINDOW', self.destroy)
         #
-        self.__menubar = tk.Menu(self.master)  # create main menu bar
-        self.master.configure(menu=self.__menubar)  # should be BEFORE iconbitmap, it's important
-        # Add menubar to the main window BEFORE iconbitmap command. Otherwise it will shrink
-        # in height by 20 pixels after each opening of the window.
-        this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
-        self.master.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
-        #
         self.__is_fullscreen = False  # enable / disable fullscreen mode
-        self.__empty_menu = tk.Menu(self)  # empty menu to hide the real menubar in fullscreen mode
         self.__bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
         self.__previous_state = 0  # previous state of the event
         # List of shortcuts in the following format: [name, keycode, function]
@@ -64,7 +57,7 @@ class MainGUI(ttk.Frame):
     def __fullscreen_toggle(self, state=None):
         """ Enable/disable the full screen mode """
         if state is not None:
-            self.__is_fullscreen = state
+            self.__is_fullscreen = state  # set state to fullscreen
         else:
             self.__is_fullscreen = not self.__is_fullscreen  # toggling the boolean
         # Hide menubar in fullscreen mode or show it otherwise
@@ -76,11 +69,11 @@ class MainGUI(ttk.Frame):
 
     def __menubar_show(self):
         """ Show menu bar """
-        self.master.configure(menu=self.__menubar)
+        self.master.configure(menu=self.__menu.menubar)
 
     def __menubar_hide(self):
         """ Hide menu bar """
-        self.master.configure(menu=self.__empty_menu)
+        self.master.configure(menu=self.__menu.empty_menu)
 
     def __motion(self):
         """ Track mouse pointer and handle its position """
@@ -112,10 +105,10 @@ class MainGUI(ttk.Frame):
 
     def __resize_master(self):
         """ Save main window size and position into config file.
-            There is a bug when changing window from fullscreen to zoomed and then to normal mode.
+            BUG! There is a BUG when changing window from fullscreen to zoomed and then to normal mode.
             Main window somehow remembers zoomed mode as normal, so I have to explicitly set
             previous geometry from config INI file to the main window. """
-        if self.master.wm_attributes('-fullscreen'):  # don't remember fullscreen
+        if self.master.wm_attributes('-fullscreen'):  # don't remember fullscreen geometry
             self.__bugfix = True  # fixing bug
             return
         if self.master.state() == 'normal':
@@ -129,33 +122,19 @@ class MainGUI(ttk.Frame):
 
     def __create_widgets(self):
         """ Widgets for GUI are created here """
-        # Enable/disable these menu labels in the main window
-        self.__label_recent = 'Open recent'
-        self.__label_close = 'Close image'
-        self.__label_roll = 'Rolling Window'
-        # Create menu for the image.
-        self.__file_menu = tk.Menu(self.__menubar, tearoff=False, postcommand=self.__list_recent)
-        self.__file_menu.add_command(label='Open image', command=self.__shortcuts[0][2],
-                                     accelerator=self.__shortcuts[0][0])
-        self.__recent_images = tk.Menu(self.__file_menu, tearoff=False)
-        self.__file_menu.add_cascade(label=self.__label_recent, menu=self.__recent_images)
-        self.__file_menu.add_command(label=self.__label_close, command=self.__shortcuts[1][2],
-                                     accelerator=self.__shortcuts[1][0], state='disabled')
-        self.__file_menu.add_separator()
-        self.__file_menu.add_command(label='Exit', command=self.destroy, accelerator=u'Alt+F4')
-        self.__menubar.add_cascade(label='File', menu=self.__file_menu)
-        # Create menu for the tools: cut rectangular images with the rolling window, etc.
-        self.__tools_menu = tk.Menu(self.__menubar, tearoff=False, postcommand=self.__check_polygons)
-        self.__tools_menu.add_command(label=self.__label_roll, command=self.__shortcuts[2][2],
-                                     accelerator=self.__shortcuts[2][0], state='disabled')
-        self.__menubar.add_cascade(label='Tools', menu=self.__tools_menu)
-        # Create menu for the view: fullscreen, default size, etc.
-        self.__view_menu = tk.Menu(self.__menubar, tearoff=False)
-        self.__view_menu.add_command(label='Fullscreen', command=self.__fullscreen_toggle,
-                                     accelerator='F11')
-        self.__view_menu.add_command(label='Default size', command=self.__default_geometry,
-                                     accelerator='F5')
-        self.__menubar.add_cascade(label='View', menu=self.__view_menu)
+        # Create menu widget
+        self.functions = {  # dictionary of functions for menu widget
+            "destroy": self.destroy,
+            "fullscreen_toggle": self.__fullscreen_toggle,
+            "default_geometry": self.__default_geometry,
+            "set_image": self.__set_image,
+            "check_polygons": self.__check_polygons}
+        self.__menu = Menu(self.master, self.__config, self.__shortcuts, self.functions)
+        self.master.configure(menu=self.__menu.menubar)  # menu should be BEFORE iconbitmap, it's a bug
+        # BUG! Add menu bar to the main window BEFORE iconbitmap command. Otherwise it will
+        # shrink in height by 20 pixels after each open-close of the main window.
+        this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
+        self.master.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
         # Create placeholder frame for the image
         self.master.rowconfigure(0, weight=1)  # make grid cell expandable
         self.master.columnconfigure(0, weight=1)
@@ -168,25 +147,6 @@ class MainGUI(ttk.Frame):
         if path:
             self.__set_image(path)  # open previous image
 
-    def __list_recent(self):
-        """ List of the recent images """
-        self.__recent_images.delete(0, 'end')  # empty previous list
-        l = self.__config.get_recent_list()  # get list of recently opened images
-        for path in l:  # get list of recent image paths
-            self.__recent_images.add_command(label=path, command=lambda x=path: self.__set_image(x))
-        # Disable recent list menu if it is empty.
-        if self.__recent_images.index('end') is None:
-            self.__file_menu.entryconfigure(self.__label_recent, state='disabled')
-        else:
-            self.__file_menu.entryconfigure(self.__label_recent, state='normal')
-
-    def __check_polygons(self):
-        """ Check if there are polygons on the image and enable/disable menu 'Rolling Window' """
-        if self.__imframe and len(self.__imframe.poly_dict):  # if there are polygons
-            self.__tools_menu.entryconfigure(self.__label_roll, state='normal')  # enable menu
-        else:  # if there are no polygons
-            self.__tools_menu.entryconfigure(self.__label_roll, state='disabled')  # disable menu
-
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
@@ -195,7 +155,7 @@ class MainGUI(ttk.Frame):
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
         # Enable 'Close image' submenu of the 'File' menu
-        self.__file_menu.entryconfigure(self.__label_close, state='normal')
+        self.__menu.set_file(state='normal')
 
     @handle_exception(0)
     def __open_image(self):
@@ -206,7 +166,9 @@ class MainGUI(ttk.Frame):
         # Check if it is an image
         # noinspection PyBroadException
         try:  # try to open and close image with PIL
-            img = Image.open(path)
+            with warnings.catch_warnings():  # suppress DecompressionBombWarning for the big image
+                warnings.simplefilter(u'ignore')
+                img = Image.open(path)
             img.close()
         except:
             messagebox.showinfo('Not an image',
@@ -223,11 +185,17 @@ class MainGUI(ttk.Frame):
             self.__imframe = None
             self.master.title(self.__default_title)  # set default window title
             # Disable 'Close image' submenu of the 'File' menu
-            self.__file_menu.entryconfigure(self.__label_close, state='disabled')
+            self.__menu.set_file(state='disabled')
+
+    def __check_polygons(self):
+        """ Check if there are polygons on the image """
+        if self.__imframe and len(self.__imframe.poly_dict):  # if there are polygons
+            return True
+        return False  # if there are no polygons
 
     def __roll(self):
         """ Apply rolling window to polygons on the image """
-        if self.__imframe and len(self.__imframe.poly_dict):  # if there are polygons
+        if self.__check_polygons():  # there are polygons
             for polygon in self.__imframe.poly_dict.values():  # for all values of the dictionary
                 print(polygon)
             print('\n')

@@ -1,3 +1,4 @@
+# Create mask for the image
 import numpy as np
 from PIL import Image, ImageDraw
 
@@ -50,4 +51,13 @@ r = np.array([29, 1, 29, 11, 11])
 c = np.array([8, 15, 22, 4, 26])
 rr, cc = polygon(r, c)
 img[rr, cc] = 1
-print(img)
+print(img, '\n')
+
+width = 25
+height = 31
+polygon = [(8,29), (15,1), (22,29), (4,11), (26,11)]
+img = Image.new('L', (width, height), 0)  # using gray 'L' array for debug purposes
+#img = Image.new('1', (width, height), 0)  # better to use bitwise '1' array
+ImageDraw.Draw(img).polygon(polygon, outline=1, fill=1)
+mask = np.array(img)
+print(mask, '\n')
