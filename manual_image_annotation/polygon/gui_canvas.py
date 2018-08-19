@@ -192,6 +192,10 @@ class CanvasImage:
             elif event.keycode in [83, 40, 98]:  # scroll down, keys 's' or 'Down'
                 self.__scroll_y('scroll',  1, 'unit', event=event)
 
+    def get_image(self):
+        """ Get canvas image. Public for Tools """
+        return self.__pyramid[0]
+
     def destroy(self):
         """ ImageFrame destructor """
         logging.info('Close image: {}'.format(self.path))

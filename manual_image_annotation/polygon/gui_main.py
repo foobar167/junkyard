@@ -10,7 +10,7 @@ from .gui_menu import Menu
 from .gui_polygons import Polygons
 from .logic_config import Config
 from .logic_logger import logging, handle_exception
-from .logic_tools import save_polygons, open_polygons
+from .logic_tools import get_images, save_polygons, open_polygons
 
 class MainGUI(ttk.Frame):
     """ Main GUI Window """
@@ -200,13 +200,7 @@ class MainGUI(ttk.Frame):
     def __roll(self):
         """ Apply rolling window to ROI polygons on the image """
         if self.__check_roi():  # there are ROI
-            for roi in self.__imframe.roi_dict.values():  # for all values of the dictionary
-                print(roi)
-            if len(self.__imframe.hole_dict):  # there are holes on the image
-                print('Holes:')
-                for hole in self.__imframe.hole_dict.values():
-                    print(hole)
-            print('\n')
+            get_images(self.__imframe, self.__config)  # get and save all images
 
     def __toggle_poly(self):
         """ Toggle between ROI and hole polygons drawing """
@@ -222,7 +216,7 @@ class MainGUI(ttk.Frame):
             if path == '': return
             # noinspection PyBroadException
             try:  # check if it is a right file with polygons
-                open_polygons(self.__imframe, self.__config, path)
+                open_polygons(self.__imframe, path)
                 self.__imframe.roi = True  # reset ROI drawing
                 self.__menu.set_tools_toggle(self.__imframe.roi)  # change menu label
             except:
