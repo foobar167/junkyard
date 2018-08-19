@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import tkinter as tk
-import warnings
 import math
+import hashlib
+import warnings
+import tkinter as tk
 
 from tkinter import ttk
 from PIL import Image, ImageTk
@@ -16,7 +17,7 @@ class CanvasImage:
         self.__delta = 1.3  # zoom magnitude
         self.__filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
         self.__previous_state = 0  # previous state of the keyboard
-        self.path = path  # path to the image, should be public to remember it into INI config file
+        self.path = path  # path to the image, should be public for main GUI
         # Create ImageFrame in placeholder widget
         self.__imframe = ttk.Frame(placeholder)  # placeholder of the ImageFrame object
         # Vertical and horizontal scrollbars for canvas
@@ -26,7 +27,7 @@ class CanvasImage:
         vbar.grid(row=0, column=1, sticky='ns')
         # Create canvas and bind it with scrollbars. Public for Polygons class
         self.canvas = tk.Canvas(self.__imframe, highlightthickness=0,
-                                  xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+                                xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.canvas.grid(row=0, column=0, sticky='nswe')
         self.canvas.update()  # wait till canvas is created
         hbar.configure(command=self.__scroll_x)  # bind scrollbars to the canvas
@@ -57,6 +58,8 @@ class CanvasImage:
         # Public for Polygons class
         self.container = self.canvas.create_rectangle((0, 0, self.__pyramid[0].size), width=0)
         self.__min_side = min(self.__pyramid[0].size)  # get the smaller image side
+        # Create MD5 hash sum from the image. Public for Tools
+        self.md5 = hashlib.md5(self.__pyramid[0].tobytes()).hexdigest()
         self.__show_image()  # show image on the canvas
         self.canvas.focus_set()  # set focus on the canvas
 
@@ -194,5 +197,6 @@ class CanvasImage:
         logging.info('Close image: {}'.format(self.path))
         map(lambda i: i.close, self.__pyramid)  # close all pyramid images
         del self.__pyramid[:]  # delete pyramid list
+        del self.__pyramid  # delete pyramid variable
         self.canvas.destroy()
         self.__imframe.destroy()

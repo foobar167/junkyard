@@ -7,8 +7,9 @@ class Config:
         ConfigParser module is a part of the standard Python library """
     def __init__(self, path='temp'):
         """ Initialize configure parameters for INI file """
+        self.config_dir = path  # should be public for the main GUI
         self.__config_name = 'config.ini'  # name of config file
-        self.__config_path = os.path.join(path, self.__config_name)
+        self.__config_path = os.path.join(self.config_dir, self.__config_name)
         #
         # Value -- first place. Options -- second place.
         self.__window = 'Window'  # info about the main window
@@ -36,8 +37,8 @@ class Config:
         self.__config = configparser.ConfigParser()  # create config parser
         self.__config.optionxform = lambda option: option  # preserve case for letters
         # Create config directory if not exist
-        if not os.path.isdir(path):
-            os.makedirs(path)
+        if not os.path.isdir(self.config_dir):
+            os.makedirs(self.config_dir)
         # Create new config file if not exist or read existing one
         if not os.path.isfile(self.__config_path):
             self.__new_config()  # create new config
@@ -84,7 +85,7 @@ class Config:
         except KeyError:  # if the key is not in the dictionary of config
             return ''
 
-    def set_opened_path(self, path = None):
+    def set_opened_path(self, path=None):
         """ Remember opened path to the config INI file """
         self.__check_section(self.__window)
         if path:
@@ -137,12 +138,12 @@ class Config:
     def get_recent_list(self):
         """ Get list of recently opened image paths """
         try:
-            l = self.__config.items(self.__recent)  # list of (key, value) pairs
-            l = [path for key, path in l]  # leave only path
-            for n, path in enumerate(l):
+            lst = self.__config.items(self.__recent)  # list of (key, value) pairs
+            lst = [path for key, path in lst]  # leave only path
+            for n, path in enumerate(lst):
                 if not os.path.isfile(path):
-                    del l[n]  # delete non-existent file path from the list
-            return l
+                    del lst[n]  # delete non-existent file path from the list
+            return lst
         except configparser.NoSectionError:  # no section with the list of last opened paths
             return ''
 
@@ -160,16 +161,16 @@ class Config:
     def set_recent_path(self, path):
         """ Set last opened path to config INI file """
         try:
-            l = self.__config.items(self.__recent)  # list of (key, value) pairs
+            lst = self.__config.items(self.__recent)  # list of (key, value) pairs
         except configparser.NoSectionError:  # no section with the list of last opened paths
-            l = []  # there is no such section
-        l = [value for key, value in l]  # leave only path
-        if path in l: l.remove(path)  # delete path from list
-        l.insert(0, path)  # add path to the beginning of a list
+            lst = []  # there is no such section
+        lst = [value for key, value in lst]  # leave only path
+        if path in lst: lst.remove(path)  # delete path from list
+        lst.insert(0, path)  # add path to the beginning of a list
         self.__config.remove_section(self.__recent)  # remove section
         self.__config.add_section(self.__recent)  # create empty section
         key = 1
-        for name in l:
+        for name in lst:
             if os.path.exists(name):
                 self.__config[self.__recent][str(key)] = name
                 key += 1

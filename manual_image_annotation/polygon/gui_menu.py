@@ -13,7 +13,13 @@ class Menu:
         # Enable / disable these menu labels
         self.__label_recent = 'Open recent'
         self.__label_close = 'Close image'
+        self.__label_tools = 'Tools'
         self.__label_roll = 'Rolling Window'
+        self.__label_poly_roi = 'Draw ROI'
+        self.__label_poly_hole = 'Draw holes'
+        self.__label_poly = self.__label_poly_hole
+        self.__label_open = 'Open polygons'
+        self.__label_save = 'Save polygons'
         # Create menu for the image
         self.__file = tk.Menu(self.menubar, tearoff=False, postcommand=self.__list_recent)
         self.__file.add_command(label='Open image',
@@ -36,11 +42,22 @@ class Menu:
                                  command=self.__shortcuts[2][2],
                                  accelerator=self.__shortcuts[2][0],
                                  state='disabled')
-        self.menubar.add_cascade(label='Tools', menu=self.__tools)
+        self.__tools.add_separator()
+        self.__tools.add_command(label=self.__label_poly,
+                                 command=self.__shortcuts[3][2],
+                                 accelerator=self.__shortcuts[3][0])
+        self.__tools.add_separator()
+        self.__tools.add_command(label=self.__label_open,
+                                 command=self.__shortcuts[4][2],
+                                 accelerator=self.__shortcuts[4][0])
+        self.__tools.add_command(label=self.__label_save,
+                                 command=self.__shortcuts[5][2],
+                                 accelerator=self.__shortcuts[5][0])
+        self.menubar.add_cascade(label=self.__label_tools, menu=self.__tools)
         # Create menu for the view: fullscreen, default size, etc.
         self.__view = tk.Menu(self.menubar, tearoff=False)
         self.__view.add_command(label='Fullscreen',
-                                command=self.__functs["fullscreen_toggle"],
+                                command=self.__functs["toggle_fullscreen"],
                                 accelerator='F11')
         self.__view.add_command(label='Default size',
                                 command=self.__functs["default_geometry"],
@@ -50,8 +67,8 @@ class Menu:
     def __list_recent(self):
         """ List of the recent images """
         self.__recent_images.delete(0, 'end')  # empty previous list
-        l = self.__config.get_recent_list()  # get list of recently opened images
-        for path in l:  # get list of recent image paths
+        lst = self.__config.get_recent_list()  # get list of recently opened images
+        for path in lst:  # get list of recent image paths
             self.__recent_images.add_command(label=path,
                                              command=lambda x=path: self.__functs["set_image"](x))
         # Disable recent list menu if it is empty.
@@ -62,11 +79,19 @@ class Menu:
 
     def __check_polygons(self):
         """ Check if there are polygons on the image and enable/disable menu 'Rolling Window' """
-        if self.__functs["check_polygons"]():  # if there are polygons
+        if self.__functs["check_roi"]():  # there are regions of interest on the image
             self.__tools.entryconfigure(self.__label_roll, state='normal')  # enable menu
         else:  # if there are no polygons
             self.__tools.entryconfigure(self.__label_roll, state='disabled')  # disable menu
 
-    def set_file(self, state):
-        """ Enable / disable 'File' menu """
+    def set_state(self, state, roi=None):
+        """ Enable / disable some menus """
         self.__file.entryconfigure(self.__label_close, state=state)
+        self.menubar.entryconfigure(self.__label_tools, state=state)
+        self.set_tools_toggle(roi)
+
+    def set_tools_toggle(self, roi):
+        """ Change label of the toggle submenu 'Draw ROI/holes' of 'Tools' menu """
+        label = self.__label_poly_hole if roi else self.__label_poly_roi
+        self.__tools.entryconfigure(self.__label_poly, label=label)  # change menu text
+        self.__label_poly = label  # update menu label to find it next time

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import uuid
 import tkinter as tk
 
-from datetime import datetime
 from .gui_canvas import CanvasImage
 
 class Polygons(CanvasImage):
@@ -12,23 +12,29 @@ class Polygons(CanvasImage):
         self.canvas.bind('<ButtonPress-1>', self.set_edge)  # set new edge
         self.canvas.bind('<ButtonRelease-3>', self.popup)  # call popup menu
         self.canvas.bind('<Motion>', self.motion)  # handle mouse motion
-        self.canvas.bind('<Delete>', lambda event: self.delete_roi())  # delete selected polygon
+        self.canvas.bind('<Delete>', lambda event: self.delete_poly())  # delete selected polygon
         # Create a popup menu for Polygons
         self.hold_menu1 = False  # popup menu is closed
         self.hold_menu2 = False
         self.menu = tk.Menu(self.canvas, tearoff=0)
-        self.menu.add_command(label='Delete', command=self.delete_roi, accelerator=u'Delete')
+        self.menu.add_command(label='Delete', command=self.delete_poly, accelerator=u'Delete')
         # Polygon parameters
+        self.roi = True  # is it a ROI or hole
         self.width_line = 2  # lines width
         self.dash = (1, 1)  # dash pattern
-        self.color_draw = 'red'  # color to draw
-        self.color_point = 'blue'  # color of pointed figures
-        self.color_back = 'yellow'  # background color
-        self.stipple = 'gray12'  # value of stipple
+        self.color_hole = {'draw'   : 'magenta',  # draw hole color
+                           'point'  : 'black',    # point hole color
+                           'back'   : 'black',    # background hole color
+                           'stipple': 'gray50'}   # stipple value for hole
+        self.color_roi =  {'draw'   : 'red',      # draw roi color
+                           'point'  : 'blue',     # point roi color
+                           'back'   : 'yellow',   # background roi color
+                           'stipple': 'gray12'}   # stipple value for roi
         self.tag_curr_edge_start = '1st_edge'  # starting edge of the current polygon
         self.tag_curr_edge = 'edge'  # edges of the polygon
         self.tag_curr_edge_id = 'edge_id'  # part of unique ID of the current edge
-        self.tag_poly = 'polygon'  # polygon tag
+        self.tag_roi = 'roi'  # roi tag
+        self.tag_hole = 'hole'  # hole tag
         self.tag_const = 'poly'  # constant tag for polygon
         self.tag_poly_line = 'poly_line'  # edge of the polygon
         self.tag_curr_circle = 'circle'  # sticking circle tag for the current polyline
@@ -36,8 +42,9 @@ class Polygons(CanvasImage):
         self.radius_circle = 3  # radius of the sticking circle
         self.edge = None  # current edge of the new polygon
         self.polygon = []  # vertices of the current (drawing, red) polygon
-        self.poly_dict = {}  # dictionary of all polygons and their coordinates on the canvas image
         self.selected_poly = []  # selected polygons
+        self.roi_dict = {}  # dictionary of all roi polygons and their coords on the canvas image
+        self.hole_dict = {}  # dictionary of all holes and their coordinates on the canvas image
 
     def set_edge(self, event):
         """ Set edge of the polygon """
@@ -46,52 +53,63 @@ class Polygons(CanvasImage):
             self.motion(event)  # motion event for popup menu
             return
         self.motion(event)  # generate motion event. It's needed for menu bar, bug otherwise!
-        if self.edge and ' '.join(map(str, self.dash)) == self.canvas.itemcget(self.edge, 'dash'):
-            return  # the edge is out of scope or self-crossing with other edges
         x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
         y = self.canvas.canvasy(event.y)
+        if self.edge and ' '.join(map(str, self.dash)) == self.canvas.itemcget(self.edge, 'dash'):
+            return  # the edge is out of scope or self-crossing with other edges
+        elif not self.edge and self.outside(x, y):
+            return  # starting point is out of scope
+        color = self.color_roi if self.roi else self.color_hole  # set color palette
         if not self.edge:  # start drawing polygon
-            self.draw_edge(x, y, self.tag_curr_edge_start)
+            self.draw_edge(color, x, y, self.tag_curr_edge_start)
             # Draw sticking circle
             self.canvas.create_oval(x - self.radius_circle, y - self.radius_circle,
                                     x + self.radius_circle, y + self.radius_circle,
-                                    width=0, fill=self.color_draw,
+                                    width=0, fill=color['draw'],
                                     tags=(self.tag_curr_edge, self.tag_curr_circle))
         else:  # continue drawing polygon
             x1, y1, x2, y2 = self.canvas.coords(self.tag_curr_edge_start)  # get coords of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             if x4 == x1 and y4 == y1:  # finish drawing polygon
                 if len(self.polygon) > 2:  # draw polygon on the zoomed image canvas
-                    bbox = self.canvas.coords(self.container)  # get image area
-                    vertices = list(map((lambda i: (i[0] * self.imscale + bbox[0],
-                                                    i[1] * self.imscale + bbox[1])), self.polygon))
-                    # Create identification tag
-                    # [:-3] means microseconds to milliseconds, anyway there are zeros on Windows OS
-                    tag_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')[:-3]
-                    # Create polygon. 2nd tag is ALWAYS a unique tag ID + constant string.
-                    self.canvas.create_polygon(vertices, fill=self.color_point,
-                                               stipple=self.stipple, width=0, state='hidden',
-                                               tags=(self.tag_poly, tag_id + self.tag_const))
-                    # Create polyline. 2nd tag is ALWAYS a unique tag ID.
-                    for j in range(len(vertices)-1):
-                        self.canvas.create_line(vertices[j], vertices[j+1], width=self.width_line,
-                                                fill=self.color_back, tags=(self.tag_poly_line, tag_id))
-                    self.canvas.create_line(vertices[-1], vertices[0], width=self.width_line,
-                                            fill=self.color_back, tags=(self.tag_poly_line, tag_id))
-                    # Remember polygon in the dictionary of all polygons
-                    self.poly_dict[tag_id] = self.polygon.copy()
+                    if self.roi:  # it's a ROI polygon
+                        d = self.roi_dict
+                        tag = self.tag_roi
+                    else:  # it's a hole polygon
+                        d = self.hole_dict
+                        tag = self.tag_hole
+                    self.draw_polygon(self.polygon, color, tag, d)
                 self.delete_edges()  # delete edges of drawn polygon
             else:
-                self.draw_edge(x, y)  # continue drawing polygon, set new edge
+                self.draw_edge(color, x, y)  # continue drawing polygon, set new edge
 
-    def draw_edge(self, x, y, tags=None):
+    def draw_polygon(self, polygon, color, tag, dictionary):
+        """ Draw polygon on the canvas """
+        # Calculate coordinates of vertices on the zoomed image
+        bbox = self.canvas.coords(self.container)  # get image area
+        vertices = list(map((lambda i: (i[0] * self.imscale + bbox[0],
+                                        i[1] * self.imscale + bbox[1])), polygon))
+        # Create identification tag
+        tag_uid = uuid.uuid4().hex  # unique ID
+        # Create polygon. 2nd tag is ALWAYS a unique tag ID + constant string.
+        self.canvas.create_polygon(vertices, fill=color['point'],
+                                   stipple=color['stipple'], width=0, state='hidden',
+                                   tags=(tag, tag_uid + self.tag_const))
+        # Create polyline. 2nd tag is ALWAYS a unique tag ID.
+        for j in range(-1, len(vertices) - 1):
+            self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
+                                    fill=color['back'], tags=(self.tag_poly_line, tag_uid))
+        # Remember ROI / hole in the dictionary of all ROIs / holes
+        dictionary[tag_uid] = polygon.copy()
+
+    def draw_edge(self, color, x, y, tags=None):
         """ Draw edge of the polygon """
         if len(self.polygon) > 1:
             x1, y1, x2, y2 = self.canvas.coords(self.edge)
             if x1 == x2 and y1 == y2:
                 return  # don't draw edge in the same point, otherwise it'll be self-intersection
         curr_edge_id = self.tag_curr_edge_id + str(len(self.polygon))  # ID of the edge in the polygon
-        self.edge = self.canvas.create_line(x, y, x, y, fill=self.color_draw, width=self.width_line,
+        self.edge = self.canvas.create_line(x, y, x, y, fill=color['draw'], width=self.width_line,
                                             tags=(tags, self.tag_curr_edge, curr_edge_id,))
         bbox = self.canvas.coords(self.container)  # get image area
         x1 = round((x - bbox[0]) / self.imscale)  # get real (x,y) on the image without zoom
@@ -125,8 +143,8 @@ class Polygons(CanvasImage):
                 self.canvas.coords(self.edge, x3, y3, x, y)  # follow the mouse movements
                 self.set_dash(x, y)  # set dash for edge segment
         # Handle polygons on the canvas
-        self.deselect_roi()  # change color and zeroize selected roi polygon
-        self.select_roi()  # change color and select roi polygon
+        self.deselect_poly()  # change color and zeroize selected polygon
+        self.select_poly()  # change color and select polygon
 
     def set_dash(self, x, y):
         """ Set dash for edge segment """
@@ -136,28 +154,39 @@ class Polygons(CanvasImage):
         else:
             self.canvas.itemconfigure(self.edge, dash='')  # set solid line
 
-    def deselect_roi(self):
+    def deselect_poly(self):
         """ Deselect current roi object """
         if not self.selected_poly: return  # selected polygons list is empty
         for i in self.selected_poly:
-            self.canvas.itemconfigure(i, fill=self.color_back)  # deselect lines
-            self.canvas.itemconfigure(i + self.tag_const, state='hidden')  # hide polygon
+            j = i + self.tag_const  # unique tag of the polygon
+            color = self.color_roi if self.is_roi(j) else self.color_hole  # get color palette
+            self.canvas.itemconfigure(i, fill=color['back'])  # deselect lines
+            self.canvas.itemconfigure(j, state='hidden')  # hide figure
         self.selected_poly.clear()  # clear the list
 
-    def select_roi(self):
+    def select_poly(self):
         """ Select and change color of the current roi object """
         if self.edge: return  # new polygon is being created (drawn) right now
         i = self.canvas.find_withtag('current')  # id of the current object
         tags = self.canvas.gettags(i)  # get tags of the current object
-        if self.tag_poly_line in tags:  # if it's a polygon, 2nd tag is ALWAYS a unique tag ID
-            self.canvas.itemconfigure(tags[1], fill=self.color_point)  # select lines through 2nd tag
-            self.canvas.itemconfigure(tags[1] + self.tag_const, state='normal')  # show polygon
+        if self.tag_poly_line in tags:  # If it's a polyline. 2nd tag is ALWAYS a unique tag ID
+            j = tags[1] + self.tag_const  # unique tag of the polygon
+            color = self.color_roi if self.is_roi(j) else self.color_hole  # get color palette
+            self.canvas.itemconfigure(tags[1], fill=color['point'])  # select lines through 2nd tag
+            self.canvas.itemconfigure(j, state='normal')  # show polygon
             self.selected_poly.append(tags[1])  # remember 2nd unique tag_id
+
+    def is_roi(self, tag):
+        """ Return True if polygon is ROI. Return False if polygon is hole """
+        tags = self.canvas.gettags(tag)
+        if self.tag_roi in tags:
+            return True
+        return False
 
     def redraw_figures(self):
         """ Overwritten method. Redraw sticking circle for the wheel event """
         bbox = self.canvas.coords(self.tag_curr_circle)
-        if bbox:  # radius of sticky circle is unchanged
+        if bbox:  # radius of sticky circle is unchanged during zoom
             cx = (bbox[0] + bbox[2]) / 2  # center of the circle
             cy = (bbox[1] + bbox[3]) / 2
             self.canvas.coords(self.tag_curr_circle,
@@ -166,21 +195,44 @@ class Polygons(CanvasImage):
 
     def delete_edges(self):
         """ Delete edges of drawn polygon """
-        self.edge = None  # delete all edges and set current edge to None
-        self.canvas.delete(self.tag_curr_edge)  # delete all edges
-        self.polygon.clear()  # remove all items from vertices list
-
-    def delete_roi(self):
-        """ Delete selected polygon """
         if self.edge:  # if polygon is being drawing, delete it
-            self.delete_edges()  # delete edges of drawn polygon
-        elif self.selected_poly:  # delete selected polygon
+            self.edge = None  # delete all edges and set current edge to None
+            self.canvas.delete(self.tag_curr_edge)  # delete all edges
+            self.polygon.clear()  # remove all items from vertices list
+
+    def delete_poly(self):
+        """ Delete selected polygon """
+        self.delete_edges()  # delete edges of drawn polygon
+        if self.selected_poly:  # delete selected polygon
             for i in self.selected_poly:
+                j = i + self.tag_const  # unique tag of the polygon
+                if self.is_roi(j):
+                    del(self.roi_dict[i])  # delete ROI from the dictionary of all ROIs
+                else:
+                    del(self.hole_dict[i])  # delete hole from the dictionary of all holes
                 self.canvas.delete(i)  # delete lines
-                self.canvas.delete(i + self.tag_const)  # delete polygon
-                del(self.poly_dict[i])  # delete polygon from the dictionary of all polygons
-            self.selected_poly.clear()  # clear the list
+                self.canvas.delete(j)  # delete polygon
+            self.selected_poly.clear()  # clear selection list
             self.hold_menu2 = False  # popup menu is closed
+
+    def delete_all(self):
+        """ Delete all polygons from the canvas and clear variables """
+        self.delete_edges()  # delete edges of drawn polygon
+        self.canvas.delete(self.tag_roi)  # delete all ROI
+        self.canvas.delete(self.tag_hole)  # delete all holes
+        self.canvas.delete(self.tag_poly_line)  # delete all polygon lines
+        self.selected_poly.clear()  # clear selection list
+        self.hold_menu2 = False  # popup menu is closed
+        self.roi_dict.clear()  # clear dictionary of ROI
+        self.hole_dict.clear()  # clear dictionary of holes
+
+    def reset(self, roi, holes):
+        """ Reset ROI and holes on the image """
+        self.delete_all()  # delete old polygons
+        for polygon in roi:  # draw roi polygons
+            self.draw_polygon(polygon, self.color_roi, self.tag_roi, self.roi_dict)
+        for polygon in holes:  # draw hole polygons
+            self.draw_polygon(polygon, self.color_hole, self.tag_hole, self.hole_dict)
 
     @staticmethod
     def orientation(p1, p2, p3):
@@ -189,7 +241,7 @@ class Polygons(CanvasImage):
             -1 --> clockwise
              1 --> counterclockwise """
         val = (p2[0] - p1[0]) * (p3[1] - p2[1]) - (p2[1] - p1[1]) * (p3[0] - p2[0])
-        if val < 0:   return -1  # clockwise
+        if   val < 0: return -1  # clockwise
         elif val > 0: return  1  # counterclockwise
         else:         return  0  # collinear
 

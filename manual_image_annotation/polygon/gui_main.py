@@ -4,12 +4,13 @@ import warnings
 
 from PIL import Image
 from tkinter import ttk
-from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
+from tkinter.filedialog import askopenfilename
 from .gui_menu import Menu
 from .gui_polygons import Polygons
 from .logic_config import Config
 from .logic_logger import logging, handle_exception
+from .logic_tools import save_polygons, open_polygons
 
 class MainGUI(ttk.Frame):
     """ Main GUI Window """
@@ -35,17 +36,20 @@ class MainGUI(ttk.Frame):
         # self.destructor gets fired when the window is destroyed
         self.master.protocol('WM_DELETE_WINDOW', self.destroy)
         #
-        self.__is_fullscreen = False  # enable / disable fullscreen mode
+        self.__fullscreen = False  # enable / disable fullscreen mode
         self.__bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
         self.__previous_state = 0  # previous state of the event
         # List of shortcuts in the following format: [name, keycode, function]
-        self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 1 open image
-                            ['Ctrl+W', 87, self.__close_image],  # 2 close image
-                            ['Ctrl+R', 82, self.__roll]]         # 3 rolling window
+        self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 0 open image
+                            ['Ctrl+W', 87, self.__close_image],  # 1 close image
+                            ['Ctrl+R', 82, self.__roll],         # 2 rolling window
+                            ['Ctrl+H', 72, self.__toggle_poly],  # 3 toggle between roi/hole drawing
+                            ['Ctrl+Q', 81, self.__open_poly],    # 4 open polygons for the image
+                            ['Ctrl+S', 83, self.__save_poly]]    # 5 save polygons of the image
         # Bind events to the main window
         self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
-        self.master.bind('<F11>', lambda event: self.__fullscreen_toggle())  # toggle fullscreen mode
-        self.master.bind('<Escape>', lambda event, s=False: self.__fullscreen_toggle(s))
+        self.master.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
+        self.master.bind('<Escape>', lambda event, s=False: self.__toggle_fullscreen(s))
         self.master.bind('<F5>', lambda event: self.__default_geometry())  # reset default window geometry
         # Handle main window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
         # don't set default geometry from full screen if resizing is not postponed.
@@ -54,18 +58,18 @@ class MainGUI(ttk.Frame):
         # when too many key stroke events in the same time.
         self.master.bind('<Key>', lambda event: self.master.after_idle(self.__keystroke, event))
 
-    def __fullscreen_toggle(self, state=None):
+    def __toggle_fullscreen(self, state=None):
         """ Enable/disable the full screen mode """
         if state is not None:
-            self.__is_fullscreen = state  # set state to fullscreen
+            self.__fullscreen = state  # set state to fullscreen
         else:
-            self.__is_fullscreen = not self.__is_fullscreen  # toggling the boolean
+            self.__fullscreen = not self.__fullscreen  # toggling the boolean
         # Hide menubar in fullscreen mode or show it otherwise
-        if self.__is_fullscreen:
+        if self.__fullscreen:
             self.__menubar_hide()
         else:  # show menubar
             self.__menubar_show()
-        self.master.wm_attributes('-fullscreen', self.__is_fullscreen)  # fullscreen mode on/off
+        self.master.wm_attributes('-fullscreen', self.__fullscreen)  # fullscreen mode on/off
 
     def __menubar_show(self):
         """ Show menu bar """
@@ -77,7 +81,7 @@ class MainGUI(ttk.Frame):
 
     def __motion(self):
         """ Track mouse pointer and handle its position """
-        if self.__is_fullscreen:
+        if self.__fullscreen:
             y = self.master.winfo_pointery()
             if 0 <= y < 20:  # if close to the upper side of the main window
                 self.__menubar_show()
@@ -88,7 +92,7 @@ class MainGUI(ttk.Frame):
         """ Language independent handle events from the keyboard
             Link1: http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/key-names.html
             Link2: http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/event-handlers.html """
-        #print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
+        # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
         if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
             for shortcut in self.__shortcuts:
                 if event.keycode == shortcut[1]:
@@ -98,7 +102,7 @@ class MainGUI(ttk.Frame):
 
     def __default_geometry(self):
         """ Reset default geomentry for the main GUI window """
-        self.__fullscreen_toggle(state=False)  # exit from fullscreen
+        self.__toggle_fullscreen(state=False)  # exit from fullscreen
         self.master.wm_state(self.__config.default_state)  # exit from zoomed
         self.__config.set_win_geometry(self.__config.default_geometry)  # save default to config
         self.master.geometry(self.__config.default_geometry)  # set default geometry
@@ -125,10 +129,10 @@ class MainGUI(ttk.Frame):
         # Create menu widget
         self.functions = {  # dictionary of functions for menu widget
             "destroy": self.destroy,
-            "fullscreen_toggle": self.__fullscreen_toggle,
+            "toggle_fullscreen": self.__toggle_fullscreen,
             "default_geometry": self.__default_geometry,
             "set_image": self.__set_image,
-            "check_polygons": self.__check_polygons}
+            "check_roi": self.__check_roi}
         self.__menu = Menu(self.master, self.__config, self.__shortcuts, self.functions)
         self.master.configure(menu=self.__menu.menubar)  # menu should be BEFORE iconbitmap, it's a bug
         # BUG! Add menu bar to the main window BEFORE iconbitmap command. Otherwise it will
@@ -154,13 +158,12 @@ class MainGUI(ttk.Frame):
         self.__imframe.grid()  # show it
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
-        # Enable 'Close image' submenu of the 'File' menu
-        self.__menu.set_file(state='normal')
+        self.__menu.set_state(state='normal', roi=self.__imframe.roi)  # enable some menus
 
     @handle_exception(0)
     def __open_image(self):
         """ Open image in Image Viewer """
-        path = askopenfilename(title='Select an image for the flight task',
+        path = askopenfilename(title='Select an image',
                                initialdir=self.__config.get_recent_path())
         if path == '': return
         # Check if it is an image
@@ -181,24 +184,58 @@ class MainGUI(ttk.Frame):
     def __close_image(self):
         """ Close image """
         if self.__imframe:
+            if len(self.__imframe.roi_dict) + len(self.__imframe.hole_dict):
+                self.__save_poly()  # if there are polygons, save them
             self.__imframe.destroy()
             self.__imframe = None
             self.master.title(self.__default_title)  # set default window title
-            # Disable 'Close image' submenu of the 'File' menu
-            self.__menu.set_file(state='disabled')
+            self.__menu.set_state(state='disabled')  # disable some menus
 
-    def __check_polygons(self):
-        """ Check if there are polygons on the image """
-        if self.__imframe and len(self.__imframe.poly_dict):  # if there are polygons
+    def __check_roi(self):
+        """ Check if there are ROI on the image """
+        if self.__imframe and len(self.__imframe.roi_dict):  # there are ROI on the image
             return True
         return False  # if there are no polygons
 
     def __roll(self):
-        """ Apply rolling window to polygons on the image """
-        if self.__check_polygons():  # there are polygons
-            for polygon in self.__imframe.poly_dict.values():  # for all values of the dictionary
-                print(polygon)
+        """ Apply rolling window to ROI polygons on the image """
+        if self.__check_roi():  # there are ROI
+            for roi in self.__imframe.roi_dict.values():  # for all values of the dictionary
+                print(roi)
+            if len(self.__imframe.hole_dict):  # there are holes on the image
+                print('Holes:')
+                for hole in self.__imframe.hole_dict.values():
+                    print(hole)
             print('\n')
+
+    def __toggle_poly(self):
+        """ Toggle between ROI and hole polygons drawing """
+        if self.__imframe:
+            self.__imframe.roi = not self.__imframe.roi  # toggle ROI or hole polygons drawing
+            self.__menu.set_tools_toggle(self.__imframe.roi)  # change menu label
+
+    def __open_poly(self):
+        """ Open polygons ROI and holes for the current image from file """
+        if self.__imframe:
+            path = askopenfilename(title='Open polygons for the current image',
+                                   initialdir=self.__config.config_dir)
+            if path == '': return
+            # noinspection PyBroadException
+            try:  # check if it is a right file with polygons
+                open_polygons(self.__imframe, self.__config, path)
+                self.__imframe.roi = True  # reset ROI drawing
+                self.__menu.set_tools_toggle(self.__imframe.roi)  # change menu label
+            except:
+                messagebox.showinfo('Wrong file',
+                                    'Wrong polygons for image: "{}"\n'.format(self.__imframe.path) +
+                                    'Please, select polygons for the current image.')
+                self.__open_poly()  # try to open polygons again
+                return
+
+    def __save_poly(self):
+        """ Save polygons ROI and holes of the current image into file """
+        if self.__imframe:
+            save_polygons(self.__imframe, self.__config)
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """
