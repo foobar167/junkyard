@@ -64,11 +64,10 @@ def open_polygons(imframe, path):
 
 def save_polygons(imframe, config):
     """ Save polygons (ROI and holes) into file """
-    name = os.path.basename(imframe.path)  # get filename of the image
     parser = configparser.ConfigParser()  # create config parser
     parser.optionxform = lambda option: option  # preserve case for letters
     parser.add_section(str_image)
-    parser[str_image][str_name] = name
+    parser[str_image][str_name] = imframe.path
     parser[str_image][str_md5] = imframe.md5
     parser.add_section(str_polygons)
     roi = list(imframe.roi_dict.values())  # get roi list
@@ -76,6 +75,7 @@ def save_polygons(imframe, config):
     parser[str_polygons][str_roi] = codecs.encode(pickle.dumps(roi), 'base64').decode()  # wrap info
     parser[str_polygons][str_holes] = codecs.encode(pickle.dumps(holes), 'base64').decode()  # wrap info
     uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID
+    name = os.path.basename(imframe.path)  # get filename of the image
     name += '_' + uid + '.txt'  # unique name
     path = os.path.join(config.config_dir, name)
     with open(path, 'w') as file:
