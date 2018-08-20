@@ -48,6 +48,7 @@ class CanvasImage:
             warnings.simplefilter(u'ignore')
             self.__pyramid = [Image.open(self.path)]  # open image and place it into pyramid
         w, h = self.__pyramid[0].size
+        self.size = self.__pyramid[0].size  # image size. Public for Tools
         self.__reduction = 2  # reduction degree of the pyramid
         while w > 512 and h > 512:  # top pyramid image is around 512 pixels in size
             w /= self.__reduction  # divide on reduction degree
@@ -56,8 +57,8 @@ class CanvasImage:
         self.__current_img = 0  # current image from the pyramid
         # Put image into container rectangle and use it to set proper coordinates to the image
         # Public for Polygons class
-        self.container = self.canvas.create_rectangle((0, 0, self.__pyramid[0].size), width=0)
-        self.__min_side = min(self.__pyramid[0].size)  # get the smaller image side
+        self.container = self.canvas.create_rectangle((0, 0, self.size), width=0)
+        self.__min_side = min(self.size)  # get the smaller image side
         # Create MD5 hash sum from the image. Public for Tools
         self.md5 = hashlib.md5(self.__pyramid[0].tobytes()).hexdigest()
         self.__show_image()  # show image on the canvas
@@ -192,9 +193,9 @@ class CanvasImage:
             elif event.keycode in [83, 40, 98]:  # scroll down, keys 's' or 'Down'
                 self.__scroll_y('scroll',  1, 'unit', event=event)
 
-    def get_image(self):
-        """ Get canvas image. Public for Tools """
-        return self.__pyramid[0]
+    def crop(self, bbox):
+        """ Crop rectangle from the image and return it """
+        return self.__pyramid[0].crop(bbox)
 
     def destroy(self):
         """ ImageFrame destructor """

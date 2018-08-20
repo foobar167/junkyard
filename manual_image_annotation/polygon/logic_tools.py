@@ -29,8 +29,7 @@ def roll(mask,  # image array
 def get_images(imframe, config):
     """ Get a set of small images for machine learning """
     logging.info('Apply rolling window')
-    image = imframe.get_image()  # get big image with polygons
-    mask = Image.new('1', image.size, False)  # create bitwise array of False
+    mask = Image.new('1', imframe.size, False)  # create bitwise array of False
     for roi in imframe.roi_dict.values():  # for all ROI polygons of the image
         ImageDraw.Draw(mask).polygon(roi, outline=True, fill=True)  # fill the mask
     for hole in imframe.hole_dict.values():  # for all hole polygons of the image
@@ -45,7 +44,7 @@ def get_images(imframe, config):
     uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID
     n = str(len(str(len(found))))  # zero padding number
     for i, c in enumerate(found):  # for every coordinate of upper left corner of rectangle
-        im = image.crop((c[1], c[0], c[1]+w, c[0]+h))  # cut sub-rectangle from the image
+        im = imframe.crop((c[1], c[0], c[1]+w, c[0]+h))  # cut sub-rectangle from the image
         imname = ('{uid}_{i:0' + n + '}.png').format(uid=uid, i=i)  # create filename
         im.save(os.path.join(config.config_dir, imname))  # save image into config dir folder
 
