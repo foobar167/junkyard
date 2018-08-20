@@ -45,7 +45,8 @@ class MainGUI(ttk.Frame):
                             ['Ctrl+R', 82, self.__roll],         # 2 rolling window
                             ['Ctrl+H', 72, self.__toggle_poly],  # 3 toggle between roi/hole drawing
                             ['Ctrl+Q', 81, self.__open_poly],    # 4 open polygons for the image
-                            ['Ctrl+S', 83, self.__save_poly]]    # 5 save polygons of the image
+                            ['Ctrl+S', 83, self.__save_poly],    # 5 save polygons of the image
+                            ['Ctrl+A', 65, self.__show_rect]]    # 6 show rolling window rectangle
         # Bind events to the main window
         self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
         self.master.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
@@ -92,7 +93,7 @@ class MainGUI(ttk.Frame):
         """ Language independent handle events from the keyboard
             Link1: http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/key-names.html
             Link2: http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/event-handlers.html """
-        # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
+        #print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
         if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
             for shortcut in self.__shortcuts:
                 if event.keycode == shortcut[1]:
@@ -154,11 +155,13 @@ class MainGUI(ttk.Frame):
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
-        self.__imframe = Polygons(placeholder=self.__placeholder, path=path)  # create image frame
+        self.__imframe = Polygons(placeholder=self.__placeholder, path=path,
+                                  roll_size=self.__config.get_roll_size())  # create image frame
         self.__imframe.grid()  # show it
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
-        self.__menu.set_state(state='normal', roi=self.__imframe.roi)  # enable some menus
+        # Enable some menus
+        self.__menu.set_state(state='normal', roi=self.__imframe.roi, rect=self.__imframe.rect)
 
     @handle_exception(0)
     def __open_image(self):
@@ -231,6 +234,12 @@ class MainGUI(ttk.Frame):
         """ Save polygons ROI and holes of the current image into file """
         if self.__imframe:
             save_polygons(self.__imframe, self.__config)
+
+    def __show_rect(self):
+        """ Show / hide rolling window rectangle """
+        if self.__imframe:
+            self.__imframe.rect = not self.__imframe.rect  # show / hide rolling window rectangle
+            self.__menu.show_rect(self.__imframe.rect)  # change menu label
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """

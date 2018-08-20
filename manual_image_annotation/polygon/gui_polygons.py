@@ -6,7 +6,7 @@ from .gui_canvas import CanvasImage
 
 class Polygons(CanvasImage):
     """ Class of Polygons. Inherit CanvasImage class """
-    def __init__(self, placeholder, path):
+    def __init__(self, placeholder, path, roll_size):
         """ Initialize the Polygons """
         CanvasImage.__init__(self, placeholder, path)  # call __init__ of the CanvasImage class
         self.canvas.bind('<ButtonPress-1>', self.set_edge)  # set new edge
@@ -20,7 +20,11 @@ class Polygons(CanvasImage):
         self.menu.add_command(label='Delete', command=self.delete_poly, accelerator=u'Delete')
         # Polygon parameters
         self.roi = True  # is it a ROI or hole
+        self.rect = False  # show / hide rolling window rectangle
+        self.roll_size = roll_size  # size of the rolling window
         self.width_line = 2  # lines width
+        self.roll_rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
+                                                      outline='gray', state=u'hidden')
         self.dash = (1, 1)  # dash pattern
         self.color_hole = {'draw'   : 'magenta',  # draw hole color
                            'point'  : 'black',    # point hole color
@@ -128,9 +132,9 @@ class Polygons(CanvasImage):
     def motion(self, event):
         """ Track mouse position over the canvas """
         if self.hold_menu1: return  # popup menu is opened
+        x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
+        y = self.canvas.canvasy(event.y)
         if self.edge:  # relocate edge of the drawn polygon
-            x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
-            y = self.canvas.canvasy(event.y)
             x1, y1, x2, y2 = self.canvas.coords(self.tag_curr_edge_start)  # get coordinates of the 1st edge
             x3, y3, x4, y4 = self.canvas.coords(self.edge)  # get coordinates of the current edge
             dx = x - x1
@@ -145,6 +149,13 @@ class Polygons(CanvasImage):
         # Handle polygons on the canvas
         self.deselect_poly()  # change color and zeroize selected polygon
         self.select_poly()  # change color and select polygon
+        if self.rect:  # show / hide rolling window rectangle
+            w = int(self.roll_size[0] * self.imscale) >> 1
+            h = int(self.roll_size[1] * self.imscale) >> 1
+            self.canvas.coords(self.roll_rect, (x-w, y-h, x+w, y+h))  # relocate rolling window
+            self.canvas.itemconfigure(self.roll_rect, state='normal')  # show rolling window
+        else:
+            self.canvas.itemconfigure(self.roll_rect, state='hidden')  # hide rolling window
 
     def set_dash(self, x, y):
         """ Set dash for edge segment """
