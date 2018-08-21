@@ -27,9 +27,9 @@ class Config:
         self.__roll_dx = 'Horizontal step'  # horizontal step of the rolling window
         self.__roll_dy = 'Vertical step'  # vertical step of the rolling window
         # Default horizontal step is 1/2 of the rolling window width
-        self.__default_roll_dx = self.__default_roll_w >> 1  # should be integer
+        self.__default_roll_dx = int(self.__default_roll_w / 3)  # should be integer
         # Default vertical step is 1/2 of the rolling window height
-        self.__default_roll_dy = self.__default_roll_h >> 1  # should be integer
+        self.__default_roll_dy = int(self.__default_roll_h / 3)  # should be integer
         #
         self.__recent = 'LastOpened'  # list of last opened paths
         self.__recent_number = 10  # number of recent paths
