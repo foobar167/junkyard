@@ -47,8 +47,8 @@ class CanvasImage:
         vbar.configure(command=self.__scroll_y)
         # Bind events to the Canvas
         self.canvas.bind('<Configure>', lambda event: self.__show_image())  # canvas is resized
-        self.canvas.bind('<ButtonPress-3>', self.__move_from)  # remember canvas position
-        self.canvas.bind('<B3-Motion>',     self.__move_to)  # move canvas to the new position
+        self.canvas.bind('<ButtonPress-1>', self.__move_from)  # remember canvas position
+        self.canvas.bind('<B1-Motion>',     self.__move_to)  # move canvas to the new position
         self.canvas.bind('<MouseWheel>', self.__wheel)  # zoom for Windows and MacOS, but not Linux
         self.canvas.bind('<Button-5>',   self.__wheel)  # zoom for Linux, wheel scroll down
         self.canvas.bind('<Button-4>',   self.__wheel)  # zoom for Linux, wheel scroll up
@@ -64,22 +64,23 @@ class CanvasImage:
             warnings.simplefilter('ignore')
             self.__image = Image.open(self.path)  # open image, but down't load it
         self.imwidth, self.imheight = self.__image.size  # public for outer classes
-        if self.imwidth * self.imheight > self.__huge_size * self.__huge_size:
+        if self.imwidth * self.imheight > self.__huge_size * self.__huge_size and \
+           self.__image.tile[0][0] == 'raw':  # only raw images could be tiled
             self.__huge = True  # image is huge
-            if self.__image.tile[0][0] != 'raw':  # only raw images could be tiled
-                warnings.warn('Only "raw" images could be tiled')  # show warning for not raw images
             self.__offset = self.__image.tile[0][2]  # initial tile offset
             self.__tile = [self.__image.tile[0][0],  # it have to be 'raw'
                            [0, 0, self.imwidth, 0],  # tile extent (a rectangle)
                            self.__offset,
                            self.__image.tile[0][3]]  # list of arguments to the decoder
-            self.__max_side = max(self.imwidth, self.imheight)  # get the bigger image side
         self.__min_side = min(self.imwidth, self.imheight)  # get the smaller image side
         # Create image pyramid
         self.__pyramid = [self.smaller()] if self.__huge else [Image.open(self.path)]
-        self.__current_img = 0  # current image from the pyramid
+        # Set ratio coefficient for image pyramid
+        self.__ratio = max(self.imwidth, self.imheight) / self.__huge_size if self.__huge else 1.0
+        self.__curr_img = 0  # current image from the pyramid
+        self.__scale = self.imscale * self.__ratio  # image pyramide scale
         self.__reduction = 2  # reduction degree of image pyramid
-        w, h = self.imwidth, self.imheight
+        w, h = self.__pyramid[-1].size
         while w > 512 and h > 512:  # top pyramid image is around 512 pixels in size
             w /= self.__reduction  # divide on reduction degree
             h /= self.__reduction  # divide on reduction degree
@@ -95,7 +96,6 @@ class CanvasImage:
         w2, h2 = float(self.__huge_size), float(self.__huge_size)
         aspect_ratio1 = w1 / h1
         aspect_ratio2 = w2 / h2  # it equals to 1.0
-        i = 0
         if aspect_ratio1 == aspect_ratio2:
             image = Image.new('RGB', (int(w2), int(h2)))
             k = h2 / h1  # compression ratio
@@ -106,22 +106,23 @@ class CanvasImage:
             w = int(w2)  # band length
         else:  # aspect_ratio1 < aspect_ration2
             image = Image.new('RGB', (int(h2 * aspect_ratio1), int(h2)))
-            k = h2 / h1 # compression ratio
+            k = h2 / h1  # compression ratio
             w = int(h2 * aspect_ratio1)  # band length
+        i, j, n = 0, 1, round(0.5 + self.imheight / self.__band_width)
         while i < self.imheight:
+            print('\rOpening image: {j} from {n}'.format(j=j, n=n), end='')
             band = min(self.__band_width, self.imheight - i)  # width of the tile band
             self.__tile[1][3] = band  # set band width
             self.__tile[2] = self.__offset + self.imwidth * i * 3  # tile offset (3 bytes per pixel)
-
-            # Could it be optimized?
-
             self.__image.close()
-            self.__image = Image.open(self.path)  # open image
+            self.__image = Image.open(self.path)  # reopen / reset image
             self.__image.size = (self.imwidth, band)  # set size of the tile band
             self.__image.tile = [self.__tile]  # set tile
             cropped = self.__image.crop((0, 0, self.imwidth, band))  # crop tile band
             image.paste(cropped.resize((w, int(band * k)+1), self.__filter), (0, int(i * k)))
             i += band
+            j += 1
+        print('\r' + 30*' ' + '\r', end='')  # hide printed string
         return image
 
     def redraw_figures(self):
@@ -181,28 +182,19 @@ class CanvasImage:
         x2 = min(box_canvas[2], box_image[2]) - box_image[0]
         y2 = min(box_canvas[3], box_image[3]) - box_image[1]
         if int(x2 - x1) > 0 and int(y2 - y1) > 0:  # show image if it in the visible area
-            if self.__huge:  # show huge image
-                if self.__max_side * self.imscale <= self.__huge_size:
-                    # Replace original image with the smaller image
-                    imscale = self.imscale * self.__max_side / self.__huge_size
-                    x = min(int(x2 / imscale), self.smaller_image.size[0])  # sometimes it is larger on 1 pixel...
-                    y = min(int(y2 / imscale), self.smaller_image.size[1])  # ...and sometimes not
-                    image = self.smaller_image.crop((int(x1 / imscale),
-                                                     int(y1 / imscale), x, y))
-                else:  # use tile band to crop tile from the original image
-                    h = int((y2 - y1) / self.imscale)  # height of the tile band
-                    self.tile[1][3] = h  # set the tile height
-                    self.tile[2] = self.offset + self.width * int(y1 / self.imscale) * 3
-                    self.image = Image.open(path)  # open image
-                    self.image.size = (self.width, h)  # set size of the tile band
-                    self.image.tile = [self.tile]
-                    x = min(int(x2 / self.imscale), self.width)  # sometimes it is larger on 1 pixel...
-                    image = self.image.crop((int(x1 / self.imscale), 0, x, h))
+            if self.__huge and self.__curr_img < 0:  # show huge image
+                h = int((y2 - y1) / self.imscale)  # height of the tile band
+                self.__tile[1][3] = h  # set the tile band height
+                self.__tile[2] = self.__offset + self.imwidth * int(y1 / self.imscale) * 3
+                self.__image.close()
+                self.__image = Image.open(self.path)  # reopen / reset image
+                self.__image.size = (self.imwidth, h)  # set size of the tile band
+                self.__image.tile = [self.__tile]
+                image = self.__image.crop((int(x1 / self.imscale), 0, int(x2 / self.imscale), h))
             else:  # show normal image
-                imscale = self.imscale * math.pow(self.__reduction, self.__current_img)
-                image = self.__pyramid[self.__current_img].crop(  # crop current image from the pyramid
-                                        (int(x1 / imscale), int(y1 / imscale),
-                                         int(x2 / imscale), int(y2 / imscale)))
+                image = self.__pyramid[max(0, self.__curr_img)].crop(  # crop current img from pyramid
+                                    (int(x1 / self.__scale), int(y1 / self.__scale),
+                                     int(x2 / self.__scale), int(y2 / self.__scale)))
             #
             imagetk = ImageTk.PhotoImage(image.resize((int(x2 - x1), int(y2 - y1)), self.__filter))
             imageid = self.canvas.create_image(max(box_canvas[0], box_img_int[0]),
@@ -235,27 +227,23 @@ class CanvasImage:
         if self.outside(x, y): return  # zoom only inside image area
         scale = 1.0
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.num == 5 or event.delta == -120:  # scroll down
+        if event.num == 5 or event.delta == -120:  # scroll down, smaller
             if round(self.__min_side * self.imscale) < 30: return  # image is less than 30 pixels
             self.imscale /= self.__delta
             scale        /= self.__delta
-        if event.num == 4 or event.delta == 120:  # scroll up
-            i = min(self.canvas.winfo_width(), self.canvas.winfo_height())
+        if event.num == 4 or event.delta == 120:  # scroll up, bigger
+            i = min(self.canvas.winfo_width(), self.canvas.winfo_height()) >> 1
             if i < self.imscale: return  # 1 pixel is bigger than the visible area
             self.imscale *= self.__delta
             scale        *= self.__delta
-
-
-
         # Take appropriate image from the pyramid
-        self.__current_img = 0  # if self.imscale >= 1, zoom in
-        if self.imscale < 1:  # zoom out, log(x, reduction), because "reduction" is reduction degree
-            self.__current_img = min(int(math.log(1 / self.imscale, self.__reduction)),
-                                     len(self.__pyramid) - 1)
+        k = self.imscale * self.__ratio  # temporary coefficient
+        self.__curr_img = min((-1) * int(math.log(k, self.__reduction)), len(self.__pyramid) - 1)
+        self.__scale = k * math.pow(self.__reduction, max(0, self.__curr_img))
         #
         self.canvas.scale('all', x, y, scale, scale)  # rescale all objects
         # Redraw some figures before showing image on the screen
-        self.redraw_figures()
+        self.redraw_figures()  # method for child classes
         self.__show_image()
 
     def __keystroke(self, event):
@@ -277,7 +265,17 @@ class CanvasImage:
 
     def crop(self, bbox):
         """ Crop rectangle from the image and return it """
-        return self.__pyramid[0].crop(bbox)
+        if self.__huge:  # image is huge and not totally in RAM
+            band = bbox[3] - bbox[1]  # width of the tile band
+            self.__tile[1][3] = band  # set the tile height
+            self.__tile[2] = self.__offset + self.imwidth * bbox[1] * 3  # set offset of the band
+            self.__image.close()
+            self.__image = Image.open(self.path)  # reopen / reset image
+            self.__image.size = (self.imwidth, band)  # set size of the tile band
+            self.__image.tile = [self.__tile]
+            return self.__image.crop((bbox[0], 0, bbox[2], band))
+        else:  # image is totally in RAM
+            return self.__pyramid[0].crop(bbox)
 
     def destroy(self):
         """ ImageFrame destructor """
@@ -301,6 +299,11 @@ class MainWindow(ttk.Frame):
         canvas.grid(row=0, column=0)  # show widget
 
 filename = './data/img_plg5.png'  # place path to your image here
-#filename = 'd:/Temp/yandex_z18_1-1.tif'  # huge TIFF file 1.4 GB
+#filename = 'd:/Data/yandex_z18_1-1.tif'  # huge TIFF file 1.4 GB
+#filename = 'd:/Data/The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.jpg'
+#filename = 'd:/Data/The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.tif'
+#filename = 'd:/Data/heic1502a.tif'
+#filename = 'd:/Data/land_shallow_topo_east.tif'
+#filename = 'd:/Data/X1D5_B0002594.3FR'
 app = MainWindow(tk.Tk(), path=filename)
 app.mainloop()
