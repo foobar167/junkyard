@@ -47,6 +47,7 @@ class Zoom(ttk.Frame):
         self.master.columnconfigure(0, weight=1)
         # Bind events to the Canvas
         self.canvas.bind('<ButtonPress-1>', self.move_from)
+        self.canvas.bind('<ButtonPress-3>', self.get_coords)  # get coords of the image
         self.canvas.bind('<B1-Motion>',     self.move_to)
         self.canvas.bind('<MouseWheel>', self.wheel)  # with Windows and MacOS, but not Linux
         self.canvas.bind('<Button-5>',   self.wheel)  # only with Linux, wheel scroll down
@@ -69,6 +70,18 @@ class Zoom(ttk.Frame):
         self.text = self.canvas.create_text(0, 0, anchor='nw', text='Scroll to zoom')
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
+    def get_coords(self, event):
+        """ Get coordinates of the mouse click event on the image """
+        x1 = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
+        y1 = self.canvas.canvasy(event.y)
+        xy = self.canvas.coords(self.imageid)  # get coords of image's upper left corner
+        x2 = round((x1 - xy[0]) / self.imscale)  # get real (x,y) on the image without zoom
+        y2 = round((y1 - xy[1]) / self.imscale)
+        if 0 <= x2 <= self.image.size[0] and 0 <= y2 <= self.image.size[1]:
+            print(x2, y2)
+        else:
+            print('Outside of the image')
 
     def move_from(self, event):
         ''' Remember previous coordinates for scrolling with the mouse '''
