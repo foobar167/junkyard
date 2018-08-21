@@ -59,10 +59,10 @@ class CanvasImage:
         self.__huge = False  # huge or not
         self.__huge_size = 14000  # define size of the huge image
         self.__band_width = 1024  # width of the tile band
-        Image.MAX_IMAGE_PIXELS = 1000000000  # suppress DecompressionBombError for the big image
-        with warnings.catch_warnings():  # suppress DecompressionBombWarning
+        Image.MAX_IMAGE_PIXELS = 1000000000  # suppress DecompressionBombError for big image
+        with warnings.catch_warnings():  # suppress DecompressionBombWarning for big image
             warnings.simplefilter('ignore')
-            self.__image = Image.open(self.path)  # open image, but down't load it
+            self.__image = Image.open(self.path)  # open image, but down't load it into RAM
         self.imwidth, self.imheight = self.__image.size  # public for outer classes
         if self.imwidth * self.imheight > self.__huge_size * self.__huge_size and \
            self.__image.tile[0][0] == 'raw':  # only raw images could be tiled
@@ -80,11 +80,15 @@ class CanvasImage:
         self.__curr_img = 0  # current image from the pyramid
         self.__scale = self.imscale * self.__ratio  # image pyramide scale
         self.__reduction = 2  # reduction degree of image pyramid
-        w, h = self.__pyramid[-1].size
-        while w > 512 and h > 512:  # top pyramid image is around 512 pixels in size
+        (w, h), m, j = self.__pyramid[-1].size, 512, 0
+        n = math.ceil(math.log(min(w, h) / m, self.__reduction)) + 1  # image pyramid length
+        while w > m and h > m:  # top pyramid image is around 512 pixels in size
+            j += 1
+            print('\rCreating image pyramid: {j} from {n}'.format(j=j, n=n), end='')
             w /= self.__reduction  # divide on reduction degree
             h /= self.__reduction  # divide on reduction degree
             self.__pyramid.append(self.__pyramid[-1].resize((int(w), int(h)), self.__filter))
+        print('\r' + (40 * ' ') + '\r', end='')  # hide printed string
         # Put image into container rectangle and use it to set proper coordinates to the image
         self.container = self.canvas.create_rectangle((0, 0, self.imwidth, self.imheight), width=0)
         self.__show_image()  # show image on the canvas
@@ -108,8 +112,9 @@ class CanvasImage:
             image = Image.new('RGB', (int(h2 * aspect_ratio1), int(h2)))
             k = h2 / h1  # compression ratio
             w = int(h2 * aspect_ratio1)  # band length
-        i, j, n = 0, 1, round(0.5 + self.imheight / self.__band_width)
+        i, j, n = 0, 0, math.ceil(self.imheight / self.__band_width)
         while i < self.imheight:
+            j += 1
             print('\rOpening image: {j} from {n}'.format(j=j, n=n), end='')
             band = min(self.__band_width, self.imheight - i)  # width of the tile band
             self.__tile[1][3] = band  # set band width
@@ -121,8 +126,7 @@ class CanvasImage:
             cropped = self.__image.crop((0, 0, self.imwidth, band))  # crop tile band
             image.paste(cropped.resize((w, int(band * k)+1), self.__filter), (0, int(i * k)))
             i += band
-            j += 1
-        print('\r' + 30*' ' + '\r', end='')  # hide printed string
+        print('\r' + (40 * ' ') + '\r', end='')  # hide printed string
         return image
 
     def redraw_figures(self):
@@ -182,7 +186,7 @@ class CanvasImage:
         x2 = min(box_canvas[2], box_image[2]) - box_image[0]
         y2 = min(box_canvas[3], box_image[3]) - box_image[1]
         if int(x2 - x1) > 0 and int(y2 - y1) > 0:  # show image if it in the visible area
-            if self.__huge and self.__curr_img < 0:  # show huge image
+            if self.__huge and self.__curr_img < 0:  # show huge image, which does not fit in RAM
                 h = int((y2 - y1) / self.imscale)  # height of the tile band
                 self.__tile[1][3] = h  # set the tile band height
                 self.__tile[2] = self.__offset + self.imwidth * int(y1 / self.imscale) * 3
@@ -227,12 +231,12 @@ class CanvasImage:
         if self.outside(x, y): return  # zoom only inside image area
         scale = 1.0
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.num == 5 or event.delta == -120:  # scroll down, smaller
+        if event.num == 5 or event.delta == -120:  # scroll down, zoom out, smaller
             if round(self.__min_side * self.imscale) < 30: return  # image is less than 30 pixels
             self.imscale /= self.__delta
             scale        /= self.__delta
-        if event.num == 4 or event.delta == 120:  # scroll up, bigger
-            i = min(self.canvas.winfo_width(), self.canvas.winfo_height()) >> 1
+        if event.num == 4 or event.delta == 120:  # scroll up, zoom in, bigger
+            i = float(min(self.canvas.winfo_width(), self.canvas.winfo_height()) >> 1)
             if i < self.imscale: return  # 1 pixel is bigger than the visible area
             self.imscale *= self.__delta
             scale        *= self.__delta

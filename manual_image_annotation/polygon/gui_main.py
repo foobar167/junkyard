@@ -172,8 +172,8 @@ class MainGUI(ttk.Frame):
         # Check if it is an image
         # noinspection PyBroadException
         try:  # try to open and close image with PIL
-            #Image.MAX_IMAGE_PIXELS = 1000000000  # big images :)
-            with warnings.catch_warnings():  # suppress DecompressionBombWarning for the big image
+            Image.MAX_IMAGE_PIXELS = 1000000000  # suppress DecompressionBombError for big image
+            with warnings.catch_warnings():  # suppress DecompressionBombWarning for big image
                 warnings.simplefilter(u'ignore')
                 img = Image.open(path)
             img.close()

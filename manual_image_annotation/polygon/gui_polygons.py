@@ -24,7 +24,7 @@ class Polygons(CanvasImage):
         self.roll_size = roll_size  # size of the rolling window
         self.width_line = 2  # lines width
         self.roll_rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
-                                                      outline='gray', state=u'hidden')
+                                                      outline='cyan', state=u'hidden')
         self.dash = (1, 1)  # dash pattern
         self.color_hole = {'draw'   : 'magenta',  # draw hole color
                            'point'  : 'black',    # point hole color

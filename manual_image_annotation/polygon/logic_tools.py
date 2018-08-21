@@ -29,7 +29,7 @@ def roll(mask,  # image array
 def get_images(imframe, config):
     """ Get a set of small images for machine learning """
     logging.info('Apply rolling window')
-    mask = Image.new('1', imframe.size, False)  # create bitwise array of False
+    mask = Image.new('1', (imframe.imwidth, imframe.imheight), False)  # create bitwise array of False
     for roi in imframe.roi_dict.values():  # for all ROI polygons of the image
         ImageDraw.Draw(mask).polygon(roi, outline=True, fill=True)  # fill the mask
     for hole in imframe.hole_dict.values():  # for all hole polygons of the image
