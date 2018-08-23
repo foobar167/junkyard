@@ -9,6 +9,8 @@ from PIL import Image, ImageTk
 from .logic_logger import logging
 from .gui_autoscrollbar import AutoScrollbar
 
+MAX_IMAGE_PIXELS = 1000000000  # maximum pixels in the image, use it carefully
+
 class CanvasImage:
     """ Display and zoom image """
     def __init__(self, placeholder, path):
@@ -48,7 +50,7 @@ class CanvasImage:
         self.__huge = False  # huge or not
         self.__huge_size = 14000  # define size of the huge image
         self.__band_width = 1024  # width of the tile band
-        Image.MAX_IMAGE_PIXELS = 1000000000  # suppress DecompressionBombError for big image
+        Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS  # suppress DecompressionBombError for big image
         with warnings.catch_warnings():  # suppress DecompressionBombWarning for big image
             warnings.simplefilter('ignore')
             self.__image = Image.open(self.path)  # open image, but down't load it into RAM
@@ -119,6 +121,20 @@ class CanvasImage:
             i += band
         print('\r' + (40 * ' ') + '\r', end='')  # hide printed string
         return image
+
+    @staticmethod
+    def check_image(path):
+        """ Check if it is an image. Static method """
+        # noinspection PyBroadException
+        try:  # try to open and close image with PIL
+            Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS  # suppress DecompressionBombError for big image
+            with warnings.catch_warnings():  # suppress DecompressionBombWarning for big image
+                warnings.simplefilter(u'ignore')
+                img = Image.open(path)
+            img.close()
+        except:
+            return False  # not image
+        return True  # image
 
     def redraw_figures(self):
         """ Dummy function to redraw figures in the children classes """

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import warnings
 
-from PIL import Image
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
@@ -170,14 +168,7 @@ class MainGUI(ttk.Frame):
                                initialdir=self.__config.get_recent_path())
         if path == '': return
         # Check if it is an image
-        # noinspection PyBroadException
-        try:  # try to open and close image with PIL
-            Image.MAX_IMAGE_PIXELS = 1000000000  # suppress DecompressionBombError for big image
-            with warnings.catch_warnings():  # suppress DecompressionBombWarning for big image
-                warnings.simplefilter(u'ignore')
-                img = Image.open(path)
-            img.close()
-        except:
+        if not Polygons.check_image(path):
             messagebox.showinfo('Not an image',
                                 'This is not an image: "{}"\nPlease, select an image.'.format(path))
             self.__open_image()  # try to open new image again
