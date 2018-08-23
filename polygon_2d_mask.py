@@ -61,3 +61,12 @@ img = Image.new('1', (width, height), False)  # better to use bitwise '1' array
 ImageDraw.Draw(img).polygon(polygon, outline=True, fill=True)
 mask = np.array(img)
 print(mask, '\n')
+
+width = 31
+height = 31
+polygon = [(8,29), (15,1), (22,29), (4,11), (216,11)]
+img = Image.new('L', (width, height), 0)  # using gray 'L' array for debug purposes
+#img = Image.new('1', (width, height), False)  # better to use bitwise '1' array
+ImageDraw.Draw(img).polygon(polygon, outline=1, fill=1)
+mask = np.array(img)
+print(mask, '\n')
