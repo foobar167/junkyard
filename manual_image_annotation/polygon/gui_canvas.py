@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 from .logic_logger import logging
 from .gui_autoscrollbar import AutoScrollbar
 
-MAX_IMAGE_PIXELS = 1000000000  # maximum pixels in the image, use it carefully
+MAX_IMAGE_PIXELS = 1500000000  # maximum pixels in the image, use it carefully
 
 class CanvasImage:
     """ Display and zoom image """
