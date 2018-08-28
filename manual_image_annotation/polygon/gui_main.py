@@ -41,8 +41,8 @@ class MainGUI(ttk.Frame):
         self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 0 open image
                             ['Ctrl+W', 87, self.__close_image],  # 1 close image
                             ['Ctrl+R', 82, self.__roll],         # 2 rolling window
-                            ['Ctrl+H', 72, self.__toggle_poly],  # 3 toggle between roi/hole drawing
-                            ['Ctrl+Q', 81, self.__open_poly],    # 4 open polygons for the image
+                            ['Ctrl+Q', 81, self.__toggle_poly],  # 3 toggle between roi/hole drawing
+                            ['Ctrl+H', 72, self.__open_poly],    # 4 open polygons for the image
                             ['Ctrl+S', 83, self.__save_poly],    # 5 save polygons of the image
                             ['Ctrl+A', 65, self.__show_rect]]    # 6 show rolling window rectangle
         # Bind events to the main window
