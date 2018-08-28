@@ -20,19 +20,21 @@ class Polygons(CanvasImage):
         self.menu.add_command(label='Delete', command=self.delete_poly, accelerator=u'Delete')
         # Polygon parameters
         self.roi = True  # is it a ROI or hole
-        self.rect = False  # show / hide rolling window rectangle
+        self.rect = True  # show / hide rolling window rectangle
         self.roll_size = roll_size  # size of the rolling window
         self.width_line = 2  # lines width
         self.roll_rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
-                                                      outline='cyan', state=u'hidden')
+                                                      state=u'hidden')
         self.dash = (1, 1)  # dash pattern
+        self.color_back_hole = 'cyan'  # draw hole color
+        self.color_back_roi = 'yellow'  # draw roi color
         self.color_hole = {'draw'   : 'magenta',  # draw hole color
-                           'point'  : 'black',    # point hole color
-                           'back'   : 'black',    # background hole color
+                           'point'  : '#8B0000',  # point hole color
+                           'back'   : self.color_back_hole,  # background hole color
                            'stipple': 'gray50'}   # stipple value for hole
         self.color_roi =  {'draw'   : 'red',      # draw roi color
                            'point'  : 'blue',     # point roi color
-                           'back'   : 'yellow',   # background roi color
+                           'back'   : self.color_back_roi,  # background roi color
                            'stipple': 'gray12'}   # stipple value for roi
         self.tag_curr_edge_start = '1st_edge'  # starting edge of the current polygon
         self.tag_curr_edge = 'edge'  # edges of the polygon
@@ -153,7 +155,8 @@ class Polygons(CanvasImage):
             w = int(self.roll_size[0] * self.imscale) >> 1
             h = int(self.roll_size[1] * self.imscale) >> 1
             self.canvas.coords(self.roll_rect, (x-w, y-h, x+w, y+h))  # relocate rolling window
-            self.canvas.itemconfigure(self.roll_rect, state='normal')  # show rolling window
+            color = self.color_back_roi if self.roi else self.color_back_hole
+            self.canvas.itemconfigure(self.roll_rect, state='normal', outline=color)  # show it
         else:
             self.canvas.itemconfigure(self.roll_rect, state='hidden')  # hide rolling window
 

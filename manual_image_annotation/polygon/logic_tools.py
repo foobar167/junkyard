@@ -53,8 +53,10 @@ def open_polygons(imframe, path):
     parser = configparser.ConfigParser()  # create config parser
     parser.optionxform = lambda option: option  # preserve case for letters
     parser.read(path)  # read file with polygons
+    """
     if parser[str_image][str_md5] != imframe.md5:  # check md5 sum
         raise Exception('Wrong polygons. MD5 sum of image and from selected file should be equal.')
+    """
     roi = parser[str_polygons][str_roi]  # get roi info
     roi = pickle.loads(codecs.decode(roi.encode(), 'base64'))  # unwrap roi info
     holes = parser[str_polygons][str_holes]  # get holes info
