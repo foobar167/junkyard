@@ -56,7 +56,7 @@ class Menu:
         self.__tools.add_command(label=self.__label_save,
                                  command=self.__shortcuts[5][2],
                                  accelerator=self.__shortcuts[5][0])
-        self.menubar.add_cascade(label=self.__label_tools, menu=self.__tools)
+        self.menubar.add_cascade(label=self.__label_tools, menu=self.__tools, state='disabled')
         # Create menu for the view: fullscreen, default size, etc.
         self.__view = tk.Menu(self.menubar, tearoff=False)
         self.__view.add_command(label='Fullscreen',
