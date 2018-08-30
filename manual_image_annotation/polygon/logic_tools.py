@@ -41,11 +41,12 @@ def get_images(imframe, config):
     found = np.all(np.all(roll(mask, rwin, dx, dy) == rwin, axis=2), axis=2)  # find all matches
     # Get all founded coordinates of upper left corner of rectangle
     found = np.transpose(found.nonzero()) * [dy, dx]
-    uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID
+    name = os.path.basename(imframe.path)[:-4]  # get filename of the image without extension
+    name += '_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')  # add date_time
     n = str(len(str(len(found))))  # zero padding number
     for i, c in enumerate(found):  # for every coordinate of upper left corner of rectangle
         im = imframe.crop((c[1], c[0], c[1]+w, c[0]+h))  # cut sub-rectangle from the image
-        imname = ('{uid}_{i:0' + n + '}.png').format(uid=uid, i=i)  # create filename
+        imname = ('{uid}_{i:0' + n + '}.png').format(uid=name, i=i)  # create filename
         im.save(os.path.join(config.config_dir, imname))  # save image into config dir folder
 
 def open_polygons(imframe, path):
@@ -77,7 +78,7 @@ def save_polygons(imframe, config):
     parser[str_polygons][str_roi] = codecs.encode(pickle.dumps(roi), 'base64').decode()  # wrap info
     parser[str_polygons][str_holes] = codecs.encode(pickle.dumps(holes), 'base64').decode()  # wrap info
     uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID
-    name = os.path.basename(imframe.path)  # get filename of the image
+    name = os.path.basename(imframe.path)[:-4]  # get filename of the image without extension
     name += '_' + uid + '.txt'  # unique name
     path = os.path.join(config.config_dir, name)
     with open(path, 'w') as file:
