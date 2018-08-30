@@ -46,7 +46,8 @@ def get_images(imframe, config):
     n = str(len(str(len(found))))  # zero padding number
     for i, c in enumerate(found):  # for every coordinate of upper left corner of rectangle
         im = imframe.crop((c[1], c[0], c[1]+w, c[0]+h))  # cut sub-rectangle from the image
-        imname = ('{uid}_{i:0' + n + '}.png').format(uid=name, i=i)  # create filename
+        # Create filename
+        imname = ('{name}_{c0}-{c1}_{i:0' + n + '}.png').format(name=name, c0=c[0], c1=c[1], i=i)
         im.save(os.path.join(config.config_dir, imname))  # save image into config dir folder
 
 def open_polygons(imframe, path):
