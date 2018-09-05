@@ -1,0 +1,9 @@
+#### Directories to ignore for GIT
+# temporary files and configuration INI file
+temp/
+# rectangular images from the polygon areas
+images/
+
+#### Files to ignore for GIT
+# compiled python files
+*.pyc
