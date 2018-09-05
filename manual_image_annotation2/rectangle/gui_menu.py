@@ -14,7 +14,7 @@ class Menu:
         self.__label_recent = 'Open recent'
         self.__label_close = 'Close image'
         self.__label_tools = 'Tools'
-        self.__label_roll = 'Rolling Window'
+        self.__label_rect = 'Get Rectangles'
         self.__label_poly_roi = 'Draw ROI'
         self.__label_poly_hole = 'Draw holes'
         self.__label_poly = self.__label_poly_hole
@@ -22,7 +22,6 @@ class Menu:
         self.__label_save = 'Save polygons'
         self.__label_show_rect = 'Show Rect'
         self.__label_hide_rect = 'Hide Rect'
-        self.__label_rect = self.__label_show_rect
         # Create menu for the image
         self.__file = tk.Menu(self.menubar, tearoff=False, postcommand=self.__list_recent)
         self.__file.add_command(label='Open image',
@@ -41,7 +40,7 @@ class Menu:
         self.menubar.add_cascade(label='File', menu=self.__file)
         # Create menu for the tools: cut rectangular images with the rolling window, etc.
         self.__tools = tk.Menu(self.menubar, tearoff=False, postcommand=self.__check_polygons)
-        self.__tools.add_command(label=self.__label_roll,
+        self.__tools.add_command(label=self.__label_rect,
                                  command=self.__shortcuts[2][2],
                                  accelerator=self.__shortcuts[2][0],
                                  state='disabled')
@@ -65,9 +64,6 @@ class Menu:
         self.__view.add_command(label='Default size',
                                 command=self.__functs["default_geometry"],
                                 accelerator='F5')
-        self.__view.add_command(label=self.__label_rect,
-                                command=self.__shortcuts[6][2],
-                                accelerator=self.__shortcuts[6][0])
         self.menubar.add_cascade(label='View', menu=self.__view)
 
     def __list_recent(self):
@@ -86,26 +82,12 @@ class Menu:
     def __check_polygons(self):
         """ Check if there are polygons on the image and enable/disable menu 'Rolling Window' """
         if self.__functs["check_roi"]():  # there are regions of interest on the image
-            self.__tools.entryconfigure(self.__label_roll, state='normal')  # enable menu
+            self.__tools.entryconfigure(self.__label_rect, state='normal')  # enable menu
         else:  # if there are no polygons
-            self.__tools.entryconfigure(self.__label_roll, state='disabled')  # disable menu
+            self.__tools.entryconfigure(self.__label_rect, state='disabled')  # disable menu
 
-    def set_state(self, state, roi=False, rect=None):
+    def set_state(self, state):
         """ Enable / disable some menus """
         self.menubar.entryconfigure(self.__label_tools, state=state)
         self.__file.entryconfigure(self.__label_close, state=state)
         self.__view.entryconfigure(self.__label_rect, state=state)
-        self.set_tools_toggle(roi)
-        self.show_rect(rect)
-
-    def set_tools_toggle(self, roi):
-        """ Change label of the toggle submenu 'Draw ROI/holes' of 'Tools' menu """
-        label = self.__label_poly_hole if roi else self.__label_poly_roi
-        self.__tools.entryconfigure(self.__label_poly, label=label)  # change menu text
-        self.__label_poly = label  # update menu label to find it next time
-
-    def show_rect(self, rect=False):
-        """ Change label of the 'Show / Hide Rect' submenu """
-        label = self.__label_hide_rect if rect else self.__label_show_rect
-        self.__view.entryconfigure(self.__label_rect, label=label)  # change menu text
-        self.__label_rect = label  # update menu label to find it next time

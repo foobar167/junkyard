@@ -40,11 +40,10 @@ class MainGUI(ttk.Frame):
         # List of shortcuts in the following format: [name, keycode, function]
         self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 0 open image
                             ['Ctrl+W', 87, self.__close_image],  # 1 close image
-                            ['Ctrl+R', 82, self.__roll],         # 2 rolling window
+                            ['Ctrl+R', 82, self.__get_images],   # 2 get set of images
                             ['Ctrl+Q', 81, self.__toggle_poly],  # 3 toggle between roi/hole drawing
                             ['Ctrl+H', 72, self.__open_poly],    # 4 open polygons for the image
-                            ['Ctrl+S', 83, self.__save_poly],    # 5 save polygons of the image
-                            ['Ctrl+A', 65, self.__show_rect]]    # 6 show rolling window rectangle
+                            ['Ctrl+S', 83, self.__save_poly]]    # 5 save polygons of the image
         # Bind events to the main window
         self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
         self.master.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
@@ -153,13 +152,13 @@ class MainGUI(ttk.Frame):
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
-        self.__imframe = Polygons(placeholder=self.__placeholder, path=path,
-                                  roll_size=self.__config.get_roll_size())  # create image frame
+        self.__imframe = Rectangles(placeholder=self.__placeholder, path=path,
+                                    rect_size=self.__config.get_rect_size())  # create image frame
         self.__imframe.grid()  # show it
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
         # Enable some menus
-        self.__menu.set_state(state='normal', roi=self.__imframe.roi, rect=self.__imframe.rect)
+        self.__menu.set_state(state='normal')
 
     @handle_exception(0)
     def __open_image(self):
@@ -192,10 +191,10 @@ class MainGUI(ttk.Frame):
             return True
         return False  # if there are no polygons
 
-    def __roll(self):
+    def __get_images(self):
         """ Apply rolling window to ROI polygons on the image """
         if self.__check_roi():  # there are ROI
-            get_images(self.__imframe, self.__config)  # get and save all images
+            get_images(self.__imframe, self.__config)  # get all images from "logic_tools"
 
     def __toggle_poly(self):
         """ Toggle between ROI and hole polygons drawing """

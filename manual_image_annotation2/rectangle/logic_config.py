@@ -20,16 +20,10 @@ class Config:
         self.__opened_path = 'OpenedPath'  # last opened path of the task or image
         self.__default_opened_path = 'None'
         #
-        self.__rolling = 'RollingWindow'  # info about the rolling window
-        self.__roll_w = 'Width'  # width of rolling window
-        self.__roll_h = 'Height'  # height of rolling window
-        self.__default_roll_w, self.__default_roll_h = 256, 256  # default rolling window width/height
-        self.__roll_dx = 'Horizontal step'  # horizontal step of the rolling window
-        self.__roll_dy = 'Vertical step'  # vertical step of the rolling window
-        # Default horizontal step is 1/2 of the rolling window width
-        self.__default_roll_dx = int(self.__default_roll_w / 3)  # should be integer
-        # Default vertical step is 1/2 of the rolling window height
-        self.__default_roll_dy = int(self.__default_roll_h / 3)  # should be integer
+        self.__rectangle = 'RectangleWindow'  # info about the rolling window
+        self.__rect_w = 'Width'  # width of rolling window
+        self.__rect_h = 'Height'  # height of rolling window
+        self.__default_rect_w, self.__default_rect_h = 256, 256  # default rolling window width/height
         #
         self.__recent = 'LastOpened'  # list of last opened paths
         self.__recent_number = 10  # number of recent paths
@@ -93,47 +87,26 @@ class Config:
         else:
             self.__config[self.__window][self.__opened_path] = self.__default_opened_path
 
-    def get_roll_size(self):
+    def get_rect_size(self):
         """ Get tuple (width, height) of the rolling window """
         try:
-            w = self.__config[self.__rolling][self.__roll_w]
-            h = self.__config[self.__rolling][self.__roll_h]
+            w = self.__config[self.__rectangle][self.__rect_w]
+            h = self.__config[self.__rectangle][self.__rect_h]
             return int(w), int(h)
         except KeyError:  # if the key is not in the dictionary of config
-            return self.__default_roll_w, self.__default_roll_h
+            return self.__default_rect_w, self.__default_rect_h
 
-    def set_roll_size(self, width=None, height=None):
+    def set_rect_size(self, width=None, height=None):
         """ Set tuple (width, height) of the rolling window """
-        self.__check_section(self.__rolling)
+        self.__check_section(self.__rectangle)
         if width:
-            self.__config[self.__rolling][self.__roll_w] = str(width)
+            self.__config[self.__rectangle][self.__rect_w] = str(width)
         else:
-            self.__config[self.__rolling][self.__roll_w] = str(self.__default_roll_w)
+            self.__config[self.__rectangle][self.__rect_w] = str(self.__default_rect_w)
         if height:
-            self.__config[self.__rolling][self.__roll_h] = str(height)
+            self.__config[self.__rectangle][self.__rect_h] = str(height)
         else:
-            self.__config[self.__rolling][self.__roll_h] = str(self.__default_roll_h)
-
-    def get_step_size(self):
-        """ Get tuple (dx, dy) of the rolling window steps """
-        try:
-            dx = self.__config[self.__rolling][self.__roll_dx]
-            dy = self.__config[self.__rolling][self.__roll_dy]
-            return int(dx), int(dy)
-        except KeyError:  # if the key is not in the dictionary of config
-            return self.__default_roll_dx, self.__default_roll_dy
-
-    def set_step_size(self, dx=None, dy=None):
-        """ Set tuple (dx, dy) of the rolling window steps """
-        self.__check_section(self.__rolling)
-        if dx:
-            self.__config[self.__rolling][self.__roll_dx] = str(dx)
-        else:
-            self.__config[self.__rolling][self.__roll_dx] = str(self.__default_roll_dx)
-        if dy:
-            self.__config[self.__rolling][self.__roll_dy] = str(dy)
-        else:
-            self.__config[self.__rolling][self.__roll_dy] = str(self.__default_roll_dy)
+            self.__config[self.__rectangle][self.__rect_h] = str(self.__default_rect_h)
 
     def get_recent_list(self):
         """ Get list of recently opened image paths """
@@ -186,8 +159,7 @@ class Config:
         """ Create new config INI file and put default values in it """
         self.set_win_geometry(self.default_geometry)
         self.set_win_state(self.default_state)
-        self.set_roll_size()
-        self.set_step_size()
+        self.set_rect_size()
 
     def destroy(self):
         """ Config destructor """
