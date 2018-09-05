@@ -24,10 +24,10 @@ class Rectangles(CanvasImage):
         self.rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
                                                  dash=self.dash, state=u'hidden')
         self.dash = (1, 1)  # dash pattern
-        self.color_roi =  {'draw'   : 'red',      # draw roi color
-                           'point'  : 'blue',     # point roi color
-                           'back'   : 'yellow',   # background roi color
-                           'stipple': 'gray12'}   # stipple value for roi
+        self.color_roi = {'draw'   : 'red',     # draw roi color
+                          'point'  : 'blue',    # point roi color
+                          'back'   : 'yellow',  # background roi color
+                          'stipple': 'gray12'}  # stipple value for roi
         self.color_pointer = self.color_roi['draw']  # pointer color
         self.tag_roi = 'roi'  # roi tag
         self.tag_const = 'rect'  # constant tag for rectangle
@@ -124,7 +124,7 @@ class Rectangles(CanvasImage):
     def delete_all(self):
         """ Delete all rectangles from the canvas and clear variables """
         self.canvas.delete(self.tag_roi)  # delete all rectangles
-        self.canvas.delete(self.tag_poly_line)  # delete all polylines
+        self.canvas.delete(self.tag_poly_line)  # delete all poly-lines
         self.selected_rect.clear()  # clear selection list
         self.hold_menu2 = False  # popup menu is closed
         self.roi_dict.clear()  # clear dictionary of ROI

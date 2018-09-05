@@ -8,7 +8,7 @@ from .gui_menu import Menu
 from .gui_rectangles import Rectangles
 from .logic_config import Config
 from .logic_logger import logging, handle_exception
-from .logic_tools import get_images, save_polygons, open_polygons
+from .logic_tools import get_images, save_figures, open_figures
 
 class MainGUI(ttk.Frame):
     """ Main GUI Window """
@@ -38,12 +38,11 @@ class MainGUI(ttk.Frame):
         self.__bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
         self.__previous_state = 0  # previous state of the event
         # List of shortcuts in the following format: [name, keycode, function]
-        self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 0 open image
-                            ['Ctrl+W', 87, self.__close_image],  # 1 close image
-                            ['Ctrl+R', 82, self.__get_images],   # 2 get set of images
-                            ['Ctrl+Q', 81, self.__toggle_poly],  # 3 toggle between roi/hole drawing
-                            ['Ctrl+H', 72, self.__open_poly],    # 4 open polygons for the image
-                            ['Ctrl+S', 83, self.__save_poly]]    # 5 save polygons of the image
+        self.__shortcuts = [['Ctrl+O', 79, self.__open_image],    # 0 open image
+                            ['Ctrl+W', 87, self.__close_image],   # 1 close image
+                            ['Ctrl+R', 82, self.__get_images],    # 2 get set of images
+                            ['Ctrl+H', 72, self.__open_figures],  # 3 open figures for the image
+                            ['Ctrl+S', 83, self.__save_figures]]  # 4 save figures of the image
         # Bind events to the main window
         self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
         self.master.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
@@ -90,7 +89,7 @@ class MainGUI(ttk.Frame):
         """ Language independent handle events from the keyboard
             Link1: http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/key-names.html
             Link2: http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/event-handlers.html """
-        #print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
+        # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
         if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
             for shortcut in self.__shortcuts:
                 if event.keycode == shortcut[1]:
@@ -99,7 +98,7 @@ class MainGUI(ttk.Frame):
             self.__previous_state = event.state
 
     def __default_geometry(self):
-        """ Reset default geomentry for the main GUI window """
+        """ Reset default geometry for the main GUI window """
         self.__toggle_fullscreen(state=False)  # exit from fullscreen
         self.master.wm_state(self.__config.default_state)  # exit from zoomed
         self.__config.set_win_geometry(self.__config.default_geometry)  # save default to config
@@ -167,7 +166,7 @@ class MainGUI(ttk.Frame):
                                initialdir=self.__config.get_recent_path())
         if path == '': return
         # Check if it is an image
-        if not Polygons.check_image(path):
+        if not Rectangles.check_image(path):
             messagebox.showinfo('Not an image',
                                 'This is not an image: "{}"\nPlease, select an image.'.format(path))
             self.__open_image()  # try to open new image again
@@ -178,8 +177,8 @@ class MainGUI(ttk.Frame):
     def __close_image(self):
         """ Close image """
         if self.__imframe:
-            if len(self.__imframe.roi_dict) + len(self.__imframe.hole_dict):
-                self.__save_poly()  # if there are polygons, save them
+            if len(self.__imframe.roi_dict):
+                self.__save_figures()  # if there are figures, save them
             self.__imframe.destroy()
             self.__imframe = None
             self.master.title(self.__default_title)  # set default window title
@@ -189,47 +188,33 @@ class MainGUI(ttk.Frame):
         """ Check if there are ROI on the image """
         if self.__imframe and len(self.__imframe.roi_dict):  # there are ROI on the image
             return True
-        return False  # if there are no polygons
+        return False  # if there are no figures
 
     def __get_images(self):
-        """ Apply rolling window to ROI polygons on the image """
+        """ Apply rolling window to ROI figures on the image """
         if self.__check_roi():  # there are ROI
             get_images(self.__imframe, self.__config)  # get all images from "logic_tools"
 
-    def __toggle_poly(self):
-        """ Toggle between ROI and hole polygons drawing """
+    def __open_figures(self):
+        """ Open figures for the current image from file """
         if self.__imframe:
-            self.__imframe.roi = not self.__imframe.roi  # toggle ROI or hole polygons drawing
-            self.__menu.set_tools_toggle(self.__imframe.roi)  # change menu label
-
-    def __open_poly(self):
-        """ Open polygons ROI and holes for the current image from file """
-        if self.__imframe:
-            path = askopenfilename(title='Open polygons for the current image',
+            path = askopenfilename(title='Open rectangles for the current image',
                                    initialdir=self.__config.config_dir)
             if path == '': return
             # noinspection PyBroadException
-            try:  # check if it is a right file with polygons
-                open_polygons(self.__imframe, path)
-                self.__imframe.roi = True  # reset ROI drawing
-                self.__menu.set_tools_toggle(self.__imframe.roi)  # change menu label
+            try:  # check if it is a right file with figures
+                open_figures(self.__imframe, path)
             except:
                 messagebox.showinfo('Wrong file',
-                                    'Wrong polygons for image: "{}"\n'.format(self.__imframe.path) +
-                                    'Please, select polygons for the current image.')
-                self.__open_poly()  # try to open polygons again
+                                    'Wrong figures for image: "{}"\n'.format(self.__imframe.path) +
+                                    'Please, select ROI figures for the current image.')
+                self.__open_figures()  # try to open figures again
                 return
 
-    def __save_poly(self):
-        """ Save polygons ROI and holes of the current image into file """
+    def __save_figures(self):
+        """ Save ROI figures of the current image into file """
         if self.__imframe:
-            save_polygons(self.__imframe, self.__config)
-
-    def __show_rect(self):
-        """ Show / hide rolling window rectangle """
-        if self.__imframe:
-            self.__imframe.rect = not self.__imframe.rect  # show / hide rolling window rectangle
-            self.__menu.show_rect(self.__imframe.rect)  # change menu label
+            save_figures(self.__imframe, self.__config)
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """
