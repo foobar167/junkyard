@@ -25,8 +25,8 @@ def get_images(imframe, config):
     for i, c in enumerate(imframe.roi_dict.values()):
         im = imframe.crop((c[0], c[1], c[0]+w, c[1]+h))  # cut sub-rectangle from the image
         imname = ('{name}_{i:0' + n +
-                  '}-{c0:0'     + m +
-                  '}_{c1:0'     + m +
+                  '}_{c0:0'     + m +
+                  '}-{c1:0'     + m +
                   '}.png').format(name=name, i=i, c0=c[0], c1=c[1])  # create filename
         im.save(os.path.join(config.config_dir, imname))  # save image into config dir folder
 

@@ -81,4 +81,4 @@ class Menu:
         """ Enable / disable some menus """
         self.menubar.entryconfigure(self.__label_tools, state=state)
         self.__file.entryconfigure(self.__label_close, state=state)
-        self.__view.entryconfigure(self.__label_rect, state=state)
+        self.__tools.entryconfigure(self.__label_rect, state=state)

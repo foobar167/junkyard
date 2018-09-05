@@ -9,7 +9,8 @@ class Rectangles(CanvasImage):
     def __init__(self, placeholder, path, rect_size):
         """ Initialize the Rectangles """
         CanvasImage.__init__(self, placeholder, path)  # call __init__ of the CanvasImage class
-        self.canvas.bind('<ButtonPress-1>', self.set_rect)  # set new edge
+        self.canvas.bind('<Return>', self.set_rect)  # set new rectangle
+        self.canvas.bind('<ButtonPress-1>', self.set_rect)  # set new rectangle
         self.canvas.bind('<ButtonRelease-3>', self.popup)  # call popup menu
         self.canvas.bind('<Motion>', self.motion)  # handle mouse motion
         self.canvas.bind('<Delete>', lambda event: self.delete_rect())  # delete selected rectangle
@@ -21,14 +22,13 @@ class Rectangles(CanvasImage):
         # Rectangle parameters
         self.rect_size = rect_size  # size of the rolling window
         self.width_line = 2  # lines width
-        self.rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
-                                                 dash=self.dash, state=u'hidden')
         self.dash = (1, 1)  # dash pattern
         self.color_roi = {'draw'   : 'red',     # draw roi color
                           'point'  : 'blue',    # point roi color
                           'back'   : 'yellow',  # background roi color
                           'stipple': 'gray12'}  # stipple value for roi
-        self.color_pointer = self.color_roi['draw']  # pointer color
+        self.rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
+                                                 dash=self.dash, outline=self.color_roi['draw'])
         self.tag_roi = 'roi'  # roi tag
         self.tag_const = 'rect'  # constant tag for rectangle
         self.tag_poly_line = 'poly_line'  # edge of the rectangle
@@ -60,8 +60,9 @@ class Rectangles(CanvasImage):
                                      stipple=self.color_roi['stipple'], width=0, state='hidden',
                                      tags=(self.tag_roi, tag_uid + self.tag_const))
         # Create polyline. 2nd tag is ALWAYS a unique tag ID.
-        for j in range(-1, len(bbox) - 1):
-            self.canvas.create_line(bbox[j], bbox[j + 1], width=self.width_line,
+        vertices = [(bbox[0], bbox[1]), (bbox[2], bbox[1]), (bbox[2], bbox[3]), (bbox[0], bbox[3])]
+        for j in range(-1, len(vertices) - 1):
+            self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
                                     fill=self.color_roi['back'], tags=(self.tag_poly_line, tag_uid))
         self.roi_dict[tag_uid] = point  # remember top left corner in the dictionary
 
@@ -87,6 +88,7 @@ class Rectangles(CanvasImage):
         else:
             self.canvas.itemconfigure(self.rect, dash=self.dash)  # set dashed line
         self.canvas.coords(self.rect, (x - w, y - h, x + w, y + h))  # relocate rectangle
+        self.canvas.lift(self.rect)  # set roi into foreground
         # Handle rectangles on the canvas
         self.deselect_rect()  # change color and zeroize selected rectangle
         self.select_rect()  # change color and select rectangle
