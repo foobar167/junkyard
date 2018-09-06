@@ -9,7 +9,7 @@ class Rectangles(CanvasImage):
     def __init__(self, placeholder, path, rect_size):
         """ Initialize the Rectangles """
         CanvasImage.__init__(self, placeholder, path)  # call __init__ of the CanvasImage class
-        self.canvas.bind('<Return>', self.set_rect)  # set new rectangle
+        self.canvas.bind('<space>', self.set_rect)  # set new rectangle with a spacebar key press
         self.canvas.bind('<ButtonPress-1>', self.set_rect)  # set new rectangle
         self.canvas.bind('<ButtonRelease-3>', self.popup)  # call popup menu
         self.canvas.bind('<Motion>', self.motion)  # handle mouse motion
@@ -65,6 +65,7 @@ class Rectangles(CanvasImage):
             self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
                                     fill=self.color_roi['back'], tags=(self.tag_poly_line, tag_uid))
         self.roi_dict[tag_uid] = point  # remember top left corner in the dictionary
+        print('Images: {n}'.format(n=len(self.roi_dict)) + (20 * ' ') + '\r', end='')
 
     def popup(self, event):
         """ Popup menu """
