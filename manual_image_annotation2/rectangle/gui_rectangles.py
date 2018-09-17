@@ -54,7 +54,7 @@ class Rectangles(CanvasImage):
         """ Draw rectangle """
         # Create identification tag
         tag_uid = "{x}-{y}".format(x=point[0], y=point[1])  # unique ID
-        if tag_uid not in self.roi_dict:
+        if tag_uid not in self.roi_dict:  # save only unique rectangles with different coordinates
             # Create rectangle. 2nd tag is ALWAYS a unique tag ID + constant string.
             self.canvas.create_rectangle(bbox, fill=self.color_roi['point'],
                                          stipple=self.color_roi['stipple'], width=0, state='hidden',
