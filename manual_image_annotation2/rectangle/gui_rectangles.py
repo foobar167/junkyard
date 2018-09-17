@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import uuid
 import tkinter as tk
 
 from .gui_canvas import CanvasImage
@@ -54,18 +53,19 @@ class Rectangles(CanvasImage):
     def draw_rect(self, bbox, point):
         """ Draw rectangle """
         # Create identification tag
-        tag_uid = uuid.uuid4().hex  # unique ID
-        # Create rectangle. 2nd tag is ALWAYS a unique tag ID + constant string.
-        self.canvas.create_rectangle(bbox, fill=self.color_roi['point'],
-                                     stipple=self.color_roi['stipple'], width=0, state='hidden',
-                                     tags=(self.tag_roi, tag_uid + self.tag_const))
-        # Create polyline. 2nd tag is ALWAYS a unique tag ID.
-        vertices = [(bbox[0], bbox[1]), (bbox[2], bbox[1]), (bbox[2], bbox[3]), (bbox[0], bbox[3])]
-        for j in range(-1, len(vertices) - 1):
-            self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
-                                    fill=self.color_roi['back'], tags=(self.tag_poly_line, tag_uid))
-        self.roi_dict[tag_uid] = point  # remember top left corner in the dictionary
-        print('Images: {n}'.format(n=len(self.roi_dict)) + (20 * ' ') + '\r', end='')
+        tag_uid = "{x}-{y}".format(x=point[0], y=point[1])  # unique ID
+        if tag_uid not in self.roi_dict:
+            # Create rectangle. 2nd tag is ALWAYS a unique tag ID + constant string.
+            self.canvas.create_rectangle(bbox, fill=self.color_roi['point'],
+                                         stipple=self.color_roi['stipple'], width=0, state='hidden',
+                                         tags=(self.tag_roi, tag_uid + self.tag_const))
+            # Create polyline. 2nd tag is ALWAYS a unique tag ID.
+            vertices = [(bbox[0], bbox[1]), (bbox[2], bbox[1]), (bbox[2], bbox[3]), (bbox[0], bbox[3])]
+            for j in range(-1, len(vertices) - 1):
+                self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
+                                        fill=self.color_roi['back'], tags=(self.tag_poly_line, tag_uid))
+            self.roi_dict[tag_uid] = point  # remember top left corner in the dictionary
+            print('Images: {n}'.format(n=len(self.roi_dict)) + (20 * ' ') + '\r', end='')
 
     def popup(self, event):
         """ Popup menu """
