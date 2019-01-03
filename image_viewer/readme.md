@@ -1,6 +1,8 @@
 ##### Image Viewer (demo)
 
-Demo Image Viewer opens image and selects rectangle area
+![Image viewer](../data/2019.01.03-image-viewer.png)
+
+Image Viewer opens image and selects rectangle area
 around the mouse. When user moves the mouse rectangle area
 goes after it.
 

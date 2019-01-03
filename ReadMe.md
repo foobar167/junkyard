@@ -8,7 +8,8 @@ around the objects of interest. After selecting region of interest user
 press menu button and program cuts rectangular images from selected
 polygons with a scanning window.
 
-![Manual image annotation with polygons](data/2019.01.03-manual-image-annotation-with-polygons.png)
+![Manual image annotation with polygons](
+data/2019.01.03-manual-image-annotation-with-polygons.png)
 
    11. [Manual image annotation with rectangles](manual_image_annotation2)
 
@@ -17,7 +18,8 @@ areas of interest. User opens image and select rectangular areas
 of interest. After selecting rectangles and pressing menu button
 program cuts rectangle images from the bigger image.
 
-![Manual image annotation with rectangles](data/2019.01.03-manual-image-annotation-with-rectangles.png)
+![Manual image annotation with rectangles](
+data/2019.01.03-manual-image-annotation-with-rectangles.png)
 
    10. [Image viewer](image_viewer)
 
