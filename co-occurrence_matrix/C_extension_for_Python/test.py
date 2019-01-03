@@ -72,7 +72,7 @@ class CoMatrix2():
 if __name__ == u'__main__':
     dx = 1
     dy = 1
-    data_dir = u'../../data-2/'
+    data_dir = u'../../data/'
 
     m1 = CoMatrix1(dx, dy)  # take bottom right neighbour
     p1 = m1.descriptor(data_dir + u'doge.jpg')

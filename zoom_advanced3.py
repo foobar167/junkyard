@@ -302,7 +302,7 @@ class MainWindow(ttk.Frame):
         canvas = CanvasImage(self.master, path)  # create widget
         canvas.grid(row=0, column=0)  # show widget
 
-filename = './data-2/img_plg5.png'  # place path to your image here
+filename = './data/img_plg5.png'  # place path to your image here
 #filename = 'd:/Data/yandex_z18_1-1.tif'  # huge TIFF file 1.4 GB
 #filename = 'd:/Data/Testing/The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.jpg'
 app = MainWindow(tk.Tk(), path=filename)
