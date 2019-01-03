@@ -19,7 +19,7 @@ program cuts rectangle images from the bigger image.
 
 ![Manual image annotation with rectangles](data/2019.01.03-manual-image-annotation-with-rectangles.png)
 
-   10. [Image viewer](image_viewer-2)
+   10. [Image viewer](image_viewer)
 
 Image viewer shows image and prints coordinates of the rectangular area in the console.
 
@@ -48,7 +48,7 @@ Different OpenCV features. It works for Windows OS.
 
 ![OpenCV features](data/2019.01.03-opencv-features.png)
 
-   05. [Multilanguage for Python](translation-2)
+   05. [Multilanguage for Python](translation)
 
 Demo of multilanguage implementation for Python.
 
