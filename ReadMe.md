@@ -5,7 +5,7 @@
 
 Manual image annotation opens image where user can select polygon areas
 around the objects of interest. After selecting region of interest user
-press menu button and program cuts rectangular images from selected
+presses menu button and program cuts rectangular images from selected
 polygons with a scanning window.
 
 ![Manual image annotation with polygons](
@@ -14,8 +14,8 @@ data/2019.01.03-manual-image-annotation-with-polygons.png)
    11. [Manual image annotation with rectangles](manual_image_annotation2)
 
 Manual image annotation creates rectangular images with selected
-areas of interest. User opens image and select rectangular areas
-of interest. After selecting rectangles and pressing menu button
+areas of interest (ROI). User opens image and selects rectangular
+areas of interest. After selecting rectangles and pressing menu button
 program cuts rectangle images from the bigger image.
 
 ![Manual image annotation with rectangles](
@@ -29,7 +29,8 @@ Image viewer shows image and prints coordinates of the rectangular area in the c
 
    09. [Advanced zoom](zoom_advanced3.py)
 
-Advanced zoom for images of various types from small to huge up to several GB
+Advanced zoom for images of various formats and sizes
+from small to huge up to several GB.
 
 ![Advanced zoom](data/2019.01.03-advanced-zoom.png)
 

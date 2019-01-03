@@ -4,7 +4,7 @@
 ../data/2019.01.03-manual-image-annotation-with-rectangles.png)
 
 Manual image annotation creates rectangular images with selected
-areas of interest. User opens image and select rectangular
+areas of interest (ROI). User opens image and selects rectangular
 areas of interest.
 
 After selecting rectangles and pressing menu button program cuts
