@@ -1,7 +1,7 @@
-##### Manual image annotation with rectangles (demo)
+##### Manual image annotation with rectangles
 
-Demo manual image annotation creates rectangular images with selected
-areas of interest. User open image and select rectangular
+Manual image annotation creates rectangular images with selected
+areas of interest. User opens image and select rectangular
 areas of interest.
 
 After selecting rectangles and pressing menu button program cuts

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import picamera
 
 with picamera.PiCamera() as camera:

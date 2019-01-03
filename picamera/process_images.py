@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Process images in directory
 import os
 import shutil

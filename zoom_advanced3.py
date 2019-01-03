@@ -304,10 +304,6 @@ class MainWindow(ttk.Frame):
 
 filename = './data/img_plg5.png'  # place path to your image here
 #filename = 'd:/Data/yandex_z18_1-1.tif'  # huge TIFF file 1.4 GB
-#filename = 'd:/Data/The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.jpg'
-#filename = 'd:/Data/The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.tif'
-#filename = 'd:/Data/heic1502a.tif'
-#filename = 'd:/Data/land_shallow_topo_east.tif'
-#filename = 'd:/Data/X1D5_B0002594.3FR'
+#filename = 'd:/Data/Testing/The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.jpg'
 app = MainWindow(tk.Tk(), path=filename)
 app.mainloop()
