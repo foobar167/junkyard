@@ -115,12 +115,12 @@ class Settings(simpledialog.Dialog):
         hbar.configure(command=self.listbox.xview)  # bind scrollbars with ListBox
         vbar.configure(command=self.listbox.yview)
         #
-        # Insert data into Settings window
+        # Insert data-2 into Settings window
         self.e1.configure(width=len(str(self.master.size[0])))  # set width of the entry widgets
         self.e2.configure(width=len(str(self.master.size[1])))
         self.entry1.set(self.master.size[0])  # set frame size into the entry widgets
         self.entry2.set(self.master.size[1])
-        self.listbox.insert('end', *self.master.list)  # fill ListBox with data
+        self.listbox.insert('end', *self.master.list)  # fill ListBox with data-2
         #
         box1 = ttk.Frame(top)  # top right frame container with buttons
         box1.grid(row=1, column=3, sticky='n', rowspan=2)

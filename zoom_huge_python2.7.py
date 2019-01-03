@@ -226,7 +226,7 @@ class Zoom_Advanced(ttk.Frame):
             self.canvas.lower(imageid)  # set image into background
             self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
-#path = u'./data/doge.jpg'  # place path to your image here
+#path = u'./data-2/doge.jpg'  # place path to your image here
 #path = u'd:/Data/TechnologySG_2016_Datasets/Airbases_Segmentation/rect1_minsk1/z18/yandex_z18_1-1.tif'
 path = u'd:/Temp/horizontal.tif'
 root = tk.Tk()

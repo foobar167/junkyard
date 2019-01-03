@@ -400,7 +400,7 @@ class MainWindow(ttk.Frame):
         polygons.grid(row=0, column=0)
 
 
-filename = './data/doge.jpg'  # place path to your image here
+filename = './data-2/doge.jpg'  # place path to your image here
 root = tk.Tk()
 app = MainWindow(root, path=filename)
 root.mainloop()
