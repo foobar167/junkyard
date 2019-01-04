@@ -42,18 +42,20 @@ co-occurrence matrix calculation.
    07. [OpenCV + Tkinter snapshot GUI](opencv_tkinter.py)
 
 Take shapshot using webcamera, OpenCV and Tkinter.
+Example is well documented and has many comments inside.
 
 ![OpenCV + Tkinter snapshot GUI](data/2019.01.03-opencv-tkinter.png)
 
    06. [OpenCV features](camera_features.py)
 
-Different OpenCV features. It works for Windows OS.
+Demo of various OpenCV features.
+Application is tested for Windows OS and requires webcamera.
 
 ![OpenCV features](data/2019.01.03-opencv-features.png)
 
    05. [Multilanguage for Python](translation)
 
-Demo of multilanguage implementation for Python.
+How-to implement multilanguage for Python.
 
    04. [Dynamic menu](dynamic_menu.py)
 
@@ -61,12 +63,20 @@ Example of the dynamic menu for Tkinter GUI.
 
    03. [Rolling window for 2D array](rolling_window_advanced.py)
 
-Example of the rolling window for 2D array. Zero Python cycles.
+Example of the rolling window for 2D array. It has zero Python cycles inside,
+so the speed is the same as in **C** programming language.
 
    02. [SIFT object tracking](sift_tracking.py)
 
-Example of the objects tracking by SIFT algorithm.
-SIFT algorithm is free of charge for non-profit projects.
+Example of the objects tracking using SIFT algorithm.
+SIFT algorithm is free of charge for non-commercial projects.
+  1. Open GUI: ```python sift_tracking.py```.
+  2. Place object in front of webcamera, so it take all visible space.
+  3. Press "Snapshot!" button. Application will make snapshort of the object to track.
+  4. After taking snapshort there will be blue rectangle around tracking object
+and green lines connecting specian points of the image.
+
+Rectangular objects, like books, are tracked better than faces.
 
 ![SIFT object tracking](data/2019.01.03-sift-tracking.png)
 
