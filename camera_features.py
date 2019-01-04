@@ -1,4 +1,4 @@
-""" Apply different filters here """
+# Application of different OpenCV filters here
 import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
 import random
 import numpy as np

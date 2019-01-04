@@ -1,4 +1,4 @@
-# Rolling window for 2D arrays in NumPy
+# Rolling window for 2D arrays using NumPy
 import numpy as np
 from PIL import Image, ImageDraw
 

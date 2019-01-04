@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# Objects tracking using SIFT algorithm.
 import cv2
 import sys
 import numpy as np
