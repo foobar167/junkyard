@@ -1,7 +1,6 @@
 ##### Manual image annotation with polygons
 
-![Manual image annotation with polygons](
-../data/2019.01.03-manual-image-annotation-with-polygons.png)
+![Manual image annotation with polygons](../data/2019.01.03-manual-image-annotation-with-polygons.png)
 
 Manual image annotation opens image where user can select
 polygon areas around the objects of interest.
@@ -19,6 +18,16 @@ images from the polygon areas in the "Images"
 directory.
 
 To start Manual Image Annotation:
-c:\path\to\your\python\version\python.exe runme.py
+```shell
+c:\path\to\your\python\version-3.x\python.exe runme.py
+```
 
 Tested on Windows for Python 3.7.
+
+External libraries:
+```shell
+Pillow
+```
+
+Software architecture:
+![Software architecture](../data/2019.06.17-annotation-with-polygons-architecture.png)

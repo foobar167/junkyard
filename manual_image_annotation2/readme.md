@@ -21,3 +21,10 @@ c:\path\to\your\python\version-3.x\python.exe runme.py
 
 Tested on Windows for Python 3.7.
 
+External libraries:
+```shell
+Pillow
+```
+
+Software architecture:
+![Software architecture](../data/2019.06.17-annotation-with-polygons-architecture.png)
