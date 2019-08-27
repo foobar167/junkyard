@@ -14,15 +14,15 @@ configuration INI file which is in the "Temp"
 directory.
 
 The output of the program is the set of rectangular
-images from the polygon areas in the "Images"
+images from the polygon areas in the "Temp"
 directory.
 
-To start Manual Image Annotation:
+To start Manual Image Annotation with polygons:
 ```shell
 c:\path\to\your\python\version-3.x\python.exe runme.py
 ```
 
-Tested on Windows for Python 3.7.
+Tested on Windows and Ubuntu for Python 3.7.
 
 External libraries:
 ```shell

@@ -12,14 +12,15 @@ rectangle images from the bigger image.
 All parameters are saved in configuration INI files
 which is in the "Temp" directory.
 
-The output of the program is the set of rectangular images.
+The output of the program is the set of rectangular images
+in the "Temp" directory.
 
-To start Manual Image Annotation type:
+To start Manual Image Annotation with rectangles:
 ```shell
 c:\path\to\your\python\version-3.x\python.exe runme.py
 ```
 
-Tested on Windows for Python 3.7.
+Tested on Windows and Ubuntu for Python 3.7.
 
 External libraries:
 ```shell
