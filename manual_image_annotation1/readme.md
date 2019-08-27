@@ -10,8 +10,7 @@ and program cuts rectangular images from selected polygons
 with a scanning window.
 
 Parameters of the scanning window are set in the
-configuration INI file which is in the "Temp"
-directory.
+configuration INI file which is in the "Temp" directory.
 
 The output of the program is the set of rectangular
 images from the polygon areas in the "Temp"
