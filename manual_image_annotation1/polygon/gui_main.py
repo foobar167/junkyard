@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import tkinter as tk
 
 from tkinter import ttk
 from tkinter import messagebox
@@ -137,7 +138,12 @@ class MainGUI(ttk.Frame):
         # BUG! Add menu bar to the main window BEFORE iconbitmap command. Otherwise it will
         # shrink in height by 20 pixels after each open-close of the main window.
         this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
-        self.master.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
+        if os.name == 'nt':  # Windows OS
+            self.master.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
+        else:  # Linux OS
+            # ICO does not work for Linux. Use GIF or black and white XBM format instead.
+            img = tk.PhotoImage(file=os.path.join(this_dir, 'logo.gif'))
+            self.master.tk.call('wm', 'iconphoto', self.master._w, img)  # set logo icon
         # Create placeholder frame for the image
         self.master.rowconfigure(0, weight=1)  # make grid cell expandable
         self.master.columnconfigure(0, weight=1)

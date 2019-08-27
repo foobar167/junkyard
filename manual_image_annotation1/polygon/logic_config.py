@@ -23,7 +23,7 @@ class Config:
         self.__rolling = 'RollingWindow'  # info about the rolling window
         self.__roll_w = 'Width'  # width of rolling window
         self.__roll_h = 'Height'  # height of rolling window
-        self.__default_roll_w, self.__default_roll_h = 256, 256  # default rolling window width/height
+        self.__default_roll_w, self.__default_roll_h = 320, 240  # default rolling window width/height
         self.__roll_dx = 'Horizontal step'  # horizontal step of the rolling window
         self.__roll_dy = 'Vertical step'  # vertical step of the rolling window
         # Default horizontal step is 1/2 of the rolling window width
