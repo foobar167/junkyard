@@ -23,7 +23,7 @@ class Config:
         self.__rectangle = 'RectangleWindow'  # info about the rolling window
         self.__rect_w = 'Width'  # width of rolling window
         self.__rect_h = 'Height'  # height of rolling window
-        self.__default_rect_w, self.__default_rect_h = 256, 256  # default rolling window width/height
+        self.__default_rect_w, self.__default_rect_h = 320, 240  # default rolling window width/height
         #
         self.__recent = 'LastOpened'  # list of last opened paths
         self.__recent_number = 10  # number of recent paths
