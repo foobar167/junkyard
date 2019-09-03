@@ -1,6 +1,6 @@
 ##### Manual image annotation with rectangles
 
-![Manual image annotation with rectangles](../data/2019.01.03-manual-image-annotation-with-rectangles.png)
+![Manual image annotation with rectangles](data/2019.01.03-manual-image-annotation-with-rectangles.png)
 
 Manual image annotation creates rectangular images with selected
 areas of interest (ROI). User opens image and selects rectangular
@@ -10,10 +10,10 @@ After selecting rectangles and pressing menu button program cuts
 rectangle images from the bigger image.
 
 All parameters are saved in configuration INI files
-which is in the "Temp" directory.
+which is in the "temp" directory.
 
 The output of the program is the set of rectangular images
-in the "Temp" directory.
+in the "temp" directory.
 
 To start Manual Image Annotation with rectangles:
 ```shell
@@ -28,4 +28,4 @@ Pillow
 ```
 
 Software architecture:
-![Software architecture](../data/2019.06.17-annotation-with-rectangles-architecture.png)
+![Software architecture](data/2019.06.17-annotation-with-rectangles-architecture.png)

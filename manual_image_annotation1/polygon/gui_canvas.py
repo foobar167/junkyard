@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import math
 import hashlib
 import warnings
@@ -265,13 +266,28 @@ class CanvasImage:
         else:
             self.__previous_state = event.state  # remember the last keystroke state
             # Up, Down, Left, Right keystrokes
-            if event.keycode in [68, 39, 102]:  # scroll right, keys 'd' or 'Right'
+            self.keycodes = {}  # init key codes
+            if os.name == 'nt':  # Windows OS
+                self.keycodes = {
+                    'd': [68, 39, 102],
+                    'a': [65, 37, 100],
+                    'w': [87, 38, 104],
+                    's': [83, 40,  98],
+                }
+            else:  # Linux OS
+                self.keycodes = {
+                    'd': [40, 114, 85],
+                    'a': [38, 113, 83],
+                    'w': [25, 111, 80],
+                    's': [39, 116, 88],
+                }
+            if event.keycode in self.keycodes['d']:  # scroll right, keys 'd' or 'Right'
                 self.__scroll_x('scroll',  1, 'unit', event=event)
-            elif event.keycode in [65, 37, 100]:  # scroll left, keys 'a' or 'Left'
+            elif event.keycode in self.keycodes['a']:  # scroll left, keys 'a' or 'Left'
                 self.__scroll_x('scroll', -1, 'unit', event=event)
-            elif event.keycode in [87, 38, 104]:  # scroll up, keys 'w' or 'Up'
+            elif event.keycode in self.keycodes['w']:  # scroll up, keys 'w' or 'Up'
                 self.__scroll_y('scroll', -1, 'unit', event=event)
-            elif event.keycode in [83, 40, 98]:  # scroll down, keys 's' or 'Down'
+            elif event.keycode in self.keycodes['s']:  # scroll down, keys 's' or 'Down'
                 self.__scroll_y('scroll',  1, 'unit', event=event)
 
     def crop(self, bbox):

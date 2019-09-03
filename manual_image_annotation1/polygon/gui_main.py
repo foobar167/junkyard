@@ -28,7 +28,7 @@ class MainGUI(ttk.Frame):
 
     def __create_main_window(self):
         """ Create main window GUI"""
-        self.__default_title = 'Image Viewer'
+        self.__default_title = 'Manual image annotation with polygons'
         self.master.title(self.__default_title)
         self.master.geometry(self.__config.get_win_geometry())  # get window size/position from config
         self.master.wm_state(self.__config.get_win_state())  # get window state
@@ -39,13 +39,34 @@ class MainGUI(ttk.Frame):
         self.__bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
         self.__previous_state = 0  # previous state of the event
         # List of shortcuts in the following format: [name, keycode, function]
-        self.__shortcuts = [['Ctrl+O', 79, self.__open_image],   # 0 open image
-                            ['Ctrl+W', 87, self.__close_image],  # 1 close image
-                            ['Ctrl+R', 82, self.__roll],         # 2 rolling window
-                            ['Ctrl+Q', 81, self.__toggle_poly],  # 3 toggle between roi/hole drawing
-                            ['Ctrl+H', 72, self.__open_poly],    # 4 open polygons for the image
-                            ['Ctrl+S', 83, self.__save_poly],    # 5 save polygons of the image
-                            ['Ctrl+A', 65, self.__show_rect]]    # 6 show rolling window rectangle
+        self.keycode = {}  # init key codes
+        if os.name == 'nt':  # Windows OS
+            self.keycode = {
+                'o': 79,
+                'w': 87,
+                'r': 82,
+                'q': 81,
+                'h': 72,
+                's': 83,
+                'a': 65,
+            }
+        else:  # Linux OS
+            self.keycode = {
+                'o': 32,
+                'w': 25,
+                'r': 27,
+                'q': 24,
+                'h': 43,
+                's': 39,
+                'a': 38,
+            }
+        self.__shortcuts = [['Ctrl+O', self.keycode['o'], self.__open_image],   # 0 open image
+                            ['Ctrl+W', self.keycode['w'], self.__close_image],  # 1 close image
+                            ['Ctrl+R', self.keycode['r'], self.__roll],         # 2 rolling window
+                            ['Ctrl+Q', self.keycode['q'], self.__toggle_poly],  # 3 toggle between roi/hole drawing
+                            ['Ctrl+H', self.keycode['h'], self.__open_poly],    # 4 open polygons for the image
+                            ['Ctrl+S', self.keycode['s'], self.__save_poly],    # 5 save polygons of the image
+                            ['Ctrl+A', self.keycode['a'], self.__show_rect]]    # 6 show rolling window rectangle
         # Bind events to the main window
         self.master.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
         self.master.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
@@ -141,7 +162,7 @@ class MainGUI(ttk.Frame):
         if os.name == 'nt':  # Windows OS
             self.master.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
         else:  # Linux OS
-            # ICO does not work for Linux. Use GIF or black and white XBM format instead.
+            # ICO format does not work for Linux. Use GIF or black and white XBM format instead.
             img = tk.PhotoImage(file=os.path.join(this_dir, 'logo.gif'))
             self.master.tk.call('wm', 'iconphoto', self.master._w, img)  # set logo icon
         # Create placeholder frame for the image
@@ -169,7 +190,7 @@ class MainGUI(ttk.Frame):
 
     @handle_exception(0)
     def __open_image(self):
-        """ Open image in Image Viewer """
+        """ Open image in the GUI """
         path = askopenfilename(title='Select an image',
                                initialdir=self.__config.get_recent_path())
         if path == '': return
