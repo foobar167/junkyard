@@ -27,7 +27,7 @@ class MainGUI(ttk.Frame):
         self.__imframe = None  # empty instance of image frame (canvas)
 
     def __create_main_window(self):
-        """ Create main window GUI"""
+        """ Create main window GUI """
         self.__default_title = 'Manual image annotation with polygons'
         self.master.title(self.__default_title)
         self.master.geometry(self.__config.get_win_geometry())  # get window size/position from config

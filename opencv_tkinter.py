@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Take shapshot using webcamera, OpenCV and Tkinter.
+# Take snapshot using web camera, OpenCV and Tkinter.
 import os
 import cv2
 import sys
