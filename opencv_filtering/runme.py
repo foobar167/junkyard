@@ -11,5 +11,6 @@ if __name__ == '__main__':
     this_dir = os.path.dirname(os.path.realpath(__file__))  # path to this directory
     os.chdir(this_dir)  # make path to this dir the current path
     app = MainGUI(tk.Tk())  # start the application
-    app.mainloop()  # application is up and running
+    if hasattr(app, 'camera'):  # object has attribute 'camera'
+        app.mainloop()  # application is up and running
     logging.info('Finish software')
