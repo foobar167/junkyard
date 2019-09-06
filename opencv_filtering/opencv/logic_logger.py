@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 
+
 def init_logging():
     """ Initialize logging and write info both into logfile and console
         Usage example: land.logger.logging.info('Your message here')
@@ -28,12 +29,14 @@ def init_logging():
     # Override sys.excepthook to log uncaught exceptions
     sys.excepthook = handle_uncaught_exception
 
+
 def handle_uncaught_exception(errtype, value, traceback):
     """ Handle all uncaught exceptions """
     logger = logging.getLogger('')
-    logger.error('Uncaught exception occured', exc_info=(errtype, value, traceback))
+    logger.error('Uncaught exception occurred', exc_info=(errtype, value, traceback))
 
-def handle_exception(exit_code = 0):
+
+def handle_exception(exit_code=0):
     """ Use: @land.logger.handle_exception(0)
         before every function which could cast an exception """
     def wrapper(func):

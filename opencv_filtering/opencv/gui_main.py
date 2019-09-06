@@ -2,14 +2,14 @@
 # Take snapshot using web camera, OpenCV and Tkinter.
 import os
 import cv2
-import datetime
 import tkinter as tk
 
 from tkinter import ttk
 from tkinter import messagebox
-from datetime import datetime
 from PIL import Image, ImageTk
 from .gui_menu import Menu
+from .logic_config import Config
+from .logic_filters import Filters
 from .gui_tooltip import ToolTip
 from .logic_logger import logging
 
@@ -24,30 +24,22 @@ class MainGUI(ttk.Frame):
             return
         logging.info('Open GUI')
         ttk.Frame.__init__(self, master=mainframe)
+        # Create instances: config and filters
+        path = 'temp'  # store output path
+        self.config = Config(path)  # open config file of the main window
+        self.filters = Filters(path)  # create OpenCV filters object
         # 0 is default web camera, cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
         self.camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # capture video frames
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
         self._menu = None  # menu widget
         self.previous_state = 0  # previous state of the event
         self.shortcuts = None  # define hotkeys
-        self.output_path = 'temp'  # store output path
-        self.current_image = None  # current image from the camera
+        self.current_frame = None  # current frame from the camera
         self.panel = None  # image panel
         #
         self.create_main_window()
         self.create_widgets()
         self.video_loop()  # constantly pool the video sensor for recent frame
-
-    def video_loop(self):
-        """ Get frame from the video stream and show it in Tkinter """
-        ok, frame = self.camera.read()  # read frame from video stream
-        if ok:  # frame captured without any errors
-            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
-            self.current_image = Image.fromarray(cv2image)  # convert image for PIL
-            imgtk = ImageTk.PhotoImage(image=self.current_image)  # convert image for tkinter
-            self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
-            self.panel.config(image=imgtk)  # show the image
-        self.master.after(30, self.video_loop)  # call the same function after 30 milliseconds
 
     @staticmethod
     def count_cameras():
@@ -153,16 +145,24 @@ class MainGUI(ttk.Frame):
         """ Set last OpenCV filter to the video loop """
         logging.info('Set last filter')
 
+    def video_loop(self):
+        """ Get frame from the video stream and show it in Tkinter """
+        ok, frame = self.camera.read()  # read frame from video stream
+        if ok:  # frame captured without any errors
+            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
+            self.current_frame = Image.fromarray(cv2image)  # convert image for PIL
+            imgtk = ImageTk.PhotoImage(image=self.current_frame)  # convert image for tkinter
+            self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel.config(image=imgtk)  # show the image
+        self.master.after(30, self.video_loop)  # call the same function after 30 milliseconds
+
     def take_snapshot(self):
         """ Take snapshot and save it to the file """
-        uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
-        filename = '{}.png'.format(uid)  # construct filename from UID
-        path = os.path.join(self.output_path, filename)  # construct output path
-        self.current_image.save(path)  # save image as jpeg file
-        logging.info('Snapshot saved to {}'.format(path))
+        self.filters.take_snapshot(self.current_frame)
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """
+        self.config.destroy()
         logging.info('Close GUI')
         self.camera.release()  # release web camera
         cv2.destroyAllWindows()  # it is not mandatory in this application

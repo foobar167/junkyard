@@ -21,7 +21,7 @@ class ToolTip(tk.Toplevel):
         self.overrideredirect(True)  # should not have frame or title bar
         self.msgVar = tk.StringVar()  # contain the text displayed by the ToolTip
         self.msg = msg
-        if self.msg == None:
+        if self.msg is None:
             self.msgVar.set('No message provided')
         else:
             self.msgVar.set(self.msg)
@@ -33,12 +33,12 @@ class ToolTip(tk.Toplevel):
         # The text of the ToolTip is displayed in a Message widget
         tk.Message(self, textvariable=self.msgVar, bg='#FFFFDD', aspect=1000).grid()
         # Add bindings to the widget. This will NOT override bindings that the widget already has.
-        self.widget.bind('<Enter>', self.spawn, True)
-        self.widget.bind('<Leave>', self.hide, True)
+        self.widget.bind('<Enter>', lambda event: self.spawn(), True)
+        self.widget.bind('<Leave>', lambda event: self.hide(), True)
         self.widget.bind('<Motion>', self.move, True)
-        self.widget.bind('<Button-1>', self.hide, True)
+        self.widget.bind('<Button-1>', lambda event: self.hide, True)
 
-    def spawn(self, event=None):
+    def spawn(self):
         """ Make the ToolTip eligible for display """
         self.visible = 1
         self.after(int(self.delay * 1000), self.show)  # show after <delay> ms
@@ -58,17 +58,18 @@ class ToolTip(tk.Toplevel):
             self.withdraw()  # hide initially - tk.Toplevel.withdraw()
             self.visible = 1
         # Offset the ToolTip 10x10 pixes southeast of the pointer
-        self.geometry('+{x}+{y}'.format(x = event.x_root + 10, y = event.y_root + 10))
+        self.geometry('+{x}+{y}'.format(x=event.x_root+10, y=event.y_root+10))
         msg = None
+        # noinspection PyBroadException
         try:  # the message is unchanged if function is None or fails
             msg = self.func()  # execute some function if necessary and get its output
             self.msgVar.set(msg)  # set function output message to the tooltip
-        except:
+        except Exception:
             pass
         if self.msg or msg:  # show only non-empty messages
             self.after(int(self.delay * 1000), self.show)
 
-    def hide(self, event=None):
+    def hide(self):
         """ Hide the ToolTip """
         self.visible = 0
         self.withdraw()

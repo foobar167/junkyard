@@ -1,8 +1,38 @@
 # Application of different OpenCV filters here
+import os
 import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
 import random
 import numpy as np
 
+from datetime import datetime
+from .logic_logger import logging
+
+
+class Filters():
+    """ OpenCV filters """
+    def __init__(self, path='temp'):
+        """ Initialize filters """
+        self.output_path = path
+        self.current_filter = None  # current OpenCV filter
+        self.current_filter_description = None  # description of the current filter
+
+    def filter_unchanged(self):
+        """ Show unchanged frames """
+        pass
+
+    def filter_canny(self):
+        """ Canny edge detection """
+        pass
+
+    def take_snapshot(self, frame):
+        """ Take snapshot and save it to the file """
+        uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
+        filename = '{}.png'.format(uid)  # construct filename from UID
+        filepath = os.path.join(self.output_path, filename)  # construct output path
+        frame.save(filepath)  # save image frame as PNG file
+        logging.info('Snapshot saved to {}'.format(filepath))
+
+"""
 camera = cv2.VideoCapture(0)  # get default camera
 window_name = 'My camera'
 modes = {
@@ -289,3 +319,4 @@ while True:
 
 camera.release()  # release web camera
 cv2.destroyAllWindows()
+# """

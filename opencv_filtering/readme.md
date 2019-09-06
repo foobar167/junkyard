@@ -10,9 +10,10 @@ External libraries:
 ```shell
 opencv-contrib-python  # OpenCV with contributions
 pillow                 # PIL package for image processing
+numpy                  # NumPy support for arrays and matrices
 
 # Installation
-pip install pillow opencv-contrib-python
+pip install opencv-contrib-python pillow numpy
 ```
 
 To start OpenCV filtering run:
