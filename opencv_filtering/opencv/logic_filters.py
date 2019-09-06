@@ -1,36 +1,48 @@
 # Application of different OpenCV filters here
-import os
 import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
 import random
 import numpy as np
 
-from datetime import datetime
-from .logic_logger import logging
-
 
 class Filters():
     """ OpenCV filters """
-    def __init__(self, path='temp'):
+    def __init__(self, current=0):
         """ Initialize filters """
-        self.output_path = path
-        self.current_filter = None  # current OpenCV filter
-        self.current_filter_description = None  # description of the current filter
+        self.current_filter = current  # current OpenCV filter
+        self.current_frame = None  # current frame
+        # List of filters in the following format: [name, function, description]
+        # Filter functions take frame, convert it and return converted image
+        self.container = [
+            ['Unchanged', self.filter_unchanged, 'Unchanged original image'],
+            ['Canny', self.filter_canny, 'Canny edge detection'],
+        ]
+
+    def next_filter(self):
+        """ Set next filter """
+        self.current_filter = (self.current_filter + 1) % len(self.container)
+
+    def last_filter(self):
+        """ Set last filter """
+        self.current_filter = (self.current_filter - 1) % len(self.container)
+
+    def get_name(self):
+        """ Get current filter name """
+        return self.container[self.current_filter][0]  # return name from container
+
+    def convert(self, frame):
+        """ Convert frame using current filter function """
+        self.current_frame = frame
+        return self.container[self.current_filter][1]()
 
     def filter_unchanged(self):
         """ Show unchanged frames """
-        pass
+        return self.current_frame
 
     def filter_canny(self):
         """ Canny edge detection """
-        pass
+        gray = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        return cv2.Canny(gray, 100, 200)  # Canny edge detection
 
-    def take_snapshot(self, frame):
-        """ Take snapshot and save it to the file """
-        uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
-        filename = '{}.png'.format(uid)  # construct filename from UID
-        filepath = os.path.join(self.output_path, filename)  # construct output path
-        frame.save(filepath)  # save image frame as PNG file
-        logging.info('Snapshot saved to {}'.format(filepath))
 
 """
 camera = cv2.VideoCapture(0)  # get default camera

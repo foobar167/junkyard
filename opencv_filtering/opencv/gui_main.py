@@ -6,6 +6,7 @@ import tkinter as tk
 
 from tkinter import ttk
 from tkinter import messagebox
+from datetime import datetime
 from PIL import Image, ImageTk
 from .gui_menu import Menu
 from .logic_config import Config
@@ -25,9 +26,9 @@ class MainGUI(ttk.Frame):
         logging.info('Open GUI')
         ttk.Frame.__init__(self, master=mainframe)
         # Create instances: config and filters
-        path = 'temp'  # store output path
-        self.config = Config(path)  # open config file of the main window
-        self.filters = Filters(path)  # create OpenCV filters object
+        self.output_path = 'temp'  # store output path
+        self.config = Config(self.output_path)  # open config file of the main window
+        self.filters = Filters(self.config.get_current_filter())  # create OpenCV filters object
         # 0 is default web camera, cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
         self.camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # capture video frames
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
@@ -139,16 +140,19 @@ class MainGUI(ttk.Frame):
 
     def next_filter(self):
         """ Set next OpenCV filter to the video loop """
-        logging.info('Set next filter')
+        self.filters.next_filter()
+        logging.info('Set filter to {}'.format(self.filters.get_name()))
 
     def last_filter(self):
         """ Set last OpenCV filter to the video loop """
-        logging.info('Set last filter')
+        self.filters.last_filter()
+        logging.info('Set filter to {}'.format(self.filters.get_name()))
 
     def video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
         ok, frame = self.camera.read()  # read frame from video stream
         if ok:  # frame captured without any errors
+            frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
             self.current_frame = Image.fromarray(cv2image)  # convert image for PIL
             imgtk = ImageTk.PhotoImage(image=self.current_frame)  # convert image for tkinter
@@ -158,10 +162,15 @@ class MainGUI(ttk.Frame):
 
     def take_snapshot(self):
         """ Take snapshot and save it to the file """
-        self.filters.take_snapshot(self.current_frame)
+        uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
+        filename = '{}.png'.format(uid)  # construct filename from UID
+        filepath = os.path.join(self.output_path, filename)  # construct output path
+        self.current_frame.save(filepath)  # save image frame as PNG file
+        logging.info('Snapshot saved to {}'.format(filepath))
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """
+        self.config.set_current_filter(self.filters.current_filter)  # save current filter
         self.config.destroy()
         logging.info('Close GUI')
         self.camera.release()  # release web camera

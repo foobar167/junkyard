@@ -20,7 +20,11 @@ class Config:
         self.__state = 'State'  # state of the window: normal, zoomed, etc.
         self.default_state = 'normal'  # normal state of the window
         self.__current_camera = 'CurrentCamera'  # current web camera
-        self.__default_camera = '0'
+        self.__default_camera = '0'  # default current camera number
+        #
+        self.__filter = 'Filter'  # info about filter
+        self.__current_filter = 'CurrentFilter'  # current filter number
+        self.__default_filter = '0'  # default current filter number
         #
         self.__config = configparser.ConfigParser()  # create config parser
         self.__config.optionxform = lambda option: option  # preserve case for letters
@@ -79,10 +83,24 @@ class Config:
     def set_current_camera(self, current_camera=None):
         """ Set current camera to the config INI file """
         self.__check_section(self.__window)
-        if current_camera:
-            self.__config[self.__window][self.__current_camera] = current_camera
-        else:
-            self.__config[self.__window][self.__current_camera] = self.__default_camera
+        if current_camera is None:
+            current_camera = self.__default_camera
+        self.__config[self.__window][self.__current_camera] = str(current_camera)
+
+    def get_current_filter(self):
+        """ Get current filter if it is available or return default filter """
+        try:
+            current_filter = self.__config[self.__filter][self.__current_filter]
+            return int(current_filter)
+        except KeyError:  # if the key is not in the dictionary of config
+            return int(self.__default_filter)
+
+    def set_current_filter(self, current_filter=None):
+        """ Set current filter to the config INI file """
+        self.__check_section(self.__filter)
+        if current_filter is None:
+            current_filter = self.__default_filter
+        self.__config[self.__filter][self.__current_filter] = str(current_filter)
 
     def save(self):
         """ Save config file """
