@@ -15,6 +15,7 @@ class Filters():
         self.container = [
             ['Unchanged', self.filter_unchanged, 'Unchanged original image'],
             ['Canny', self.filter_canny, 'Canny edge detection'],
+            ['Threshold', self.filter_threshold, 'Adaptive Gaussian threshold']
         ]
 
     def next_filter(self):
@@ -42,6 +43,11 @@ class Filters():
         """ Canny edge detection """
         gray = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
         return cv2.Canny(gray, 100, 200)  # Canny edge detection
+
+    def filter_threshold(self):
+        """ Adaptive Gaussian threshold """
+        gray = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
 
 """
