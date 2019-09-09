@@ -2,6 +2,7 @@
 # Take snapshot using web camera, OpenCV and Tkinter.
 import os
 import cv2
+import time
 import tkinter as tk
 
 from tkinter import ttk
@@ -55,6 +56,8 @@ class MainGUI(ttk.Frame):
             if camera.isOpened():
                 camera.release()
                 continue
+            # BUG! If release camera too quickly there'll be a distorted image sometimes, but not always
+            time.sleep(0.5)  # wait till the camera become ready
             return i
 
     def create_main_window(self):
