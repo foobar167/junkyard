@@ -33,10 +33,12 @@ class MainGUI(ttk.Frame):
         self.camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # capture video frames
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
         self._menu = None  # menu widget
+        self.buttons = None  # buttons at the bottom of the GUI
+        self.fullscreen = False  # enable/disable fullscreen mode
         self._bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
         self._filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
         self.previous_state = 0  # previous state of the event
-        self.shortcuts = None  # define hotkeys
+        self.shortcuts = None  # define hot-keys
         self.current_frame = None  # current frame from the camera
         self.panel = None  # image panel
         #
@@ -77,14 +79,21 @@ class MainGUI(ttk.Frame):
             }
         # List of shortcuts in the following format: [name, function, hotkey, keycode, ctrl]
         self.shortcuts = [
-            ['Take snapshot', self.take_snapshot, 'Ctrl+S', keycode['s'], True],   # 0 - take snapshot
-            ['Next Filter',   self.next_filter,   '→',      keycode['→'], False],  # 1 - set next filter
-            ['Last Filter',   self.last_filter,   '←',      keycode['←'], False],  # 2 - set last filter
-            ['Exit',          self.destroy,       'Alt+F4', None,         False],  # 3 - close GUI
+            ['Take snapshot', self.take_snapshot,     'Ctrl+S', keycode['s'],  True],   # 0 - take snapshot
+            ['Next Filter',   self.next_filter,       '→',      keycode['→'], False],  # 1 - set next filter
+            ['Last Filter',   self.last_filter,       '←',      keycode['←'], False],  # 2 - set last filter
+            ['Exit',          self.destroy,           'Alt+F4', None,          False],  # 3 - close GUI
+            ['Filters',       self.filters,           '',       None,          False],  # 4 - filters object
+            ['Fullscreen',    self.toggle_fullscreen, 'F11',    None,          False],  # 5 - full screen mode
+            ['Default size',  self.default_geometry,  'F5',     None,          False],  # 6 - default size GUI
         ]
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
         self.master.bind('<Button-4>',   self.wheel)  # mouse wheel for Linux, scroll up
+        self.master.bind('<Motion>', lambda event: self.motion())  # track and handle mouse pointer position
+        self.master.bind('<F11>', lambda event: self.toggle_fullscreen())  # toggle fullscreen mode
+        self.master.bind('<Escape>', lambda event, s=False: self.toggle_fullscreen(s))
+        self.master.bind('<F5>', lambda event: self.default_geometry())  # reset default window geometry
         # Handle window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
         # don't set default geometry from full screen if resizing is not postponed.
         self.master.bind('<Configure>', lambda event: self.master.after_idle(self.resize_window))
@@ -101,19 +110,48 @@ class MainGUI(ttk.Frame):
         if event.num == 4 or event.delta == 120:  # scroll up
             self.last_filter()
 
-    def keystroke(self, event):
-        """ Language independent handle events from the keyboard """
-        # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
-        if event.state - self.previous_state == 4:  # check if <Control> key is pressed
-            for shortcut in self.shortcuts:  # for all shortcuts
-                if shortcut[4] and event.keycode in shortcut[3]:  # if ctrl is True and key is pressed
-                    shortcut[1]()  # execute a function
-        else:  # <Control> key is not pressed
-            self.previous_state = event.state  # remember previous state of the event
-            if event.keycode in self.shortcuts[1][3]:
-                self.shortcuts[1][1]()  # next filter
-            elif event.keycode in self.shortcuts[2][3]:
-                self.shortcuts[2][1]()  # last filter
+    def toggle_fullscreen(self, state=None):
+        """ Enable/disable the full screen mode """
+        # Toggle the boolean self.fullscreen
+        if state is not None:
+            self.fullscreen = state
+        else:
+            self.fullscreen = not self.fullscreen
+        # Hide menubar in fullscreen mode or show it otherwise
+        if self.fullscreen:
+            self.hide_menu()
+            self.buttons.grid_forget()
+        else:
+            self.show_menu()
+            self.buttons.grid(row=1, column=0)
+        self.master.wm_attributes('-fullscreen', self.fullscreen)  # fullscreen mode on/off
+
+    def show_menu(self):
+        """ Show menu bar """
+        self.master.configure(menu=self._menu.menubar)
+
+    def hide_menu(self):
+        """ Hide menu bar """
+        self.master.configure(menu=self._menu.empty_menu)
+
+    def motion(self):
+        """ Track mouse pointer and handle its position """
+        if self.fullscreen:
+            y = self.master.winfo_pointery()
+            # Show menu if close to the upper side of the main window or hide it otherwise
+            self.show_menu() if (0 <= y < 20) else self.hide_menu()
+            # Show buttons if close to the lower side of the main windows or hide them otherwise
+            if self.master.winfo_height()-30 <= y:
+                self.buttons.grid(row=1, column=0)
+            else:
+                self.buttons.grid_forget()
+
+    def default_geometry(self):
+        """ Reset default geometry for the main GUI window """
+        self.toggle_fullscreen(state=False)  # exit from fullscreen
+        self.master.wm_state(self.config.default_state)  # exit from zoomed
+        self.master.geometry(self.config.default_geometry)  # set default geometry
+        self.config.set_win_geometry(self.config.default_geometry)  # save default to config
 
     def resize_window(self):
         """ Save main window size and position into config file.
@@ -131,6 +169,20 @@ class MainGUI(ttk.Frame):
                 return
             self.config.set_win_geometry(self.master.winfo_geometry())
         self.config.set_win_state(self.master.wm_state())
+
+    def keystroke(self, event):
+        """ Language independent handle events from the keyboard """
+        # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
+        if event.state - self.previous_state == 4:  # check if <Control> key is pressed
+            for shortcut in self.shortcuts:  # for all shortcuts
+                if shortcut[4] and event.keycode in shortcut[3]:  # if ctrl is True and key is pressed
+                    shortcut[1]()  # execute a function
+        else:  # <Control> key is not pressed
+            self.previous_state = event.state  # remember previous state of the event
+            if event.keycode in self.shortcuts[1][3]:
+                self.shortcuts[1][1]()  # next filter
+            elif event.keycode in self.shortcuts[2][3]:
+                self.shortcuts[2][1]()  # last filter
 
     def create_widgets(self):
         """ Widgets for GUI are created here """
@@ -151,11 +203,11 @@ class MainGUI(ttk.Frame):
         container.columnconfigure(0, weight=1)
         self.panel = ttk.Label(container, text='Web camera image', anchor='center')  # initialize image panel
         self.panel.grid(row=0, column=0, sticky='nswe')  # make ttk.Label expandable
-        buttons = ttk.Label(container)  # initialize buttons panel
-        buttons.grid(row=1, column=0)
-        self.add_button(master=buttons, name='icon_arrow__left.png', text=self.shortcuts[2][0], command=self.shortcuts[2][1])
-        self.add_button(master=buttons, name='icon_save__image.png', text=self.shortcuts[0][0], command=self.shortcuts[0][1])
-        self.add_button(master=buttons, name='icon_arrow_right.png', text=self.shortcuts[1][0], command=self.shortcuts[1][1])
+        self.buttons = ttk.Label(container)  # initialize buttons panel
+        self.buttons.grid(row=1, column=0)
+        self.add_button(master=self.buttons, name='icon_arrow__left.png', text=self.shortcuts[2][0], command=self.shortcuts[2][1])
+        self.add_button(master=self.buttons, name='icon_save__image.png', text=self.shortcuts[0][0], command=self.shortcuts[0][1])
+        self.add_button(master=self.buttons, name='icon_arrow_right.png', text=self.shortcuts[1][0], command=self.shortcuts[1][1])
 
     def add_button(self, master, name, text, command):
         """ Add button to the GUI """

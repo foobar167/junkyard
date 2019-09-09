@@ -30,6 +30,10 @@ class Filters():
         """ Get current filter name """
         return self.container[self.current_filter][0]  # return name from container
 
+    def get_names(self):
+        """ Get list of filter names """
+        return [name[0] for name in self.container]
+
     def convert(self, frame):
         """ Convert frame using current filter function """
         self.current_frame = frame
