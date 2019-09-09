@@ -33,6 +33,8 @@ class MainGUI(ttk.Frame):
         self.camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # capture video frames
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
         self._menu = None  # menu widget
+        self._bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
+        self._filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
         self.previous_state = 0  # previous state of the event
         self.shortcuts = None  # define hotkeys
         self.current_frame = None  # current frame from the camera
@@ -56,7 +58,8 @@ class MainGUI(ttk.Frame):
     def create_main_window(self):
         """ Create main window GUI """
         self.master.title('OpenCV Filtering')  # set window title
-        self.master.resizable(False, False)  # Tkinter window is not resizable
+        self.master.geometry(self.config.get_win_geometry())  # get window size/position from config
+        self.master.wm_state(self.config.get_win_state())  # get window state
         # self.destroy function gets fired when the window is closed
         self.master.protocol('WM_DELETE_WINDOW', self.destroy)
         #
@@ -82,6 +85,10 @@ class MainGUI(ttk.Frame):
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
         self.master.bind('<Button-4>',   self.wheel)  # mouse wheel for Linux, scroll up
+        # Handle window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
+        # don't set default geometry from full screen if resizing is not postponed.
+        self.master.bind('<Configure>', lambda event: self.master.after_idle(self.resize_window))
+        # self.master.resizable(False, False)  # Tkinter window is not resizable
         # Handle keystrokes in the idle mode, because program slows down on a weak computers,
         # when too many key stroke events in the same time.
         self.master.bind('<Key>', lambda event: self.master.after_idle(self.keystroke, event))
@@ -108,6 +115,23 @@ class MainGUI(ttk.Frame):
             elif event.keycode in self.shortcuts[2][3]:
                 self.shortcuts[2][1]()  # last filter
 
+    def resize_window(self):
+        """ Save main window size and position into config file.
+            BUG! There is a BUG when changing window from fullscreen to zoomed and then to normal mode.
+            Main window somehow remembers zoomed mode as normal, so I have to explicitly set
+            previous geometry from config INI file to the main window. """
+        if self.master.wm_attributes('-fullscreen'):  # don't remember fullscreen geometry
+            self._bugfix = True  # fixing bug
+            return
+        if self.master.state() == 'normal':
+            if self._bugfix is True:  # fixing bug for: fullscreen --> zoomed --> normal
+                self._bugfix = False
+                # Explicitly set previous geometry to fix the bug
+                self.master.geometry(self.config.get_win_geometry())
+                return
+            self.config.set_win_geometry(self.master.winfo_geometry())
+        self.config.set_win_state(self.master.wm_state())
+
     def create_widgets(self):
         """ Widgets for GUI are created here """
         self._menu = Menu(self.master, self.shortcuts)
@@ -119,10 +143,16 @@ class MainGUI(ttk.Frame):
             img = tk.PhotoImage(file=os.path.join(self.this_dir, 'logo.gif'))
             # noinspection PyProtectedMember
             self.master.tk.call('wm', 'iconphoto', self.master._w, img)  # set logo icon
-        self.panel = ttk.Label(self.master)  # initialize image panel
-        self.panel.pack()
-        buttons = ttk.Label(self.master)  # initialize buttons panel
-        buttons.pack()
+        # Create ttk.Frame container in GUI and make it expandable
+        container = ttk.Frame(self.master)
+        container.pack(fill=tk.BOTH, expand=1)
+        # Configure the rows and columns to have a non-zero weight so that they will take up the extra space
+        container.rowconfigure(0, weight=1)
+        container.columnconfigure(0, weight=1)
+        self.panel = ttk.Label(container, text='Web camera image', anchor='center')  # initialize image panel
+        self.panel.grid(row=0, column=0, sticky='nswe')  # make ttk.Label expandable
+        buttons = ttk.Label(container)  # initialize buttons panel
+        buttons.grid(row=1, column=0)
         self.add_button(master=buttons, name='icon_arrow__left.png', text=self.shortcuts[2][0], command=self.shortcuts[2][1])
         self.add_button(master=buttons, name='icon_save__image.png', text=self.shortcuts[0][0], command=self.shortcuts[0][1])
         self.add_button(master=buttons, name='icon_arrow_right.png', text=self.shortcuts[1][0], command=self.shortcuts[1][1])
@@ -148,6 +178,20 @@ class MainGUI(ttk.Frame):
         self.filters.last_filter()
         logging.info('Set filter to {}'.format(self.filters.get_name()))
 
+    def resize_image(self, image):
+        """ Resize image proportionally """
+        w1, h1 = image.size
+        w1, h1 = float(w1), float(h1)
+        w2, h2 = float(self.panel.winfo_width()), float(self.panel.winfo_height())
+        aspect_ratio1 = w1 / h1
+        aspect_ratio2 = w2 / h2
+        if aspect_ratio1 == aspect_ratio2:
+            return image.resize((int(w2), int(h2)), self._filter)
+        elif aspect_ratio1 > aspect_ratio2:
+            return image.resize((int(w2), max(1, int(w2 / aspect_ratio1))), self._filter)
+        else:  # aspect_ratio1 < aspect_ratio2
+            return image.resize((max(1, int(h2 * aspect_ratio1)), int(h2)), self._filter)
+
     def video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
         ok, frame = self.camera.read()  # read frame from video stream
@@ -155,7 +199,8 @@ class MainGUI(ttk.Frame):
             frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
             self.current_frame = Image.fromarray(cv2image)  # convert image for PIL
-            imgtk = ImageTk.PhotoImage(image=self.current_frame)  # convert image for tkinter
+            image = self.resize_image(self.current_frame)  # resize image for the GUI window
+            imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
             self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk)  # show the image
         self.master.after(30, self.video_loop)  # call the same function after 30 milliseconds
