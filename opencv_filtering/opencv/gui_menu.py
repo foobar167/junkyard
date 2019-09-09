@@ -38,4 +38,4 @@ class Menu:
 
     def set_filter(self, filters):
         """ Set filter from the menu bar """
-        filters.current_filter = self.variable.get()
+        filters.set_filter(self.variable.get())

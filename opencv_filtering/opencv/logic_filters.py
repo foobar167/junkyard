@@ -3,6 +3,7 @@ import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
 import random
 import numpy as np
 
+from .logic_logger import logging
 
 class Filters():
     """ OpenCV filters """
@@ -18,17 +19,21 @@ class Filters():
             ['Threshold', self.filter_threshold, 'Adaptive Gaussian threshold']
         ]
 
+    def set_filter(self, current):
+        """ Set current filter """
+        self.current_filter = current
+        filter_name = self.container[self.current_filter][0]
+        logging.info('Set filter to {}'.format(filter_name))
+
     def next_filter(self):
-        """ Set next filter """
-        self.current_filter = (self.current_filter + 1) % len(self.container)
+        """ Set next OpenCV filter to the video loop """
+        current = (self.current_filter + 1) % len(self.container)
+        self.set_filter(current)
 
     def last_filter(self):
-        """ Set last filter """
-        self.current_filter = (self.current_filter - 1) % len(self.container)
-
-    def get_name(self):
-        """ Get current filter name """
-        return self.container[self.current_filter][0]  # return name from container
+        """ Set last OpenCV filter to the video loop """
+        current = (self.current_filter - 1) % len(self.container)
+        self.set_filter(current)
 
     def get_names(self):
         """ Get list of filter names """

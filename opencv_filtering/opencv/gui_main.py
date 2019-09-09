@@ -79,13 +79,13 @@ class MainGUI(ttk.Frame):
             }
         # List of shortcuts in the following format: [name, function, hotkey, keycode, ctrl]
         self.shortcuts = [
-            ['Take snapshot', self.take_snapshot,     'Ctrl+S', keycode['s'],  True],   # 0 - take snapshot
-            ['Next Filter',   self.next_filter,       '→',      keycode['→'], False],  # 1 - set next filter
-            ['Last Filter',   self.last_filter,       '←',      keycode['←'], False],  # 2 - set last filter
-            ['Exit',          self.destroy,           'Alt+F4', None,          False],  # 3 - close GUI
-            ['Filters',       self.filters,           '',       None,          False],  # 4 - filters object
-            ['Fullscreen',    self.toggle_fullscreen, 'F11',    None,          False],  # 5 - full screen mode
-            ['Default size',  self.default_geometry,  'F5',     None,          False],  # 6 - default size GUI
+            ['Take snapshot', self.take_snapshot,       'Ctrl+S', keycode['s'],  True],   # 0 - take snapshot
+            ['Next Filter',   self.filters.next_filter, '→',      keycode['→'], False],  # 1 - set next filter
+            ['Last Filter',   self.filters.last_filter, '←',      keycode['←'], False],  # 2 - set last filter
+            ['Exit',          self.destroy,             'Alt+F4', None,          False],  # 3 - close GUI
+            ['Filters',       self.filters,             '',       None,          False],  # 4 - filters object
+            ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 5 - full screen mode
+            ['Default size',  self.default_geometry,    'F5',     None,          False],  # 6 - default size GUI
         ]
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
@@ -106,9 +106,9 @@ class MainGUI(ttk.Frame):
         """ Mouse wheel event """
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
         if event.num == 5 or event.delta == -120:  # scroll down
-            self.next_filter()
+            self.filters.next_filter()
         if event.num == 4 or event.delta == 120:  # scroll up
-            self.last_filter()
+            self.filters.last_filter()
 
     def toggle_fullscreen(self, state=None):
         """ Enable/disable the full screen mode """
@@ -219,16 +219,6 @@ class MainGUI(ttk.Frame):
         button.pack(side=tk.LEFT)
         button.save = image  # anchor image so it does not be deleted by the garbage-collector
         ToolTip(button, msg=text)  # set tooltip to the button
-
-    def next_filter(self):
-        """ Set next OpenCV filter to the video loop """
-        self.filters.next_filter()
-        logging.info('Set filter to {}'.format(self.filters.get_name()))
-
-    def last_filter(self):
-        """ Set last OpenCV filter to the video loop """
-        self.filters.last_filter()
-        logging.info('Set filter to {}'.format(self.filters.get_name()))
 
     def resize_image(self, image):
         """ Resize image proportionally """
