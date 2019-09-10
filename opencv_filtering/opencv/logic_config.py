@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import cv2
+import time
 import configparser
 
 
@@ -19,12 +20,14 @@ class Config:
         self.default_geometry = '644x510+0+0'  # default window geometry 'Width x Height ± X ± Y'
         self.__state = 'State'  # state of the window: normal, zoomed, etc.
         self.default_state = 'normal'  # normal state of the window
-        self.__current_camera = 'CurrentCamera'  # current web camera
-        self.__default_camera = '0'  # default current camera number
         #
         self.__filter = 'Filter'  # info about filter
         self.__current_filter = 'CurrentFilter'  # current filter number
         self.__default_filter = '0'  # default current filter number
+        #
+        self.__camera = 'Camera'  # info about camera
+        self.__current_camera = 'CurrentCamera'  # current web camera number
+        self.__default_camera = '0'  # default current camera number
         #
         self.__config = configparser.ConfigParser()  # create config parser
         self.__config.optionxform = lambda option: option  # preserve case for letters
@@ -66,27 +69,6 @@ class Config:
         self.__check_section(self.__window)
         self.__config[self.__window][self.__state] = state
 
-    def get_current_camera(self):
-        """ Get current camera if it is available or return default camera """
-        try:
-            current_camera = self.__config[self.__window][self.__current_camera]
-            # Check current camera is available
-            camera = cv2.VideoCapture(current_camera, cv2.CAP_DSHOW)
-            if camera.isOpened():
-                camera.release()
-                return int(current_camera)
-            else:
-                return int(self.__default_camera)
-        except KeyError:  # if the key is not in the dictionary of config
-            return int(self.__default_camera)
-
-    def set_current_camera(self, current_camera=None):
-        """ Set current camera to the config INI file """
-        self.__check_section(self.__window)
-        if current_camera is None:
-            current_camera = self.__default_camera
-        self.__config[self.__window][self.__current_camera] = str(current_camera)
-
     def get_current_filter(self):
         """ Get current filter if it is available or return default filter """
         try:
@@ -101,6 +83,28 @@ class Config:
         if current_filter is None:
             current_filter = self.__default_filter
         self.__config[self.__filter][self.__current_filter] = str(current_filter)
+
+    def get_current_camera(self):
+        """ Get current camera if it is available or return default camera """
+        try:
+            current_camera = int(self.__config[self.__camera][self.__current_camera])
+            # Check current camera is available
+            camera = cv2.VideoCapture(current_camera, cv2.CAP_DSHOW)
+            if camera.isOpened():
+                camera.release()
+                time.sleep(0.25)  # wait till the camera become ready
+                return current_camera
+            else:
+                return int(self.__default_camera)
+        except KeyError:  # if the key is not in the dictionary of config
+            return int(self.__default_camera)
+
+    def set_current_camera(self, current_camera=None):
+        """ Set current camera to the config INI file """
+        self.__check_section(self.__camera)
+        if current_camera is None:
+            current_camera = self.__default_camera
+        self.__config[self.__camera][self.__current_camera] = str(current_camera)
 
     def save(self):
         """ Save config file """

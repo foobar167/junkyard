@@ -1,11 +1,12 @@
-# Application of different OpenCV filters here
+# -*- coding: utf-8 -*-
 import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
 import random
 import numpy as np
 
 from .logic_logger import logging
 
-class Filters():
+
+class Filters:
     """ OpenCV filters """
     def __init__(self, current=0):
         """ Initialize filters """

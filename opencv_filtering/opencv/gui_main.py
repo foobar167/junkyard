@@ -2,15 +2,14 @@
 # Take snapshot using web camera, OpenCV and Tkinter.
 import os
 import cv2
-import time
 import tkinter as tk
 
 from tkinter import ttk
-from tkinter import messagebox
 from datetime import datetime
 from PIL import Image, ImageTk
 from .gui_menu import Menu
 from .logic_config import Config
+from .logic_camera import Camera
 from .logic_filters import Filters
 from .gui_tooltip import ToolTip
 from .logic_logger import logging
@@ -20,18 +19,13 @@ class MainGUI(ttk.Frame):
     """ Main GUI Window """
     def __init__(self, mainframe):
         """ Initialize the Frame """
-        if self.count_cameras() == 0:  # check for the web camera
-            logging.info('No web camera on the computer')
-            messagebox.showinfo('No web camera', 'There are no web cameras on your computer.\nExit from the GUI.')
-            return
-        logging.info('Open GUI')
         ttk.Frame.__init__(self, master=mainframe)
         # Create instances: config and filters
         self.output_path = 'temp'  # store output path
         self.config = Config(self.output_path)  # open config file of the main window
         self.filters = Filters(self.config.get_current_filter())  # create OpenCV filters object
-        # 0 is default web camera, cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
-        self.camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # capture video frames
+        self.camera = Camera(self.config.get_current_camera())  # create web camera object
+        #
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
         self._menu = None  # menu widget
         self.buttons = None  # buttons at the bottom of the GUI
@@ -47,21 +41,9 @@ class MainGUI(ttk.Frame):
         self.create_widgets()
         self.video_loop()  # constantly pool the video sensor for recent frame
 
-    @staticmethod
-    def count_cameras():
-        """ Get the number of cameras available """
-        max_tested = 100  # maximum web cameras to test
-        for i in range(max_tested):
-            camera = cv2.VideoCapture(i, cv2.CAP_DSHOW)
-            if camera.isOpened():
-                camera.release()
-                continue
-            # BUG! If release camera too quickly there'll be a distorted image sometimes, but not always
-            time.sleep(0.5)  # wait till the camera become ready
-            return i
-
     def create_main_window(self):
         """ Create main window GUI """
+        logging.info('Open GUI')
         self.master.title('OpenCV Filtering')  # set window title
         self.master.geometry(self.config.get_win_geometry())  # get window size/position from config
         self.master.wm_state(self.config.get_win_state())  # get window state
@@ -87,8 +69,9 @@ class MainGUI(ttk.Frame):
             ['Last Filter',   self.filters.last_filter, '←',      keycode['←'], False],  # 2 - set last filter
             ['Exit',          self.destroy,             'Alt+F4', None,          False],  # 3 - close GUI
             ['Filters',       self.filters,             '',       None,          False],  # 4 - filters object
-            ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 5 - full screen mode
-            ['Default size',  self.default_geometry,    'F5',     None,          False],  # 6 - default size GUI
+            ['Cameras list',  self.camera,              '',       None,          False],  # 5 - cameras list
+            ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 6 - full screen mode
+            ['Default size',  self.default_geometry,    'F5',     None,          False],  # 7 - default size GUI
         ]
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
@@ -239,7 +222,7 @@ class MainGUI(ttk.Frame):
 
     def video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
-        ok, frame = self.camera.read()  # read frame from video stream
+        ok, frame = self.camera.read()  # read frame from the video stream
         if ok:  # frame captured without any errors
             frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
@@ -261,8 +244,8 @@ class MainGUI(ttk.Frame):
     def destroy(self):
         """ Destroy the main frame object and release all resources """
         self.config.set_current_filter(self.filters.current_filter)  # save current filter
+        self.config.set_current_camera(self.camera.current_camera)  # save current web camera
         self.config.destroy()
+        self.camera.destroy()
         logging.info('Close GUI')
-        self.camera.release()  # release web camera
-        cv2.destroyAllWindows()  # it is not mandatory in this application
         self.quit()
