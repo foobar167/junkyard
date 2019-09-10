@@ -23,9 +23,10 @@ class MainGUI(ttk.Frame):
         # Create instances: config and filters
         self.master.title('OpenCV Filtering')  # set window title
         self.output_path = 'temp'  # store output path
-        self.config = Config(self.output_path)  # open config file of the main window
-        self.filters = Filters(self.config.get_current_filter(), self.master)  # OpenCV filters
-        self.camera = Camera(self.config.get_current_camera())  # create web camera object
+        self.config = Config(path=self.output_path)  # open config file of the main window
+        # Create OpenCV filters object
+        self.filters = Filters(current=self.config.get_current_filter(), master=self.master)
+        self.camera = Camera(current=self.config.get_current_camera())  # create web camera object
         #
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
         self._menu = None  # menu widget
@@ -64,14 +65,14 @@ class MainGUI(ttk.Frame):
             }
         # List of shortcuts in the following format: [name, function, hotkey, keycode, ctrl]
         self.shortcuts = [
-            ['Take snapshot', self.take_snapshot,       'Ctrl+S', keycode['s'],  True],   # 0 - take snapshot
+            ['Take Snapshot', self.take_snapshot,       'Ctrl+S', keycode['s'],  True],   # 0 - take snapshot
             ['Next Filter',   self.filters.next_filter, '→',      keycode['→'], False],  # 1 - set next filter
             ['Last Filter',   self.filters.last_filter, '←',      keycode['←'], False],  # 2 - set last filter
             ['Exit',          self.destroy,             'Alt+F4', None,          False],  # 3 - close GUI
             ['Filters',       self.filters,             '',       None,          False],  # 4 - filters object
-            ['Cameras list',  self.camera,              '',       None,          False],  # 5 - cameras list
+            ['Camera',        self.camera,              '',       None,          False],  # 5 - cameras list
             ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 6 - full screen mode
-            ['Default size',  self.default_geometry,    'F5',     None,          False],  # 7 - default size GUI
+            ['Default Size',  self.default_geometry,    'F5',     None,          False],  # 7 - default size GUI
         ]
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
@@ -172,7 +173,7 @@ class MainGUI(ttk.Frame):
 
     def create_widgets(self):
         """ Widgets for GUI are created here """
-        self._menu = Menu(self.master, self.shortcuts)
+        self._menu = Menu(self.master, shortcuts=self.shortcuts)
         self.master.configure(menu=self._menu.menubar)
         if os.name == 'nt':  # Windows OS
             self.master.iconbitmap(os.path.join(self.this_dir, 'logo.ico'))  # set logo icon
