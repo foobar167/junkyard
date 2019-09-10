@@ -8,9 +8,10 @@ from .logic_logger import logging
 
 class Filters:
     """ OpenCV filters """
-    def __init__(self, current=0):
+    def __init__(self, current=0, master=None):
         """ Initialize filters """
         self.current_filter = current  # current OpenCV filter
+        self.master = master  # link to the main GUI window
         self.current_frame = None  # current frame
         # List of filters in the following format: [name, function, description]
         # Filter functions take frame, convert it and return converted image
@@ -19,12 +20,16 @@ class Filters:
             ['Canny', self.filter_canny, 'Canny edge detection'],
             ['Threshold', self.filter_threshold, 'Adaptive Gaussian threshold']
         ]
+        if self.master is not None:  # set window title
+            self.master.title('OpenCV Filtering - ' + self.container[self.current_filter][2])
 
     def set_filter(self, current):
         """ Set current filter """
         self.current_filter = current
         filter_name = self.container[self.current_filter][0]
         logging.info('Set filter to {}'.format(filter_name))
+        if self.master is not None:  # set window title
+            self.master.title('OpenCV Filtering - ' + self.container[self.current_filter][2])
 
     def next_filter(self):
         """ Set next OpenCV filter to the video loop """

@@ -21,9 +21,10 @@ class MainGUI(ttk.Frame):
         """ Initialize the Frame """
         ttk.Frame.__init__(self, master=mainframe)
         # Create instances: config and filters
+        self.master.title('OpenCV Filtering')  # set window title
         self.output_path = 'temp'  # store output path
         self.config = Config(self.output_path)  # open config file of the main window
-        self.filters = Filters(self.config.get_current_filter())  # create OpenCV filters object
+        self.filters = Filters(self.config.get_current_filter(), self.master)  # OpenCV filters
         self.camera = Camera(self.config.get_current_camera())  # create web camera object
         #
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
@@ -44,7 +45,6 @@ class MainGUI(ttk.Frame):
     def create_main_window(self):
         """ Create main window GUI """
         logging.info('Open GUI')
-        self.master.title('OpenCV Filtering')  # set window title
         self.master.geometry(self.config.get_win_geometry())  # get window size/position from config
         self.master.wm_state(self.config.get_win_state())  # get window state
         # self.destroy function gets fired when the window is closed
