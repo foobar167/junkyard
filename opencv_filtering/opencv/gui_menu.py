@@ -34,11 +34,10 @@ class Menu:
         camera.add_cascade(label='Cameras List', menu=cameras_list)  # add 'Cameras List' to 'Camera' menu
         #
         self.current_resolution = tk.IntVar()
-        resolutions = tk.Menu(camera, tearoff=False)
-        resolutions_list = shortcuts[5][1].get_resolutions()  # get list of resolution names
-        for i, name in enumerate(resolutions_list):  # show list of resolutions
-            resolutions.add_radiobutton(label=name, value=i, variable=self.current_resolution)
-        camera.add_cascade(label='Resolutions', menu=resolutions)  # add 'Resolutions' menu to 'Camera' menu
+        self.resolutions = tk.Menu(camera, tearoff=False,
+                                   postcommand=lambda c=shortcuts[5][1]: self.get_resolutions(c))
+        camera.add_cascade(label='Resolutions', menu=self.resolutions)  # add 'Resolutions' to 'Camera' menu
+        # camera.add_command(label='Get Resolutions', command=shortcuts[5][1].available_resolutions)
         self.menubar.add_cascade(label=shortcuts[5][0], menu=camera)  # add 'Camera' menu to menu bar
         # Create 'View' menu
         view = tk.Menu(self.menubar, tearoff=False)
@@ -61,3 +60,16 @@ class Menu:
     def set_camera(self, cameras):
         """ Set camera from the menu bar """
         cameras.set_camera(self.current_camera.get())  # change current camera
+
+    def get_resolutions(self, cameras):
+        """ Get list of available resolutions for the current web camera """
+        resolutions_list = cameras.get_resolutions()  # get list of resolution names
+        self.resolutions.delete(0, 'end')  # empty previous resolutions list
+        for i, name in enumerate(resolutions_list):  # show list of resolutions
+            self.resolutions.add_radiobutton(label=name, value=i, variable=self.current_resolution,
+                                             command=lambda c=cameras: self.set_resolution(c))
+        self.current_resolution.set(cameras.current_resolution)
+
+    def set_resolution(self, cameras):
+        """ Set resolution from the menu bar """
+        cameras.set_resolution(self.current_resolution.get())  # change current resolution

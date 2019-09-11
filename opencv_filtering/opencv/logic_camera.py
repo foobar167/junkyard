@@ -21,7 +21,6 @@ class Camera:
         self.cameras_number = self.available_cameras()  # get number of available cameras
         if self.cameras_number == 0:  # check for the web camera
             raise MyValidationError('No web camera on the computer')
-        self.current_camera = current  # current web camera number in the list
         # List of common resolutions in the following format: [name, width, height]
         # Link: https://en.wikipedia.org/wiki/List_of_common_resolutions
         self.resolutions_all = [
@@ -254,23 +253,39 @@ class Camera:
             ['7680×4800', 7680, 4800],
             ['10240×4320', 10240, 4320],
         ]
-        # cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
-        self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)  # capture video frames
-        self.current_resolution = None  # current resolution number in the list
-        self.default_res_number = None  # default resolution number in the list
-        self.default_resolution = (int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                                   int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-        self.camera_resolutions = []  # list of current camera resolutions
-        # self.available_resolutions()  # get list of available resolutions
+        # Hardcoded resolutions, because it is too long to iterate through all of them.
+        self.camera_resolutions = [
+            ['Default', 0, 0],  # reserved for default resolution
+            ['160×120', 160, 120],
+            ['320×200', 320, 200],
+            ['320×240', 320, 240],
+            ['640×360', 640, 360],
+            ['640×400', 640, 400],
+            ['640×480', 640, 480],
+            ['768×480', 768, 480],
+            ['800×600', 800, 600],
+            ['960×720', 960, 720],
+            ['1280×720', 1280, 720],
+            ['1280×800', 1280, 800],
+            ['1280×1024', 1280, 1024],
+            ['1600×900', 1600, 900],
+            ['1600×1200', 1600, 1200],
+            ['Maximum', 10000, 10000]
+        ]
+        self.current_camera = -1  # current camera is not set yet
+        self.current_resolution = 0  # current resolution number in the list
+        self.camera = None
+        self.set_camera(current)
 
     @staticmethod
     def available_cameras():
         """ Get the number of available cameras """
-        max_tested = 100  # maximum web cameras to test
+        max_tested = 10  # maximum web cameras to test
         for i in range(max_tested):
             camera = cv2.VideoCapture(i, cv2.CAP_DSHOW)
             if camera.isOpened():
                 camera.release()
+                cv2.destroyAllWindows()
                 continue
             # BUG! If release camera too quickly there'll be a distorted image sometimes, but not always
             time.sleep(0.25)  # wait till the camera become ready
@@ -279,33 +294,57 @@ class Camera:
     def set_camera(self, number):
         """ Set current web camera """
         if self.current_camera != number:
-            self.camera.release()  # release previously opened camera
+            if self.camera is not None:
+                self.camera.release()  # release previously opened camera
             self.camera = cv2.VideoCapture(number, cv2.CAP_DSHOW)
             if self.camera.isOpened():  # ok
                 self.current_camera = number
             else:  # keep old camera if something goes wrong
                 self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)
+            w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+            h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.camera_resolutions[0] = ['Default ' + str(w) + '×' + str(h), w, h]
+            self.current_resolution = 0
+
+    def reopen_camera(self):
+        """ Re-open camera """
+        self.camera.release()  # release previously opened camera
+        cv2.destroyAllWindows()
+        self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)
 
     def available_resolutions(self):
         """ Get list of available resolutions fot the current web camera.
-            Brute force by looping over the list of common resolutions. """
-        for res in self.resolutions_short:
+            Brute force by looping over the list of common resolutions.
+            It hang out for some cameras and very slow. """
+        for res in self.resolutions_all:
+            print(res)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,  res[1])
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, res[2])
             if res[1] == int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)) and \
                res[2] == int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)):
                 self.camera_resolutions.append(res)
-                if res[1] == self.default_resolution[0] and res[2] == self.default_resolution[1]:
-                    self.default_res_number = len(self.camera_resolutions) - 1
-        self.current_resolution = self.default_res_number
-        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,  self.default_resolution[0])
-        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, self.default_resolution[1])
+            self.reopen_camera()  # BUG! Re-open camera after resolution reset.
         print('Number of resolutions:', len(self.camera_resolutions))
-        print('Current resolution:', self.current_resolution)
+        print('List of resolutions:', self.camera_resolutions)
 
     def get_resolutions(self):
         """ Get list of resolutions for the current web camera """
         return [name[0] for name in self.camera_resolutions]
+
+    def set_resolution(self, number):
+        """ Set resolution from hardcoded camera resolutions list if possible """
+        w = self.camera_resolutions[number][1]
+        h = self.camera_resolutions[number][2]
+        n = self.camera_resolutions[number][0]
+        # Set resolution
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,  w)
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
+        w2 = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+        h2 = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        n2 = self.camera_resolutions[-1][0]
+        # Check if resolution is set. It is not always happens
+        if n == n2 or (w == w2 and h == h2):
+            self.current_resolution = number  # change current resolution number
 
     def read(self):
         """ Read frame from the video stream """
