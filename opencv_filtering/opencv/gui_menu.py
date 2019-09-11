@@ -26,7 +26,6 @@ class Menu:
         self.menubar.add_cascade(label=shortcuts[4][0], menu=filters)  # add 'Filters' menu to menu bar
         # Create 'Camera' menu
         self.current_camera = tk.IntVar()
-        self.current_resolution = tk.IntVar()
         camera = tk.Menu(self.menubar, tearoff=False)
         cameras_list = tk.Menu(camera, tearoff=False, postcommand=lambda c=shortcuts[5][1]: self.get_camera(c))
         for i in range(shortcuts[5][1].cameras_number):  # get cameras number
@@ -34,9 +33,10 @@ class Menu:
                                          command=lambda c=shortcuts[5][1]: self.set_camera(c))
         camera.add_cascade(label='Cameras List', menu=cameras_list)  # add 'Cameras List' to 'Camera' menu
         #
+        self.current_resolution = tk.IntVar()
         resolutions = tk.Menu(camera, tearoff=False)
-        resolution_names = shortcuts[5][1].get_resolutions()  # get list of resolution names
-        for i, name in enumerate(resolution_names):  # show list of resolutions
+        resolutions_list = shortcuts[5][1].get_resolutions()  # get list of resolution names
+        for i, name in enumerate(resolutions_list):  # show list of resolutions
             resolutions.add_radiobutton(label=name, value=i, variable=self.current_resolution)
         camera.add_cascade(label='Resolutions', menu=resolutions)  # add 'Resolutions' menu to 'Camera' menu
         self.menubar.add_cascade(label=shortcuts[5][0], menu=camera)  # add 'Camera' menu to menu bar

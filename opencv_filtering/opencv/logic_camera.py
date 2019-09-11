@@ -21,12 +21,17 @@ class Camera:
         self.cameras_number = self.count_cameras()
         if self.cameras_number == 0:  # check for the web camera
             raise MyValidationError('No web camera on the computer')
-        self.current_camera = current  # current web camera
+        self.current_camera = current  # current web camera number in the list
         # cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
         self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)  # capture video frames
+        self.camera_resolutions = []  # list of current camera resolutions
+        self.current_resolution = None  # current resolution number in the list
+        self.default_res_number = None  # default resolution number in the list
+        self.default_resolution = (int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                                   int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         # List of common resolutions in the following format: [name, width, height]
         # Link: https://en.wikipedia.org/wiki/List_of_common_resolutions
-        self.container = [
+        self.resolutions_all = [
             ['16×16', 16, 16],
             ['32×32', 32, 32],
             ['40×30', 40, 30],
@@ -217,7 +222,7 @@ class Camera:
             ['15360×8640', 15360, 8640],
         ]
         # Web camera resolutions - https://webcamtests.com/resolution
-        self.container_short = [
+        self.resolutions_short = [
             ['160×120', 160, 120],
             ['176×144', 176, 144],
             ['192×144', 192, 144],
@@ -280,9 +285,16 @@ class Camera:
             else:  # keep old camera if something goes wrong
                 self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)
 
+    def count_resolutions(self):
+        """ Get list of available resolutions fot the current web camera.
+            Brute force by looping over the list of common resolutions. """
+        for i, res in enumerate(self.resolutions_all):
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, int(res[1]))
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, int(res[2]))
+
     def get_resolutions(self):
-        """ Get list of resolutions for the web camera """
-        return [name[0] for name in self.container]
+        """ Get list of resolutions for the current web camera """
+        return [name[0] for name in self.camera_resolutions]
 
     def read(self):
         """ Read frame from the video stream """
