@@ -223,15 +223,27 @@ class MainGUI(ttk.Frame):
 
     def video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
-        ok, frame = self.camera.read()  # read frame from the video stream
-        if ok:  # frame captured without any errors
-            frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
-            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
-            self.current_frame = Image.fromarray(cv2image)  # convert image for PIL
-            image = self.resize_image(self.current_frame)  # resize image for the GUI window
-            imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
-            self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
-            self.panel.config(image=imgtk)  # show the image
+        if self.camera is not None:  # BUG! If plug out camera 'ok' is True after next 30 ms callback
+            ok, frame = self.camera.read()  # read frame from the video stream
+            if ok:  # frame captured without any errors
+                frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
+                cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
+                self.current_frame = Image.fromarray(cv2image)  # convert image for PIL
+                image = self.resize_image(self.current_frame)  # resize image for the GUI window
+                imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
+                self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
+                self.panel.config(image=imgtk)  # show the image
+            else:
+                self.camera.destroy()
+                self.camera = None
+                self.current_frame = None
+                self.panel.imgtk = None  # clear image panel
+                self.panel.config(image=None)
+        else:  # try to create new camera object again, because camera.read() is True on the next callback
+            self.camera = Camera(current=self.config.get_current_camera())  # create web camera object
+            self.shortcuts[5][1] = self.camera  # replace shortcuts object for the menu
+            self._menu = Menu(self.master, shortcuts=self.shortcuts)  # recreate menu bar
+            self.master.configure(menu=self._menu.menubar)
         self.master.after(30, self.video_loop)  # call the same function after 30 milliseconds
 
     def take_snapshot(self):
@@ -245,8 +257,9 @@ class MainGUI(ttk.Frame):
     def destroy(self):
         """ Destroy the main frame object and release all resources """
         self.config.set_current_filter(self.filters.current_filter)  # save current filter
-        self.config.set_current_camera(self.camera.current_camera)  # save current web camera
+        if self.camera is not None:
+            self.config.set_current_camera(self.camera.current_camera)  # save current web camera
+            self.camera.destroy()
         self.config.destroy()
-        self.camera.destroy()
         logging.info('Close GUI')
         self.quit()

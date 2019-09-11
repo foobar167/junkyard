@@ -60,4 +60,4 @@ class Menu:
 
     def set_camera(self, cameras):
         """ Set camera from the menu bar """
-        cameras.set_camera(self.current_camera.get())
+        cameras.set_camera(self.current_camera.get())  # change current camera

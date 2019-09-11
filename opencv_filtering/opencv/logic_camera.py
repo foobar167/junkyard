@@ -18,17 +18,10 @@ class Camera:
     """ Available web cameras """
     def __init__(self, current=0):
         """ Initialize object """
-        self.cameras_number = self.count_cameras()
+        self.cameras_number = self.available_cameras()  # get number of available cameras
         if self.cameras_number == 0:  # check for the web camera
             raise MyValidationError('No web camera on the computer')
         self.current_camera = current  # current web camera number in the list
-        # cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
-        self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)  # capture video frames
-        self.camera_resolutions = []  # list of current camera resolutions
-        self.current_resolution = None  # current resolution number in the list
-        self.default_res_number = None  # default resolution number in the list
-        self.default_resolution = (int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                                   int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         # List of common resolutions in the following format: [name, width, height]
         # Link: https://en.wikipedia.org/wiki/List_of_common_resolutions
         self.resolutions_all = [
@@ -261,10 +254,18 @@ class Camera:
             ['7680×4800', 7680, 4800],
             ['10240×4320', 10240, 4320],
         ]
+        # cv2.CAP_DSHOW is a flag DirectShow (via videoInput)
+        self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)  # capture video frames
+        self.current_resolution = None  # current resolution number in the list
+        self.default_res_number = None  # default resolution number in the list
+        self.default_resolution = (int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                                   int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        self.camera_resolutions = []  # list of current camera resolutions
+        # self.available_resolutions()  # get list of available resolutions
 
     @staticmethod
-    def count_cameras():
-        """ Get the number of cameras available """
+    def available_cameras():
+        """ Get the number of available cameras """
         max_tested = 100  # maximum web cameras to test
         for i in range(max_tested):
             camera = cv2.VideoCapture(i, cv2.CAP_DSHOW)
@@ -285,12 +286,22 @@ class Camera:
             else:  # keep old camera if something goes wrong
                 self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)
 
-    def count_resolutions(self):
+    def available_resolutions(self):
         """ Get list of available resolutions fot the current web camera.
             Brute force by looping over the list of common resolutions. """
-        for i, res in enumerate(self.resolutions_all):
-            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, int(res[1]))
-            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, int(res[2]))
+        for res in self.resolutions_short:
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,  res[1])
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, res[2])
+            if res[1] == int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)) and \
+               res[2] == int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)):
+                self.camera_resolutions.append(res)
+                if res[1] == self.default_resolution[0] and res[2] == self.default_resolution[1]:
+                    self.default_res_number = len(self.camera_resolutions) - 1
+        self.current_resolution = self.default_res_number
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,  self.default_resolution[0])
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, self.default_resolution[1])
+        print('Number of resolutions:', len(self.camera_resolutions))
+        print('Current resolution:', self.current_resolution)
 
     def get_resolutions(self):
         """ Get list of resolutions for the current web camera """
