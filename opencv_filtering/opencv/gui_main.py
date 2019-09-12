@@ -53,26 +53,29 @@ class MainGUI(ttk.Frame):
         #
         if os.name == 'nt':  # Windows OS
             keycode = {
+                'a': [65],
                 's': [83],
                 '→': [68, 39, 102, 34],  # keys: 'd', 'Right', scroll right, PageDown
                 '←': [65, 37, 100, 33],  # keys: 'a', 'Left', scroll left, PageUp
             }
         else:  # Linux OS
             keycode = {
+                'a': [38],
                 's': [39],
                 '→': [40, 114, 85],
                 '←': [38, 113, 83],
             }
         # List of shortcuts in the following format: [name, function, hotkey, keycode, ctrl]
         self.shortcuts = [
-            ['Take Snapshot', self.take_snapshot,       'Ctrl+S', keycode['s'],  True],   # 0 - take snapshot
-            ['Next Filter',   self.filters.next_filter, '→',      keycode['→'], False],  # 1 - set next filter
-            ['Last Filter',   self.filters.last_filter, '←',      keycode['←'], False],  # 2 - set last filter
-            ['Exit',          self.destroy,             'Alt+F4', None,          False],  # 3 - close GUI
-            ['Filters',       self.filters,             '',       None,          False],  # 4 - filters object
-            ['Camera',        self.camera,              '',       None,          False],  # 5 - cameras list
-            ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 6 - full screen mode
-            ['Default Size',  self.default_geometry,    'F5',     None,          False],  # 7 - default size GUI
+            ['Next Filter',   self.filters.next_filter, '→',      keycode['→'], False],  # 0 - set next filter
+            ['Last Filter',   self.filters.last_filter, '←',      keycode['←'], False],  # 1 - set last filter
+            ['Take Snapshot', self.take_snapshot,       'Ctrl+S', keycode['s'],  True],   # 2 - take snapshot
+            ['Send Email',    self.send_email,          'Ctrl+A', keycode['a'],  True],   # 3 - take snapshot
+            ['Exit',          self.destroy,             'Alt+F4', None,          False],  # 4 - close GUI
+            ['Filters',       self.filters,             '',       None,          False],  # 5 - filters object
+            ['Camera',        self.camera,              '',       None,          False],  # 6 - camera object
+            ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 7 - full screen mode
+            ['Default Size',  self.default_geometry,    'F5',     None,          False],  # 8 - default size GUI
         ]
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
@@ -84,10 +87,23 @@ class MainGUI(ttk.Frame):
         # Handle window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
         # don't set default geometry from full screen if resizing is not postponed.
         self.master.bind('<Configure>', lambda event: self.master.after_idle(self.resize_window))
-        # self.master.resizable(False, False)  # Tkinter window is not resizable
         # Handle keystrokes in the idle mode, because program slows down on a weak computers,
         # when too many key stroke events in the same time.
         self.master.bind('<Key>', lambda event: self.master.after_idle(self.keystroke, event))
+
+    def take_snapshot(self):
+        """ Take snapshot and save it to the file """
+        uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
+        filename = '{}.png'.format(uid)  # construct filename from UID
+        filepath = os.path.join(self.output_path, filename)  # construct output path
+        self.current_frame.save(filepath)  # save image frame as PNG file
+        logging.info('Snapshot saved to {}'.format(filepath))
+        return filepath
+
+    def send_email(self):
+        """ Send email with snapshot attached """
+        filepath = self.take_snapshot()  # take snapshot
+        print('Email is sent')  # to be continued...
 
     def wheel(self, event):
         """ Mouse wheel event """
@@ -139,6 +155,7 @@ class MainGUI(ttk.Frame):
         self.master.wm_state(self.config.default_state)  # exit from zoomed
         self.master.geometry(self.config.default_geometry)  # set default geometry
         self.config.set_win_geometry(self.config.default_geometry)  # save default to config
+        self.camera.set_resolution(0)  # set default resolution
 
     def resize_window(self):
         """ Save main window size and position into config file.
@@ -166,10 +183,10 @@ class MainGUI(ttk.Frame):
                     shortcut[1]()  # execute a function
         else:  # <Control> key is not pressed
             self.previous_state = event.state  # remember previous state of the event
-            if event.keycode in self.shortcuts[1][3]:
-                self.shortcuts[1][1]()  # next filter
-            elif event.keycode in self.shortcuts[2][3]:
-                self.shortcuts[2][1]()  # last filter
+            if event.keycode in self.shortcuts[0][3]:
+                self.shortcuts[0][1]()  # next filter
+            elif event.keycode in self.shortcuts[1][3]:
+                self.shortcuts[1][1]()  # last filter
 
     def create_widgets(self):
         """ Widgets for GUI are created here """
@@ -192,9 +209,10 @@ class MainGUI(ttk.Frame):
         self.panel.grid(row=0, column=0, sticky='nswe')  # make ttk.Label expandable
         self.buttons = ttk.Label(container)  # initialize buttons panel
         self.buttons.grid(row=1, column=0)
-        self.add_button(master=self.buttons, name='icon_arrow__left.png', text=self.shortcuts[2][0], command=self.shortcuts[2][1])
-        self.add_button(master=self.buttons, name='icon_save__image.png', text=self.shortcuts[0][0], command=self.shortcuts[0][1])
-        self.add_button(master=self.buttons, name='icon_arrow_right.png', text=self.shortcuts[1][0], command=self.shortcuts[1][1])
+        self.add_button(master=self.buttons, name='icon_arrow__left.png', text=self.shortcuts[1][0], command=self.shortcuts[1][1])
+        self.add_button(master=self.buttons, name='icon_save__image.png', text=self.shortcuts[2][0], command=self.shortcuts[2][1])
+        self.add_button(master=self.buttons, name='icon_send__email.png', text=self.shortcuts[3][0], command=self.shortcuts[3][1])
+        self.add_button(master=self.buttons, name='icon_arrow_right.png', text=self.shortcuts[0][0], command=self.shortcuts[0][1])
 
     def add_button(self, master, name, text, command):
         """ Add button to the GUI """
@@ -241,18 +259,10 @@ class MainGUI(ttk.Frame):
                 self.panel.config(image=None)
         else:  # try to create new camera object again, because camera.read() is True on the next callback
             self.camera = Camera(current=self.config.get_current_camera())  # create web camera object
-            self.shortcuts[5][1] = self.camera  # replace shortcuts object for the menu
+            self.shortcuts[6][1] = self.camera  # replace shortcuts object for the menu
             self._menu = Menu(self.master, shortcuts=self.shortcuts)  # recreate menu bar
             self.master.configure(menu=self._menu.menubar)
         self.master.after(30, self.video_loop)  # call the same function after 30 milliseconds
-
-    def take_snapshot(self):
-        """ Take snapshot and save it to the file """
-        uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
-        filename = '{}.png'.format(uid)  # construct filename from UID
-        filepath = os.path.join(self.output_path, filename)  # construct output path
-        self.current_frame.save(filepath)  # save image frame as PNG file
-        logging.info('Snapshot saved to {}'.format(filepath))
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """

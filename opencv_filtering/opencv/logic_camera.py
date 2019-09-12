@@ -256,7 +256,6 @@ class Camera:
         ]
         # Hardcoded resolutions for Logitech camera, because it is too long to iterate through all of them
         resolutions_logitech = [
-            ['Default', 0, 0],  # reserved for default resolution
             ['160×120', 160, 120],
             ['320×200', 320, 200],
             ['320×240', 320, 240],
@@ -271,9 +270,22 @@ class Camera:
             ['1280×1024', 1280, 1024],
             ['1600×900', 1600, 900],
             ['1600×1200', 1600, 1200],
-            ['Maximum', 10000, 10000]
         ]
-        self.camera_resolutions = resolutions_logitech
+        resolutions_ritmix = [  # hardcoded resolutions for Ritmix webcam
+            ['160×120', 160, 120],
+            ['320×240', 320, 240],
+            ['640×480', 640, 480],
+        ]
+        resolutions_laptop = [  # hardcoded resolutions for ThinkPad laptop
+            ['320×240', 320, 240],
+            ['640×360', 640, 360],
+            ['640×480', 640, 480],
+            ['960×544', 960, 544],
+            ['1280×720', 1280, 720],
+        ]
+        self.camera_resolutions = [['Default', 0, 0]]  # reserved for default resolution
+        self.camera_resolutions.extend(resolutions_laptop)
+        self.camera_resolutions.append(['Maximum', 10000, 10000])  # last element is max res
         self.current_camera = -1  # current camera is not set yet
         self.current_resolution = 0  # current resolution number in the list
         self.camera = None
@@ -330,16 +342,17 @@ class Camera:
         """ Get list of available resolutions fot the current web camera.
             Brute force by looping over the list of common resolutions.
             It hang out for some cameras and very slow. """
+        lst = []
         for res in self.resolutions_all:
             print(res)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,  res[1])
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, res[2])
             if res[1] == int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)) and \
                res[2] == int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)):
-                self.camera_resolutions.append(res)
+                lst.append(res)
             self.reopen_camera()  # BUG! Re-open camera after resolution reset.
-        print('Number of resolutions:', len(self.camera_resolutions))
-        print('List of resolutions:', self.camera_resolutions)
+        print('Number of resolutions:', len(lst))
+        print('List of resolutions:', lst)
 
     def get_resolutions(self):
         """ Get list of resolutions for the current web camera """
@@ -355,9 +368,9 @@ class Camera:
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
         w2 = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
         h2 = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        n2 = self.camera_resolutions[-1][0]
+        n2 = self.camera_resolutions[-1][0]  # last element is 'Maximum'
         # Check if resolution is set. It is not always happens
-        if n == n2 or (w == w2 and h == h2):
+        if n == n2 or (w == w2 and h == h2):  # 'Maximum' element or resolution is set
             self.current_resolution = number  # change current resolution number
 
     def read(self):
