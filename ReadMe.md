@@ -1,6 +1,18 @@
 ## foobar's junkyard
 ### Chaotic collection of test files, probes, hacks and ideas.
 
+   14. [OpenCV Filtering GUI](opencv_filtering)
+
+OpenCV filters demonstration GUI.
+
+**Under construction...**
+
+   13. [Notes about Python and links to interesting places](notes_and_links.md)
+
+There is only 1 link :-), but will be more soon.
+
+**Under construction...**
+
    12. [Manual image annotation with polygons](manual_image_annotation1)
 
 Manual image annotation opens image where user can select polygon areas

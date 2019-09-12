@@ -4,7 +4,7 @@
 
 OpenCV Filtering GUI *desctiption here*.
 
-Tested on **Windows** and **Ubuntu** for Python **3.7**.
+Tested on **Windows** and **Ubuntu** for Python **3.7** amd OpenCV **4.1.1**.
 
 External libraries:
 ```shell
