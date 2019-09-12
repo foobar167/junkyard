@@ -3,15 +3,11 @@
 
    14. [OpenCV Filtering GUI](opencv_filtering)
 
-OpenCV filters demonstration GUI.
-
-**Under construction...**
+**Under construction...** OpenCV filters demonstration GUI.
 
    13. [Notes about Python and links to interesting places](notes_and_links.md)
 
-There is only 1 link :-), but will be more soon.
-
-**Under construction...**
+**Under construction...** There is only 1 link :-), but will be more soon.
 
    12. [Manual image annotation with polygons](manual_image_annotation1)
 
