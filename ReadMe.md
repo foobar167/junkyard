@@ -5,7 +5,7 @@
 
 **Under construction...** OpenCV filters demonstration GUI.
 
-   13. [Notes about Python and links to interesting places](notes_and_links.md)
+   13. [Python notes and links on interesting places](notes_and_links.md)
 
 **Under construction...** There is only 1 link :-), but will be more soon.
 

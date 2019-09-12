@@ -1,4 +1,4 @@
-Notes about Python and links to interesting places
+Python notes and links on interesting places
 
    - [Links](#links)
 
