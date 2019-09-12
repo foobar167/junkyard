@@ -1,5 +1,4 @@
-## foobar's junkyard
-### Chaotic collection of test files, probes, hacks and ideas.
+### Chaotic collection of test files, probes, hacks and ideas
 
    14. [OpenCV Filtering GUI](opencv_filtering)
 
