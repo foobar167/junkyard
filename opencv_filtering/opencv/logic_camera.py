@@ -282,7 +282,7 @@ class Camera:
         """ Get the number of available cameras """
         max_tested = 10  # maximum web cameras to test
         for i in range(max_tested):
-            camera = cv2.VideoCapture(i, cv2.CAP_DSHOW)
+            camera = cv2.VideoCapture(i + cv2.CAP_DSHOW)
             if camera.isOpened():
                 camera.release()
                 cv2.destroyAllWindows()
@@ -296,11 +296,11 @@ class Camera:
         if self.current_camera != number:
             if self.camera is not None:
                 self.camera.release()  # release previously opened camera
-            self.camera = cv2.VideoCapture(number, cv2.CAP_DSHOW)
+            self.camera = cv2.VideoCapture(number + cv2.CAP_DSHOW)
             if self.camera.isOpened():  # ok
                 self.current_camera = number
             else:  # keep old camera if something goes wrong
-                self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)
+                self.camera = cv2.VideoCapture(self.current_camera + cv2.CAP_DSHOW)
             w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
             h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
             self.camera_resolutions[0] = ['Default ' + str(w) + '×' + str(h), w, h]
@@ -310,7 +310,7 @@ class Camera:
         """ Re-open camera """
         self.camera.release()  # release previously opened camera
         cv2.destroyAllWindows()
-        self.camera = cv2.VideoCapture(self.current_camera, cv2.CAP_DSHOW)
+        self.camera = cv2.VideoCapture(self.current_camera + cv2.CAP_DSHOW)
 
     def available_resolutions(self):
         """ Get list of available resolutions fot the current web camera.
