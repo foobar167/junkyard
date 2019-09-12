@@ -254,8 +254,8 @@ class Camera:
             ['7680×4800', 7680, 4800],
             ['10240×4320', 10240, 4320],
         ]
-        # Hardcoded resolutions, because it is too long to iterate through all of them.
-        self.camera_resolutions = [
+        # Hardcoded resolutions for Logitech camera, because it is too long to iterate through all of them
+        resolutions_logitech = [
             ['Default', 0, 0],  # reserved for default resolution
             ['160×120', 160, 120],
             ['320×200', 320, 200],
@@ -273,6 +273,7 @@ class Camera:
             ['1600×1200', 1600, 1200],
             ['Maximum', 10000, 10000]
         ]
+        self.camera_resolutions = resolutions_logitech
         self.current_camera = -1  # current camera is not set yet
         self.current_resolution = 0  # current resolution number in the list
         self.camera = None
