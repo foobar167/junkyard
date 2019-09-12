@@ -18,6 +18,7 @@ class Camera:
     """ Available web cameras """
     def __init__(self, current=0):
         """ Initialize object """
+        self.driver = self.set_driver()  # set video driver
         self.cameras_number = self.available_cameras()  # get number of available cameras
         if self.cameras_number == 0:  # check for the web camera
             raise MyValidationError('No web camera on the computer')
@@ -278,15 +279,27 @@ class Camera:
         self.set_camera(current)
 
     @staticmethod
-    def available_cameras():
+    def set_driver():
+        """ Set available video driver """
+        camera = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+        if camera.isOpened():
+            camera.release()
+            driver = cv2.CAP_DSHOW  # set DirectShow driver
+        else:
+            driver = 0  # set native driver
+        cv2.destroyAllWindows()
+        time.sleep(0.25)  # wait till the camera become ready
+        return driver
+
+    def available_cameras(self):
         """ Get the number of available cameras """
         max_tested = 10  # maximum web cameras to test
         for i in range(max_tested):
-            camera = cv2.VideoCapture(i + cv2.CAP_DSHOW)
+            camera = cv2.VideoCapture(i + self.driver)
             if camera.isOpened():
                 camera.release()
-                cv2.destroyAllWindows()
                 continue
+            cv2.destroyAllWindows()
             # BUG! If release camera too quickly there'll be a distorted image sometimes, but not always
             time.sleep(0.25)  # wait till the camera become ready
             return i
@@ -296,11 +309,11 @@ class Camera:
         if self.current_camera != number:
             if self.camera is not None:
                 self.camera.release()  # release previously opened camera
-            self.camera = cv2.VideoCapture(number + cv2.CAP_DSHOW)
+            self.camera = cv2.VideoCapture(number + self.driver)
             if self.camera.isOpened():  # ok
                 self.current_camera = number
             else:  # keep old camera if something goes wrong
-                self.camera = cv2.VideoCapture(self.current_camera + cv2.CAP_DSHOW)
+                self.camera = cv2.VideoCapture(self.current_camera + self.driver)
             w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
             h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
             self.camera_resolutions[0] = ['Default ' + str(w) + '×' + str(h), w, h]
@@ -310,7 +323,7 @@ class Camera:
         """ Re-open camera """
         self.camera.release()  # release previously opened camera
         cv2.destroyAllWindows()
-        self.camera = cv2.VideoCapture(self.current_camera + cv2.CAP_DSHOW)
+        self.camera = cv2.VideoCapture(self.current_camera + self.driver)
 
     def available_resolutions(self):
         """ Get list of available resolutions fot the current web camera.
