@@ -6,7 +6,7 @@
 
    13. [Python notes and links on interesting places](notes_and_links.md)
 
-**Under construction...** There is only 1 link :-), but will be more soon.
+**Under construction...** There are 2 links :-), but will be more soon.
 
    12. [Manual image annotation with polygons](manual_image_annotation1)
 
