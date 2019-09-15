@@ -1,5 +1,0 @@
-# Directories to ignore for GIT
-temp/
-
-# Files to ignore for GIT
-*.log
