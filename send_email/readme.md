@@ -4,6 +4,9 @@
 
 #### Description
 
+Use `Yagmail` and `Keyring` packages to send email securely in file
+[send_email_using_yagmail.py](send_email_using_yagmail.py).
+
 Send email using `SMTP_SSL()` in file
 [send_email_using_smtp_ssl.py](send_email_using_smtp_ssl.py).
 
