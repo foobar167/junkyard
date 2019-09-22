@@ -27,7 +27,7 @@ class Filters:
             ['ORB', self.filter_orb, 'Oriented FAST and Rotated BRIEF (ORB), free'],
             ['BRIEF', self.filter_brief, 'BRIEF descriptors with the help of CenSurE (STAR) detector'],
             ['Contours', self.filter_contours, 'Draw contours with mean colors inside them'],
-            ['Blur', self.filter_blur, 'Blur'],
+            ['Blur', self.filter_blur, 'Blur (Gaussian, median, bilateral or classic)'],
             ['Motion', self.filter_motion, 'Motion detection'],
             ['Background', self.filter_background, 'Background subtractor (KNN, MOG2, MOG or GMG)'],
         ]
@@ -133,7 +133,7 @@ class Filters:
         return frame2
 
     def filter_blur(self):
-        """ Blur """
+        """ Blur (Gaussian, median, bilateral or classic) """
         # return cv2.GaussianBlur(self.frame, (29, 29), 0)  # Gaussian blur
         # return cv2.medianBlur(self.frame, 29)  # Median blur
         # return cv2.bilateralFilter(self.frame, 11, 80, 80)  # Bilateral filter preserves the edges
