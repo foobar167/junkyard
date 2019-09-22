@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
-# import random
+import copy
+import random
 import numpy as np
 
 from .logic_logger import logging
@@ -32,6 +33,13 @@ class Filters:
             # Container for image mask
             'mask': None,
         }
+        self.affine_start = {  # starting rotation, shift and transformation
+            'rotation': 0,
+            'shift': [0, 0],
+            'pointers3': np.float32([[0, 0], [400, 0], [0, 400]]),
+            'pointers4': np.float32([[0, 0], [400, 0], [0, 400], [400, 400]]),
+        }
+        self.affine = None  # container for random affine values
         # List of filters in the following format: [name, function, description]
         # Filter functions take frame, convert it and return converted image
         self.container = [
@@ -49,6 +57,13 @@ class Filters:
             ['Background', self.filter_background, 'Background subtractor (KNN, MOG2, MOG or GMG)'],
             ['Skin', self.filter_skin, 'Skin tones detection'],
             ['Optical Flow', self.filter_optflow, 'Lucas Kanade optical flow'],
+            ['Affine1', self.filter_affine1, 'Affine random rotations and shifts'],
+            ['Affine2', self.filter_affine2, 'Affine random transformations'],
+            ['Perspective', self.filter_perspective, 'Perspective random transformations'],
+            ['Equalize', self.filter_equalize, 'Histogram Equalization'],
+            ['CLAHE', self.filter_clahe, 'Contrast Limited Adaptive Histogram Equalization (CLAHE)'],
+            ['LAB', self.filter_lab, 'Increase the contrast using LAB color space and CLAHE'],
+            ['Pyramid', self.filter_pyramid, 'Image pyramid'],
         ]
         self.master.title(f'OpenCV Filtering - {self.container[self.current_filter][2]}')
 
@@ -142,7 +157,7 @@ class Filters:
     def filter_contours(self):
         """ Draw contours with mean colors inside them """
         gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
-        frame2 = self.frame.copy()  # make a copy
+        frame = self.frame.copy()  # make a copy
         for threshold in [15, 50, 100, 240]:  # use various thresholds
             ret, thresh = cv2.threshold(gray, threshold, 255, 0)
             image, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -150,9 +165,9 @@ class Filters:
                 mask = np.zeros(gray.shape, np.uint8)  # create empty mask
                 cv2.drawContours(mask, [contour], 0, 255, -1)  # fill mask with white color
                 mean = cv2.mean(self.frame, mask=mask)  # find mean color inside mask
-                cv2.drawContours(frame2, [contour], 0, mean, -1)  # draw frame with masked mean color
-            cv2.drawContours(frame2, contours, -1, (0, 0, 0), 1)  # draw contours with black color
-        return frame2
+                cv2.drawContours(frame, [contour], 0, mean, -1)  # draw frame with masked mean color
+            cv2.drawContours(frame, contours, -1, (0, 0, 0), 1)  # draw contours with black color
+        return frame
 
     def filter_blur(self):
         """ Blur (Gaussian, median, bilateral or classic) """
@@ -238,96 +253,110 @@ class Filters:
             self.previous = None  # set optical flow to None if exception occurred
             return self.frame  # return unchanged frame when error
 
+    def check_previous(self):
+        """ Check previous frame for the 1st time """
+        if self.previous is None or self.previous.shape != self.frame.shape:
+            self.previous = self.frame.copy()  # remember previous frame
+            self.affine = copy.deepcopy(self.affine_start)  # deep copy starting affine values
+
+    def filter_affine1(self):
+        """ Affine random rotations and shifts """
+        self.check_previous()  # check previous frame for the 1st time
+        self.affine['rotation'] += random.choice([-1, 1])  # random rotation (anti)clockwise
+        self.affine['shift'][0] += random.choice([-1, 1])  # random shift left/right on 1 pixel
+        self.affine['shift'][1] += random.choice([-1, 1])  # random shift top/bottom on 1 pixel
+        rows, cols = self.frame.shape[:2]
+        half_x = cols >> 1  # divide by 2 or one bit shift right
+        half_y = rows >> 1
+        # Do not shift too far away
+        self.affine['shift'][0] = max(self.affine['shift'][0], (-half_x))
+        self.affine['shift'][0] = min(self.affine['shift'][0], half_x)
+        self.affine['shift'][1] = max(self.affine['shift'][1], (-half_y))
+        self.affine['shift'][1] = min(self.affine['shift'][1], half_y)
+        # Rotation 2D matrix
+        m = cv2.getRotationMatrix2D((half_x, half_y), self.affine['rotation'], 1)
+        frame = cv2.warpAffine(self.frame, m, (cols, rows))  # rotate frame
+        # Shift matrix
+        m = np.float32([[1, 0, self.affine['shift'][0]], [0, 1, self.affine['shift'][1]]])
+        return cv2.warpAffine(frame, m, (cols, rows))  # shift frame and return it
+
+    def filter_affine2(self):
+        """ Affine random transformations """
+        self.check_previous()  # check previous frame for the 1st time
+        p = 'pointers3'
+        for pointer in np.nditer(self.affine[p], op_flags=['readwrite']):
+            pointer += random.choice([-1, 1])  # apply random shift on 1 pixel foreach element
+        rows, cols = self.frame.shape[:2]  # get height and width
+        m = cv2.getAffineTransform(self.affine_start[p], self.affine[p])
+        return cv2.warpAffine(self.frame, m, (cols, rows))
+
+    def filter_perspective(self):
+        """ Perspective random transformations """
+        self.check_previous()  # check previous frame for the 1st time
+        p = 'pointers4'
+        for pointer in np.nditer(self.affine[p], op_flags=['readwrite']):
+            pointer += random.choice([-1, 1])  # apply random shift on 1 pixel foreach element
+        rows, cols = self.frame.shape[:2]  # get height and width
+        m = cv2.getPerspectiveTransform(self.affine_start[p], self.affine[p])
+        return cv2.warpPerspective(self.frame, m, (cols, rows))
+
+    def filter_equalize(self):
+        """ Histogram Equalization """
+        b, g, r = cv2.split(self.frame)  # split on blue, green and red channels
+        b2 = cv2.equalizeHist(b)  # apply Histogram Equalization to each channel
+        g2 = cv2.equalizeHist(g)
+        r2 = cv2.equalizeHist(r)
+        return cv2.merge((b2, g2, r2))  # merge equalized channels
+
+    def filter_clahe(self):
+        """ Contrast Limited Adaptive Histogram Equalization (CLAHE) """
+        # 'clipLimit' parameter is 40 by default; 'tileGridSize' parameter is 8x8 by default
+        clahe = cv2.createCLAHE(clipLimit=10., tileGridSize=(8, 8))
+        b, g, r = cv2.split(self.frame)  # split on blue, green and red channels
+        b2 = clahe.apply(b)  # apply CLAHE to each channel
+        g2 = clahe.apply(g)
+        r2 = clahe.apply(r)
+        return cv2.merge((b2, g2, r2))  # merge changed channels
+
+    def filter_lab(self):
+        """ Increase the contrast using LAB color space and CLAHE """
+        lab = cv2.cvtColor(self.frame, cv2.COLOR_BGR2LAB)  # convert image to LAB color model
+        l, a, b = cv2.split(lab)  # split on l, a, b channels
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+        l2 = clahe.apply(l)  # apply CLAHE to L-channel
+        lab = cv2.merge((l2, a, b))  # merge enhanced L-channel with the a and b channels
+        return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)  # convert back to BGR and return
+
+    def filter_pyramid(self):
+        """ Image pyramid """
+        frame = self.frame.copy()  # copy frame
+        h, w = self.frame.shape[:2]  # get frame height and width
+        x, y = int(w + (w >> 1)), 0  # 3/2 of width and 0
+        image = np.zeros((h, x, 3), np.uint8)  # empty matrix filled with zeros
+        image[:h, :w, :3] = self.frame  # copy frame into the matrix
+        for i in range(8):  # pyramid has (8+1)=9 levels
+            frame = cv2.pyrDown(frame)  # make smaller frame
+            rows, cols = frame.shape[:2]
+            image[y:(y + rows), w:(w + cols)] = frame  # copy smaller frame into the matrix
+            y += rows  # increase vertical position of the new frame
+        return image  # return image pyramid
 
 
 """
 modes = {
-    'e': 'Affine1',     # Affine random rotation and shift
-    'f': 'Affine2',     # Affine random transformations
-    'g': 'Perspective', # Perspective random transformations
-    'h': 'Equalize',    # Histogram Equalization
-    'i': 'CLAHE',       # CLAHE Contrast Limited Adaptive Histogram Equalization
-    'j': 'LAB',         # Increase the contrast of an image (LAB color space + CLAHE)
-    'k': 'Pyramid',     # Image pyramid
     'l': 'Laplacian',   # Laplacian gradient filter
     'm': 'Sobel X',     # Sobel / Scharr vertical gradient filter
     'n': 'Sobel Y',     # Sobel / Scharr horizontal gradient filter
     'o': 'Blobs',       # Blob detection
 }
-mode_affine1     = modes['e']
-mode_affine2     = modes['f']
-mode_perspective = modes['g']
-mode_equalize    = modes['h']
-mode_clahe       = modes['i']
-mode_lab         = modes['j']
-mode_pyramid     = modes['k']
 mode_laplacian   = modes['l']
 mode_sobelx      = modes['m']
 mode_sobely      = modes['n']
 mode_blobs       = modes['o']
 
-rotation = 0
-shift = [0, 0]
-ptrs1 = np.float32([[0,0],[400,0],[0,400]])
-ptrs2 = np.copy(ptrs1)
-ptrs3 = np.float32([[0,0],[400,0],[0,400],[400,400]])
-ptrs4 = np.copy(ptrs3)
 detector1 = None
 
 while True:
-    if mode == mode_affine1:
-        rotation += random.choice([-1, 1])  # random rotation anticlockwise/clockwise
-        shift[0] += random.choice([-1, 1])  # random shift left/right on 1 pixel
-        shift[1] += random.choice([-1, 1])  # random shift up/bottom on 1 pixel
-        rows, cols = frame.shape[:2]
-        m = cv2.getRotationMatrix2D((cols/2, rows/2), rotation, 1)  # rotation matrix
-        frame = cv2.warpAffine(frame, m, (cols, rows))
-        m = np.float32([[1, 0, shift[0]], [0, 1, shift[1]]])  # translation matrix
-        frame = cv2.warpAffine(frame, m, (cols, rows))
-    if mode == mode_affine2:
-        for ptr in np.nditer(ptrs2, op_flags=['readwrite']):
-            ptr += random.choice([-1, 1])  # apply random shift on 1 pixel foreach element
-        rows, cols = frame.shape[:2]
-        m = cv2.getAffineTransform(ptrs1, ptrs2)
-        frame = cv2.warpAffine(frame, m, (cols, rows))
-    if mode == mode_perspective:
-        for ptr in np.nditer(ptrs4, op_flags=['readwrite']):
-            ptr += random.choice([-1, 1])  # apply random shift on 1 pixel foreach element
-        rows, cols = frame.shape[:2]
-        m = cv2.getPerspectiveTransform(ptrs3, ptrs4)
-        frame = cv2.warpPerspective(frame, m, (cols, rows))
-    if mode == mode_equalize:
-        b, g, r = cv2.split(frame)  # split on blue, green and red channels
-        b2 = cv2.equalizeHist(b)  # apply Histogram Equalization to each channel
-        g2 = cv2.equalizeHist(g)
-        r2 = cv2.equalizeHist(r)
-        frame = cv2.merge((b2,g2,r2))  # merge changed channels to the current frame
-    if mode == mode_clahe:
-        # clipLimit is 40 by default; tileSize is 8x8 by default
-        clahe = cv2.createCLAHE(clipLimit=10., tileGridSize=(8,8))
-        b, g, r = cv2.split(frame)  # split on blue, green and red channels
-        b2 = clahe.apply(b)  # apply CLAHE to each channel
-        g2 = clahe.apply(g)
-        r2 = clahe.apply(r)
-        frame = cv2.merge((b2, g2, r2))  # merge changed channels to the current frame
-    if mode == mode_lab:
-        lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)  # convert image to LAB color model
-        l, a, b = cv2.split(lab)  # split on l, a, b channels
-        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-        l2 = clahe.apply(l)  # apply CLAHE to L-channel
-        lab = cv2.merge((l2,a,b))  # merge enhanced L-channel with the a and b channels
-        frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-    if mode == mode_pyramid:
-        h, w = frame.shape[:2]
-        x, y = 0, int(h+h/2)
-        image = np.zeros((y, w, 3), np.uint8)  # empty matrix filled with zeros
-        image[:h, :w, :3] = frame
-        for i in range(8):
-            frame = cv2.pyrDown(frame)
-            h, w = frame.shape[:2]
-            image[y-h:y, x:x+w] = frame
-            x += w
-        frame = image
     if mode == mode_laplacian:
         #frame = cv2.Laplacian(gray, cv2.CV_8U)
         frame = np.uint8(np.absolute(cv2.Laplacian(gray, cv2.CV_64F)))

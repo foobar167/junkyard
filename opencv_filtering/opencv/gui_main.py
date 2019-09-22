@@ -243,7 +243,7 @@ class MainGUI(ttk.Frame):
                 frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
                 try:
                     self.current_frame = Image.fromarray(frame)  # convert image for PIL
-                except AttributeError as err:
+                except (AttributeError, ValueError) as err:
                     logging.warning(f'No frame for filter {self.filters.get_filter()}')
                 image = self.resize_image(self.current_frame)  # resize image for the GUI window
                 imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
