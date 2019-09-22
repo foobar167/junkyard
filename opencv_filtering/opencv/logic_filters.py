@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import cv2  # import OpenCV 3 with *CONTRIBUTIONS*
-import random
+# import random
 import numpy as np
 
 from .logic_logger import logging
@@ -8,13 +8,30 @@ from .logic_logger import logging
 
 class Filters:
     """ OpenCV filters """
-    def __init__(self, master, filter=0):
+    def __init__(self, master, filter_num=0):
         """ Initialize filters """
-        self.current_filter = filter  # current OpenCV filter
+        self.current_filter = filter_num  # current OpenCV filter_num
         self.master = master  # link to the main GUI window
         self.frame = None  # current frame
-        self.previous_frame = None  # previous frame
+        self.previous = None  # previous frame (gray or color)
         self.background_subtractor = None
+        self.opt_flow = {  # container for Optical Flow algorithm
+            # Parameters for Shi Tomasi corner detection
+            'feature_params': dict(maxCorners=100,
+                                   qualityLevel=0.3,
+                                   minDistance=7,
+                                   blockSize=7),
+            # Parameters for Lucas Kanade optical flow
+            'lk_params': dict(winSize=(15, 15),
+                              maxLevel=2,
+                              criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)),
+            # Create some random colors
+            'color': np.random.randint(0, 255, (100, 3)),
+            # Container for corner points of the previous frame
+            'points': None,
+            # Container for image mask
+            'mask': None,
+        }
         # List of filters in the following format: [name, function, description]
         # Filter functions take frame, convert it and return converted image
         self.container = [
@@ -30,15 +47,20 @@ class Filters:
             ['Blur', self.filter_blur, 'Blur (Gaussian, median, bilateral or classic)'],
             ['Motion', self.filter_motion, 'Motion detection'],
             ['Background', self.filter_background, 'Background subtractor (KNN, MOG2, MOG or GMG)'],
+            ['Skin', self.filter_skin, 'Skin tones detection'],
+            ['Optical Flow', self.filter_optflow, 'Lucas Kanade optical flow'],
         ]
         self.master.title(f'OpenCV Filtering - {self.container[self.current_filter][2]}')
 
+    def get_filter(self):
+        """ Get filter name """
+        return self.container[self.current_filter][0]
+
     def set_filter(self, current):
         """ Set current filter """
-        self.previous_frame = None
+        self.previous = None
         self.current_filter = current
-        filter_name = self.container[self.current_filter][0]
-        logging.info(f'Set filter to {filter_name}')
+        logging.info(f'Set filter to {self.get_filter()}')
         self.master.title('OpenCV Filtering - ' + self.container[self.current_filter][2])
 
     def next_filter(self):
@@ -78,7 +100,7 @@ class Filters:
         """ Harris corner detection """
         gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
         gray = np.float32(gray)  # convert to NumPy array
-        # ksize parameter is odd and must be [3, 31]
+        # k-size parameter is odd and must be [3, 31]
         dest = cv2.cornerHarris(src=gray, blockSize=2, ksize=5, k=0.07)
         dest = cv2.dilate(dest, None)  # dilate corners for result, not important
         self.frame[dest > 0.01 * dest.max()] = [0, 0, 255]
@@ -137,16 +159,16 @@ class Filters:
         # return cv2.GaussianBlur(self.frame, (29, 29), 0)  # Gaussian blur
         # return cv2.medianBlur(self.frame, 29)  # Median blur
         # return cv2.bilateralFilter(self.frame, 11, 80, 80)  # Bilateral filter preserves the edges
-        return cv2.blur(self.frame, (29, 29))  # Blur
+        return cv2.blur(self.frame, (29, 29))  # Blur classic
 
     def filter_motion(self):
         """ Motion detection """
-        if self.previous_frame is None or self.previous_frame.shape != self.frame.shape:
-            self.previous_frame = self.frame  # remember previous frame
+        if self.previous is None or self.previous.shape != self.frame.shape:
+            self.previous = self.frame.copy()  # remember previous frame
             return self.frame  # return unchanged frame
         gray1 = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to grayscale
-        gray2 = cv2.cvtColor(self.previous_frame, cv2.COLOR_BGR2GRAY)
-        self.previous_frame = self.frame  # remember previous frame
+        gray2 = cv2.cvtColor(self.previous, cv2.COLOR_BGR2GRAY)
+        self.previous = self.frame.copy()  # remember previous frame
         return cv2.absdiff(gray1, gray2)  # get absolute difference between two frames
 
     def filter_background(self):
@@ -159,12 +181,67 @@ class Filters:
         fgmask = self.background_subtractor.apply(self.frame)
         return self.frame & cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR)
 
+    def filter_skin(self):
+        """ Skin tones detection"""
+        # Determine upper and lower HSV limits for skin tones
+        lower = np.array([0, 100, 0], dtype='uint8')
+        upper = np.array([50, 255, 255], dtype='uint8')
+        # Switch to HSV
+        hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+        # Find mask of pixels within HSV range
+        skin_mask = cv2.inRange(hsv, lower, upper)
+        skin_mask = cv2.GaussianBlur(skin_mask, (9, 9), 0)  # noise suppression
+        # Kernel for morphology operation
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4, 4))
+        # CLOSE (dilate / erode)
+        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel, iterations=3)
+        skin_mask = cv2.GaussianBlur(skin_mask, (9, 9), 0)  # noise suppression
+        # Display only the masked pixels
+        return cv2.bitwise_and(self.frame, self.frame, mask=skin_mask)
+
+    def filter_optflow(self):
+        """ Lucas Kanade optical flow """
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        frame = self.frame.copy()  # copy the frame
+        if self.previous is None or self.previous.shape != gray.shape:
+            self.previous = gray.copy()  # save previous gray frame
+            # Find new corner points of the frame
+            self.opt_flow['points'] = cv2.goodFeaturesToTrack(
+                gray, mask=None,
+                **self.opt_flow['feature_params'])
+            # Create a new mask image for drawing purposes
+            self.opt_flow['mask'] = np.zeros_like(self.frame.copy())
+        #
+        # If motion is large this method will fail. Ignore exceptions
+        try:
+            # Calculate optical flow. cv2.error could happen here.
+            points, st, err = cv2.calcOpticalFlowPyrLK(
+                self.previous, gray,
+                self.opt_flow['points'], None, **self.opt_flow['lk_params'])
+            # Select good points
+            good_new = points[st == 1]  # TypeError 'NoneType' could happen here
+            good_old = self.opt_flow['points'][st == 1]
+            # Draw the tracks
+            for i, (new, old) in enumerate(zip(good_new, good_old)):
+                a, b = new.ravel()
+                c, d = old.ravel()
+                # Draw lines in the mask
+                self.opt_flow['mask'] = cv2.line(self.opt_flow['mask'], (a, b), (c, d),
+                                                 self.opt_flow['color'][i].tolist(), 2)
+                # Draw circles in the frame
+                frame = cv2.circle(frame, (a, b), 5, self.opt_flow['color'][i].tolist(), -1)
+            # Update the previous frame and previous points
+            self.previous = gray.copy()
+            self.opt_flow['points'] = good_new.reshape(-1, 1, 2)
+            return cv2.add(frame, self.opt_flow['mask'])  # concatenate frame and mask images
+        except (TypeError, cv2.error):
+            self.previous = None  # set optical flow to None if exception occurred
+            return self.frame  # return unchanged frame when error
+
 
 
 """
 modes = {
-    'c': 'Skin',        # Detect skin tones
-    'd': 'OptFlow',     # Lucas Kanade optical flow
     'e': 'Affine1',     # Affine random rotation and shift
     'f': 'Affine2',     # Affine random transformations
     'g': 'Perspective', # Perspective random transformations
@@ -177,8 +254,6 @@ modes = {
     'n': 'Sobel Y',     # Sobel / Scharr horizontal gradient filter
     'o': 'Blobs',       # Blob detection
 }
-mode_skin        = modes['c']
-mode_optflow     = modes['d']
 mode_affine1     = modes['e']
 mode_affine2     = modes['f']
 mode_perspective = modes['g']
@@ -191,8 +266,6 @@ mode_sobelx      = modes['m']
 mode_sobely      = modes['n']
 mode_blobs       = modes['o']
 
-bs = None
-old_gray = None
 rotation = 0
 shift = [0, 0]
 ptrs1 = np.float32([[0,0],[400,0],[0,400]])
@@ -202,63 +275,6 @@ ptrs4 = np.copy(ptrs3)
 detector1 = None
 
 while True:
-    if mode == mode_skin:
-        # determine upper and lower HSV limits for (my) skin tones
-        lower = np.array([0, 100, 0], dtype="uint8")
-        upper = np.array([50, 255, 255], dtype="uint8")
-        # switch to HSV
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        # find mask of pixels within HSV range
-        skinMask = cv2.inRange(hsv, lower, upper)
-        # denoise
-        skinMask = cv2.GaussianBlur(skinMask, (9, 9), 0)
-        # kernel for morphology operation
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4, 4))
-        # CLOSE (dilate / erode)
-        skinMask = cv2.morphologyEx(skinMask, cv2.MORPH_CLOSE, kernel, iterations=3)
-        # denoise the mask
-        skinMask = cv2.GaussianBlur(skinMask, (9, 9), 0)
-        # only display the masked pixels
-        frame = cv2.bitwise_and(frame, frame, mask=skinMask)
-    if mode == mode_optflow:
-        if old_gray is None:
-            # params for ShiTomasi corner detection
-            feature_params = dict(maxCorners=100,
-                                  qualityLevel=0.3,
-                                  minDistance=7,
-                                  blockSize=7)
-            # Parameters for lucas kanade optical flow
-            lk_params = dict(winSize=(15, 15),
-                             maxLevel=2,
-                             criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-            # Create some random colors
-            color = np.random.randint(0, 255, (100, 3))
-            # Take first frame and find corners in it
-            old_frame = frame.copy()
-            old_gray = gray.copy()
-            ret, frame = camera.read()
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
-            # Create a mask image for drawing purposes
-            mask = np.zeros_like(old_frame)
-        try:  # If motion is large this method will fail. Ignore exceptions
-            # calculate optical flow
-            p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, **lk_params)
-            # Select good points
-            good_new = p1[st == 1]
-            good_old = p0[st == 1]
-            # draw the tracks
-            for i, (new, old) in enumerate(zip(good_new, good_old)):
-                a, b = new.ravel()
-                c, d = old.ravel()
-                mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 2)
-                frame = cv2.circle(frame, (a, b), 5, color[i].tolist(), -1)
-            frame = cv2.add(frame, mask)
-            # Now update the previous frame and previous points
-            old_gray = gray.copy()
-            p0 = good_new.reshape(-1, 1, 2)
-        except:
-            old_gray = None  # set optical flow to None if exception occurred
     if mode == mode_affine1:
         rotation += random.choice([-1, 1])  # random rotation anticlockwise/clockwise
         shift[0] += random.choice([-1, 1])  # random shift left/right on 1 pixel

@@ -24,7 +24,7 @@ class MainGUI(ttk.Frame):
         self.output_path = 'temp'  # store output path
         self.config = Config(path=self.output_path)  # open config file of the main window
         # Create OpenCV filters object
-        self.filters = Filters(master=self.master, filter=self.config.get_current_filter())
+        self.filters = Filters(master=self.master, filter_num=self.config.get_current_filter())
         self.camera = Camera(current=self.config.get_current_camera())  # create web camera object
         #
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
@@ -241,7 +241,10 @@ class MainGUI(ttk.Frame):
             if ok:  # frame captured without any errors
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
                 frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
-                self.current_frame = Image.fromarray(frame)  # convert image for PIL
+                try:
+                    self.current_frame = Image.fromarray(frame)  # convert image for PIL
+                except AttributeError as err:
+                    logging.warning(f'No frame for filter {self.filters.get_filter()}')
                 image = self.resize_image(self.current_frame)  # resize image for the GUI window
                 imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
                 self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
