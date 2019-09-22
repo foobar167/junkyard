@@ -329,7 +329,7 @@ class Camera:
                 self.camera = cv2.VideoCapture(self.current_camera + self.driver)
             w = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
             h = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            self.camera_resolutions[0] = ['Default ' + str(w) + '×' + str(h), w, h]
+            self.camera_resolutions[0] = [f'Default {w}×{h}', w, h]
             self.current_resolution = 0
 
     def reopen_camera(self):

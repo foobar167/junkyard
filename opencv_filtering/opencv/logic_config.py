@@ -89,7 +89,7 @@ class Config:
         try:
             current_camera = int(self.__config[self.__camera][self.__current_camera])
             # Check current camera is available
-            camera = cv2.VideoCapture(current_camera, cv2.CAP_DSHOW)
+            camera = cv2.VideoCapture(current_camera + cv2.CAP_DSHOW)
             if camera.isOpened():
                 camera.release()
                 time.sleep(0.25)  # wait till the camera become ready

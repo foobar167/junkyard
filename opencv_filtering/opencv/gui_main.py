@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Take snapshot using web camera, OpenCV and Tkinter.
 import os
 import cv2
 import tkinter as tk
@@ -25,7 +24,7 @@ class MainGUI(ttk.Frame):
         self.output_path = 'temp'  # store output path
         self.config = Config(path=self.output_path)  # open config file of the main window
         # Create OpenCV filters object
-        self.filters = Filters(current=self.config.get_current_filter(), master=self.master)
+        self.filters = Filters(master=self.master, filter=self.config.get_current_filter())
         self.camera = Camera(current=self.config.get_current_camera())  # create web camera object
         #
         self.this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
@@ -53,30 +52,29 @@ class MainGUI(ttk.Frame):
         #
         if os.name == 'nt':  # Windows OS
             keycode = {
-                'a': [65],
                 's': [83],
                 '→': [68, 39, 102, 34],  # keys: 'd', 'Right', scroll right, PageDown
                 '←': [65, 37, 100, 33],  # keys: 'a', 'Left', scroll left, PageUp
             }
         else:  # Linux OS
             keycode = {
-                'a': [38],
                 's': [39],
                 '→': [40, 114, 85],
                 '←': [38, 113, 83],
             }
-        # List of shortcuts in the following format: [name, function, hotkey, keycode, ctrl]
-        self.shortcuts = [
-            ['Next Filter',   self.filters.next_filter, '→',      keycode['→'], False],  # 0 - set next filter
-            ['Last Filter',   self.filters.last_filter, '←',      keycode['←'], False],  # 1 - set last filter
-            ['Take Snapshot', self.take_snapshot,       'Ctrl+S', keycode['s'],  True],   # 2 - take snapshot
-            ['Send Email',    self.send_email,          'Ctrl+A', keycode['a'],  True],   # 3 - take snapshot
-            ['Exit',          self.destroy,             'Alt+F4', None,          False],  # 4 - close GUI
-            ['Filters',       self.filters,             '',       None,          False],  # 5 - filters object
-            ['Camera',        self.camera,              '',       None,          False],  # 6 - camera object
-            ['Fullscreen',    self.toggle_fullscreen,   'F11',    None,          False],  # 7 - full screen mode
-            ['Default Size',  self.default_geometry,    'F5',     None,          False],  # 8 - default size GUI
-        ]
+        # Dictionary of shortcuts in the following format:
+        # name: [menu_string, function, hotkey, keycode_list]
+        self.shortcuts = {
+            'next': ['Next Filter', self.filters.next_filter, '→', keycode['→']],  # set next filter
+            'last': ['Last Filter', self.filters.last_filter, '←', keycode['←']],  # set last filter
+            'save': ['Take Snapshot', self.take_snapshot, 'Ctrl+S', keycode['s']],  # save snapshot
+            'exit': ['Exit', self.destroy, 'Alt+F4'],  # close GUI
+            'filters': ['Filters', self.filters],  # filters object
+            'camera': ['Camera', self.camera],  # camera object
+            'fullscreen': ['Fullscreen', self.toggle_fullscreen, 'F11'],  # full screen mode
+            'default': ['Default Size', self.default_geometry, 'F5'],  # default GUI parameters
+        }
+        self.ctrl_shortcuts = [self.shortcuts['save']]  # shortcuts with <Ctrl> key pressed
         self.master.bind('<MouseWheel>', self.wheel)  # mouse wheel for Windows and MacOS, but not Linux
         self.master.bind('<Button-5>',   self.wheel)  # mouse wheel for Linux, scroll down
         self.master.bind('<Button-4>',   self.wheel)  # mouse wheel for Linux, scroll up
@@ -94,16 +92,11 @@ class MainGUI(ttk.Frame):
     def take_snapshot(self):
         """ Take snapshot and save it to the file """
         uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
-        filename = '{}.png'.format(uid)  # construct filename from UID
+        filename = f'{uid}.png'  # construct filename from UID
         filepath = os.path.join(self.output_path, filename)  # construct output path
         self.current_frame.save(filepath)  # save image frame as PNG file
-        logging.info('Snapshot saved to {}'.format(filepath))
+        logging.info(f'Snapshot saved to {filepath}')
         return filepath
-
-    def send_email(self):
-        """ Send email with snapshot attached """
-        filepath = self.take_snapshot()  # take snapshot
-        print('Email is sent')  # to be continued...
 
     def wheel(self, event):
         """ Mouse wheel event """
@@ -177,16 +170,16 @@ class MainGUI(ttk.Frame):
     def keystroke(self, event):
         """ Language independent handle events from the keyboard """
         # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
-        if event.state - self.previous_state == 4:  # check if <Control> key is pressed
-            for shortcut in self.shortcuts:  # for all shortcuts
-                if shortcut[4] and event.keycode in shortcut[3]:  # if ctrl is True and key is pressed
-                    shortcut[1]()  # execute a function
-        else:  # <Control> key is not pressed
+        if event.state - self.previous_state == 4:  # check if <Ctrl> key is pressed
+            for s in self.ctrl_shortcuts:  # for all <Ctrl> shortcuts
+                if event.keycode in s[3]:  # if <Ctrl> key is pressed
+                    s[1]()  # execute a function
+        else:  # <Ctrl> key is not pressed
             self.previous_state = event.state  # remember previous state of the event
-            if event.keycode in self.shortcuts[0][3]:
-                self.shortcuts[0][1]()  # next filter
-            elif event.keycode in self.shortcuts[1][3]:
-                self.shortcuts[1][1]()  # last filter
+            if event.keycode in self.shortcuts['next'][3]:  # keycode is pressed
+                self.shortcuts['next'][1]()  # next filter
+            elif event.keycode in self.shortcuts['last'][3]:  # keycode is pressed
+                self.shortcuts['last'][1]()  # last filter
 
     def create_widgets(self):
         """ Widgets for GUI are created here """
@@ -209,10 +202,12 @@ class MainGUI(ttk.Frame):
         self.panel.grid(row=0, column=0, sticky='nswe')  # make ttk.Label expandable
         self.buttons = ttk.Label(container)  # initialize buttons panel
         self.buttons.grid(row=1, column=0)
-        self.add_button(master=self.buttons, name='icon_arrow__left.png', text=self.shortcuts[1][0], command=self.shortcuts[1][1])
-        self.add_button(master=self.buttons, name='icon_save__image.png', text=self.shortcuts[2][0], command=self.shortcuts[2][1])
-        self.add_button(master=self.buttons, name='icon_send__email.png', text=self.shortcuts[3][0], command=self.shortcuts[3][1])
-        self.add_button(master=self.buttons, name='icon_arrow_right.png', text=self.shortcuts[0][0], command=self.shortcuts[0][1])
+        self.add_button(master=self.buttons, name='icon_arrow_left.png', text=self.shortcuts['last'][0],
+                        command=self.shortcuts['last'][1])
+        self.add_button(master=self.buttons, name='icon_save_image.png', text=self.shortcuts['save'][0],
+                        command=self.shortcuts['save'][1])
+        self.add_button(master=self.buttons, name='icon_arrow_right.png', text=self.shortcuts['next'][0],
+                        command=self.shortcuts['next'][1])
 
     def add_button(self, master, name, text, command):
         """ Add button to the GUI """
@@ -244,14 +239,14 @@ class MainGUI(ttk.Frame):
         if self.camera is not None:  # BUG! If plug out camera 'ok' is True after next 30 ms callback
             ok, frame = self.camera.read()  # read frame from the video stream
             if ok:  # frame captured without any errors
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
                 frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
-                cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # convert colors from BGR to RGB
-                self.current_frame = Image.fromarray(cv2image)  # convert image for PIL
+                self.current_frame = Image.fromarray(frame)  # convert image for PIL
                 image = self.resize_image(self.current_frame)  # resize image for the GUI window
                 imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
                 self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
                 self.panel.config(image=imgtk)  # show the image
-            else:
+            else:  # destroy camera object
                 self.camera.destroy()
                 self.camera = None
                 self.current_frame = None
@@ -259,7 +254,7 @@ class MainGUI(ttk.Frame):
                 self.panel.config(image=None)
         else:  # try to create new camera object again, because camera.read() is True on the next callback
             self.camera = Camera(current=self.config.get_current_camera())  # create web camera object
-            self.shortcuts[6][1] = self.camera  # replace shortcuts object for the menu
+            self.shortcuts['camera'][1] = self.camera  # replace shortcuts object for the menu
             self._menu = Menu(self.master, shortcuts=self.shortcuts)  # recreate menu bar
             self.master.configure(menu=self._menu.menubar)
         self.master.after(30, self.video_loop)  # call the same function after 30 milliseconds

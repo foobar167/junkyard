@@ -16,7 +16,7 @@ def init_logging():
     # specify logging configuration
     logging.basicConfig(level=logging.INFO,
                         format='%(levelname)s, %(asctime)s, %(filename)s, %(funcName)s, %(message)s',
-                        filename='{dir_name}/logfile.log'.format(dir_name=log_dir),
+                        filename=os.path.join(log_dir, 'logfile.log'),
                         filemode='a')
     # define a handler which writes to the sys.stderr
     console = logging.StreamHandler()

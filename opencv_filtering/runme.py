@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Take snapshot using web camera, OpenCV and Tkinter.
 import os
 import tkinter as tk
 
@@ -23,7 +24,7 @@ class TkErrorCatcher:
             raise err
 
 
-tk.CallWrapper = TkErrorCatcher
+tk.CallWrapper = TkErrorCatcher  # catch some validation errors
 
 if __name__ == '__main__':
     init_logging()

@@ -58,7 +58,7 @@ class ToolTip(tk.Toplevel):
             self.withdraw()  # hide initially - tk.Toplevel.withdraw()
             self.visible = 1
         # Offset the ToolTip 10x10 pixes southeast of the pointer
-        self.geometry('+{x}+{y}'.format(x=event.x_root+10, y=event.y_root+10))
+        self.geometry(f'+{event.x_root+10}+{event.y_root+10}')
         msg = None
         # noinspection PyBroadException
         try:  # the message is unchanged if function is None or fails
