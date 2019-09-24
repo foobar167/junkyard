@@ -9,22 +9,26 @@ areas of interest.
 After selecting rectangles and pressing menu button program cuts
 rectangle images from the bigger image.
 
-All parameters are saved in configuration INI files
-which is in the "temp" directory.
+All parameters are saved in configuration INI file `config.ini`,
+which is in the `temp` directory.
 
-The output of the program is the set of rectangular images
-in the "temp" directory.
+The output of the application is the set of rectangular images
+in the `temp` directory.
+
+Also it saves rectangular areas for the image in TXT format.
+You could open saved areas, modify them and cut image again.
+
+Tested on **Windows** and **Ubuntu** for Python **3.7**.
+
+External libraries:
+   * **Pillow** to open images of [various formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html).
 
 To start Manual Image Annotation with rectangles:
 ```shell
-c:\path\to\your\python\version-3.x\python.exe runme.py
-```
-
-Tested on Windows and Ubuntu for Python 3.7.
-
-External libraries:
-```shell
-Pillow
+# Install additional packages
+pip install pillow
+# Run it
+python runme.py
 ```
 
 Software architecture:
