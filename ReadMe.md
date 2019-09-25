@@ -1,12 +1,25 @@
 ### Chaotic collection of test files, probes, hacks and ideas
 
+   15. [General object classifier](object_classifier)
+
+General object classifier demonstration.
+
+**Under construction...**
+![Under construction](data/2019.09.25-under-construction-icon.png)
+
    14. [OpenCV Filtering GUI](opencv_filtering)
 
-**Under construction...** OpenCV filters demonstration GUI.
+OpenCV filters demonstration GUI.
+
+**Under construction...**
+![Under construction](data/2019.09.25-under-construction-icon.png)
 
    13. [Python notes and links on interesting places](notes_and_links.md)
 
-**Under construction...** There are 2 links :-), but will be more soon.
+There are several links yet :-), will be more soon.
+
+**Under construction...**
+![Under construction](data/2019.09.25-under-construction-icon.png)
 
    12. [Manual image annotation with polygons](manual_image_annotation1)
 
