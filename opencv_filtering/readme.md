@@ -5,7 +5,7 @@
 OpenCV Filtering GUI is a set of various realtime filters
 to process images from the webcam.
 
-Tested on Windows **10 / 7** and Ubuntu **18.04** for Python **3.7.4** amd OpenCV **3.4.2.16**.
+Tested on Windows **10/7** and Ubuntu **18.04** for Python **3.7.4** amd OpenCV **3.4.2.16**.
 
 External libraries:
    * **OpenCV with contributions, version 3.4.2.16**, [`opencv-contrib-python==3.4.2.16`](https://pypi.org/project/opencv-contrib-python) package.
