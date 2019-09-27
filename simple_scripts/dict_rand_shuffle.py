@@ -1,3 +1,4 @@
+# Random shuffle a dictionary key-value pairs
 import random
 
 d1 = {0:'zero', 1:'one', 2:'two', 3:'three', 4:'four',

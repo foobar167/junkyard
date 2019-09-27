@@ -23,6 +23,7 @@ def longest_increasing_subsequence(l):
         i += 1
     return longest
 
+
 print("0 == " + str(longest_increasing_subsequence(empty)))
 print("1 == " + str(longest_increasing_subsequence(one)))
 print("2 == " + str(longest_increasing_subsequence(two)))
@@ -31,6 +32,7 @@ print("5 == " + str(longest_increasing_subsequence(tricky)))
 print("5 == " + str(longest_increasing_subsequence(internal)))
 print("6 == " + str(longest_increasing_subsequence(ring)))
 print("6 == " + str(longest_increasing_subsequence(l)))
+
 
 def longest_increasing_subsequence2(l):
     if len(l) == 0: return 0  # list is empty
@@ -45,6 +47,7 @@ def longest_increasing_subsequence2(l):
             if longest < tmp: longest = tmp
             tmp = 1
     return longest
+
 
 print("0 == " + str(longest_increasing_subsequence2(empty)))
 print("1 == " + str(longest_increasing_subsequence2(one)))

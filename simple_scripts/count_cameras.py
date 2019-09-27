@@ -1,5 +1,6 @@
 import cv2
 
+
 # Get the number of cameras available
 def count_cameras():
     max_tested = 100
@@ -9,5 +10,6 @@ def count_cameras():
             temp_camera.release()
             continue
         return i
+
 
 print(count_cameras())

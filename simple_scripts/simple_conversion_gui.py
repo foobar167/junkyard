@@ -5,6 +5,7 @@ if sys.version_info.major < 3:  # for Python 2.x
 else:  # for Python 3.x
     import tkinter as tk
 
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
@@ -32,6 +33,7 @@ class Application(tk.Frame):
             self.l.config(text=conversion)
         except tk.TclError:
             self.l.config(text="Not an integer")
+
 
 app = Application()
 app.mainloop()

@@ -1,10 +1,10 @@
 # Find the highest number not in the list
 import numpy as np
 
-l = [1,3,5,9,11]
+l = [1, 3, 5, 9, 11]
 a = np.array(l)
 ans = 1
-for i in range(a.max()-1, max(0, a.min()), -1):
+for i in range(a.max(initial=0) - 1, max(0, a.min(initial=0)), -1):
     if i not in a:
         ans = i
         print(i)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# This script is for Raspberry Pi camera
 import picamera
 
 with picamera.PiCamera() as camera:

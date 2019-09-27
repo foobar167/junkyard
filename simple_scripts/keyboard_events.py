@@ -1,10 +1,12 @@
-#It is possible to use Python + Tkinter to generate keyboard events.
-#Tkinter is a part of the Python.
-#Note: this is a console application :-)
+# It is possible to use Python + Tkinter to generate keyboard events.
+# Tkinter is a part of the Python.
+# Note: this is a console application :-)
 import tkinter as tk
+
 
 def keystroke(event):
     print(event.keycode)
+
 
 def keyboardevent(str):
     # Code that simulated 'key' being pressed on keyboard

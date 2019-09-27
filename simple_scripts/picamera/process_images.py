@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+# This script is for Raspberry Pi camera
 # Process images in directory
 import os
 import shutil
 from PIL import Image
 
 subdirs = True  # recursively include subdirectories or not
-input_dir = 'd:/Pavlenko/#_Проекты/Python/2018.07.18_github_junkyard/temp/test_pictures1/'
-output_dir = 'd:/Pavlenko/#_Проекты/Python/2018.07.18_github_junkyard/temp/test_pictures2/'
+input_dir = '../../temp/test_pictures1/'
+output_dir = '../../temp/test_pictures2/'
 imname = 'test'  # image name
 format = 'png'  # image format
 

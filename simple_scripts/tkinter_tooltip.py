@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from time import time, localtime, strftime
 
+
 class ToolTip(tk.Toplevel):
     ''' ToolTip widget for Tkinter '''
     def __init__(self, wdgt, msg=None, func=None, delay=1.0, follow=True):
@@ -66,6 +67,7 @@ class ToolTip(tk.Toplevel):
         self.visible = 0
         self.withdraw()
 
+
 def range2d(n, m):
     ''' Return a list of values in a 2d range.
         Arguments:
@@ -73,12 +75,14 @@ def range2d(n, m):
             m: The number of columns in the 2d range '''
     return [(i, j) for i in range(n) for j in range(m)]
 
+
 def print_time():
     ''' Print the current time in the following format: time=HH:MM:SS '''
     t = time()
     timeString = 'time='
     timeString += strftime('%H:%M:%S', localtime(t))
     return timeString
+
 
 def main():
     root = tk.Tk()
@@ -104,6 +108,7 @@ def main():
         ToolTip(btnList[-1], msg=msg, func=func, follow=follow, delay=delay)
         btnList[-1].grid(row=i, column=j, sticky='nswe')
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()

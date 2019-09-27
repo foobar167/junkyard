@@ -1,12 +1,12 @@
-""" How to generate a random 4 digit number not starting with 0 and having unique digits in python? """
+"""
+  How to generate a random 4 digit number
+  not starting with 0 and having unique digits in python?
 
-import random
-
-""" Solution: randomly shuffle all numbers. If 0 is on the 0th position,
+  Solution: randomly shuffle all numbers. If 0 is on the 0th position,
               randomly swap it with any of nine positions in the list.
 
     Proof
-    Lets count probability for 0 to be in position 7. It is equal to probability 1/10 
+    Lets count probability for 0 to be in position 7. It is equal to probability 1/10
   after shuffle, plus probability to be randomly swapped in the 7th position if
   0 come to be on the 0th position: (1/10 * 1/9). In total: (1/10 + 1/10 * 1/9).
     Lets count probability for 3 to be in position 7. It is equal to probability 1/10
@@ -17,7 +17,9 @@ import random
   9 * (1/10 - 1/9 * 1/10 * 1/9) + (1/10 + 1/10 * 1/9) = 1
     Continue to prove in the same way that total probability is equal to
   1 for all other positions.
-    End of proof. """
+    End of proof.
+"""
+import random
 
 # 1.
 l = [0,1,2,3,4,5,6,7,8,9]

@@ -1,5 +1,4 @@
-""" Be DRY (don't repeat yourself), use exception handler function for try-except """
-
+# Be DRY (don't repeat yourself), use exception handler function for try-except
 def handle_exception(func):
     def inner(*args, **kwargs):
         try:
@@ -14,7 +13,7 @@ def divide(x, y):
     return x/y
 
 def show_result(x, y):
-    print('{x} divided by {y} is {result}'.format(x=x, y=y, result=divide(x, y)))
+    print(f'{x} divided by {y} is {divide(x, y)}')
 
 # It should work.
 show_result(16, 2)

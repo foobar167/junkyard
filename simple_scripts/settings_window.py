@@ -5,8 +5,8 @@ from tkinter import ttk
 from tkinter import simpledialog
 
 class AutoScrollbar(ttk.Scrollbar):
-    ''' A scrollbar that hides itself if it's not needed.
-        Works only if you use the grid geometry manager '''
+    """ A scrollbar that hides itself if it's not needed.
+        Works only if you use the grid geometry manager """
     def set(self, lo, hi):
         if float(lo) <= 0.0 and float(hi) >= 1.0:
             self.grid_remove()
@@ -21,9 +21,9 @@ class AutoScrollbar(ttk.Scrollbar):
         raise tk.TclError('Cannot use place with this widget')
 
 class MainGUI(ttk.Frame):
-    ''' Main GUI window '''
+    """ Main GUI window """
     def __init__(self, master):
-        ''' Init main window '''
+        """ Init main window """
         ttk.Frame.__init__(self, master=master)
         self.master.title('Main GUI')
         self.master.geometry('300x200')
@@ -37,20 +37,20 @@ class MainGUI(ttk.Frame):
         b.focus_set()
 
     def open_settings(self):
-        ''' Open settings modal window '''
+        """ Open settings modal window """
         s = Settings(self)  # create settings object
         self.master.wait_window(s)  # display the settings window and wait for it to close
 
 class Settings(simpledialog.Dialog):
-    ''' Settings / configure window for bigger project '''
+    """ Settings / configure window for bigger project """
     def __init__(self, parent):
-        ''' Init settings window '''
+        """ Init settings window """
         tk.Toplevel.__init__(self, master=parent)
         self.create_settings_window()
         self.create_widgets()
 
     def create_settings_window(self):
-        ''' Create setting window '''
+        """ Create setting window """
         self.focus_set()  # set focus on the settings window
         self.grab_set()  # make a modal window, so all events go to settings window
         self.transient(self.master)  # show only one window in the task bar
@@ -64,7 +64,7 @@ class Settings(simpledialog.Dialog):
         self.bind("<Escape>", self.cancel)  # close when <Escape> key is pressed
 
     def create_widgets(self):
-        ''' Widgets for settings window are created here '''
+        """ Widgets for settings window are created here """
         w = 12  # width of the buttons and entry
         vcmd_size = (self.register(self.validate_size),
                      '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')  # size validator
@@ -154,7 +154,7 @@ class Settings(simpledialog.Dialog):
         self.minsize(self.winfo_width(), self.winfo_height())  # set minimal size
 
     def validate_change(self):
-        ''' Validate if changes are made and enable/disable Apply button '''
+        """ Validate if changes are made and enable/disable Apply button """
         if  self.entry1.get() == self.master.size[0] and \
             self.entry2.get() == self.master.size[1] and \
             self.listbox.get(0, 'end') == tuple(self.master.list):
@@ -165,7 +165,7 @@ class Settings(simpledialog.Dialog):
             return True
 
     def validate_size(self, d, i, P, s, S, v, V, W):
-        ''' Validate only digits for the size in pixels '''
+        """ Validate only digits for the size in pixels """
         # Validation parameters
         # %d = Type of action (1=insert, 0=delete, -1 for others)
         # %i = index of char string to be inserted/deleted, or -1
@@ -185,7 +185,7 @@ class Settings(simpledialog.Dialog):
         return False
 
     def validate_classname(self, d, i, P, s, S, v, V, W):
-        ''' Validate string for class name '''
+        """ Validate string for class name """
         for j in S:  # Could enter alphanumeric or some other symbols
             if j.isalpha() or j.isdigit() or j in '., -_@':
                 classname = P.strip()  # strip opening and trailing spaces
@@ -198,7 +198,7 @@ class Settings(simpledialog.Dialog):
         return False
 
     def on_select(self, event=None):
-        ''' Enable/disable buttons on selection of the ListBox item '''
+        """ Enable/disable buttons on selection of the ListBox item """
         if self.listbox.curselection():  # if selection
             self.button_remove.configure(state='normal')
             self.button_up.configure(state='normal')
@@ -209,7 +209,7 @@ class Settings(simpledialog.Dialog):
             self.button_down.configure(state='disabled')
 
     def on_focus(self, event=None):
-        ''' LisbBox obtains focus '''
+        """ LisbBox obtains focus """
         if self.listbox.curselection(): return  # selection already exists
         if tk.ACTIVE:  # active item exists
             self.listbox.selection_set('active')  # select active item
@@ -217,7 +217,7 @@ class Settings(simpledialog.Dialog):
             self.listbox.event_generate('<<ListboxSelect>>')  # generate selection event
 
     def add(self, event=None):
-        ''' Add classname to the list '''
+        """ Add classname to the list """
         classname = self.entry3.get()  # get classname from the entry
         classname = classname.strip()  # strip opening and trailing spaces
         if classname and classname not in self.listbox.get(0, 'end'):
@@ -227,7 +227,7 @@ class Settings(simpledialog.Dialog):
             self.validate_change()  # enable/disable Apply button
 
     def remove(self, event=None):
-        ''' Remove classname from the list '''
+        """ Remove classname from the list """
         if self.listbox.curselection():  # if selected
             index = self.listbox.curselection()[0]  # get index of selected item
             self.listbox.delete(index)  # delete selected item
@@ -237,7 +237,7 @@ class Settings(simpledialog.Dialog):
             self.validate_change()  # enable/disable Apply button
 
     def up(self):
-        ''' Move classname upwards in the LisbBox '''
+        """ Move classname upwards in the LisbBox """
         if self.listbox.curselection():  # if selected
             index = self.listbox.curselection()[0]  # get index of selected item
             self.listbox.see(index)  # make selected item visible
@@ -251,7 +251,7 @@ class Settings(simpledialog.Dialog):
             self.validate_change()  # enable/disable Apply button
 
     def down(self):
-        ''' Move classname downwards in the LisbBox '''
+        """ Move classname downwards in the LisbBox """
         if self.listbox.curselection():  # if selected
             index = self.listbox.curselection()[0]  # get index of selected item
             self.listbox.see(index)  # make selected item visible
@@ -265,19 +265,19 @@ class Settings(simpledialog.Dialog):
             self.validate_change()  # enable/disable Apply button
 
     def apply(self):
-        ''' Apply settings changes '''
+        """ Apply settings changes """
         if self.validate_change():
             self.master.size = (self.entry1.get(), self.entry2.get())
             self.master.list = list(self.listbox.get(0, 'end'))
             self.button_apply.configure(state='disabled')
 
     def ok(self, event=None):
-        ''' Apply changes and close settings window '''
+        """ Apply changes and close settings window """
         self.apply()
         self.cancel()
 
     def cancel(self, event=None):
-        ''' Close settings window '''
+        """ Close settings window """
         self.master.focus_set()  # put focus back to the parent window
         self.destroy()  # destroy settings window
 

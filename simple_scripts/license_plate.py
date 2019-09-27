@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Determine the license plate of the car
 
+
 def plate_type(str):
     if len(str) == 6 and str[:3].isupper() and str[3:].isdigit():
         print('Old type license plate')

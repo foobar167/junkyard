@@ -6,12 +6,15 @@
 # keycodes depending on the operating system.
 import tkinter as tk
 
+
 def keystroke(event):
     dict[event.keycode] = event.keysym  # save keycodes into the dictionary
+
 
 def keyboardevent(str):
     # Code that simulated 'key' being pressed on keyboard
     temp.after(10, lambda: temp.event_generate('<Key-{}>'.format(str)))
+
 
 temp = tk.Tk()
 temp.withdraw()  # remove the window from the screen (without destroying it)
@@ -24,10 +27,12 @@ keyboardevent('d')
 temp.after(20, temp.destroy)  # this is not needed anymore
 temp.mainloop()
 
+
 # Start your code here
 def keys_handler(event):
     if event.keycode in dict:
         print(dict[event.keycode])
+
 
 root = tk.Tk()
 root.focus_force()

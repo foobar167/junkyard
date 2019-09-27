@@ -4,6 +4,7 @@ root = tk.Tk()
 choices = ('network one', 'network two', 'network three')
 var = tk.StringVar(root)
 
+
 def refresh():
     # Reset var and delete all old options
     var.set('')
@@ -13,6 +14,7 @@ def refresh():
     new_choices = ('one', 'two', 'three')
     for choice in new_choices:
         network_select['menu'].add_command(label=choice, command=tk._setit(var, choice))
+
 
 network_select = tk.OptionMenu(root, var, *choices)
 network_select.grid()

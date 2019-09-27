@@ -5,6 +5,7 @@ from tkinter import ttk
 from datetime import datetime
 from PIL import Image, ImageTk
 
+
 class Video(ttk.Frame):
     def __init__(self, mainframe):
         ''' Initialize application which uses OpenCV + Tkinter to display and save video stream '''
@@ -45,6 +46,7 @@ class Video(ttk.Frame):
         self.master.destroy()  # destroy main window
         self.vs.release()  # release web camera
         cv2.destroyAllWindows()  # it is not mandatory in this application
+
 
 root = tk.Tk()
 app = Video(root)
