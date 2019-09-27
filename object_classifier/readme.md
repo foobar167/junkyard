@@ -1,9 +1,10 @@
-##### General object classifier
+#### General object classifier
 
 ![General object classifier](data/2019.09.25-general-object-classifier.png)
 
 Watch [original video](https://youtu.be/CzPYgRaYWUA) of [Siraj Raval](https://sirajraval.com/) first.
-And review the [original code](https://github.com/llSourcell/image_classifier_template).
+And review the [original code](https://github.com/llSourcell/image_classifier_template)
+of an image classification startup.
 
 General object classifier is based on:
    * [Flutter](https://flutter.dev) mobile development framework with a single code base
@@ -29,6 +30,66 @@ and consists of five steps:
       impressively simple starter application for deploying fast.ai models on Render,
       for instantly creating a web app and API for your classifier.
    5. Build the mobile app. Connect your Flutter app to the web app from the previous step.
+
+There are 3 components here:
+   * model training script
+   * web API
+   * mobile app
+
+----
+#### Step 1
+Install [fast.ai](https://pypi.org/project/fastai/) if you need to train on your local computer:
+```shell script
+# Install PyTorch and Torchvision first, because fast.ai is built on top of PyTorch.
+# Installation video - https://deeplizard.com/learn/video/UWlFM0R_x6I
+# Be patient, it is 750.2 MB for now :-)
+# For example: Stable 1.2 -> Windows -> Conda or pip -> Python 3.7 -> CUDA 10.0
+pip3 install torch===1.2.0 torchvision===0.4.0 -f https://download.pytorch.org/whl/torch_stable.html
+conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
+# Check it
+pip list | grep torch
+conda list torch
+
+# PyPI Install
+pip install fastai
+# Conda Install
+conda install fastai pytorch -c fastai -c pytorch -c conda-forge
+conda install -c fastai fastai
+
+# Check it
+python -m fastai.utils.show_install
+# Activate Anaconda environment and check it
+conda activate
+python -m fastai.utils.show_install
+conda deactivate
+```
+Make sure you have directories `what dirs???`
+or go to [step 2](#step-2) if you want to continue with existing bears classification.
+
+----
+#### Step 2
+Run [Jupyter Notebook](https://jupyter.org) called `` on your local machine
+or upload and run it to [Google Colab](https://colab.research.google.com).
+Replace the bear dataset with your own image dataset.
+It's retraining a `resnet34` image classification model. This is transfer learning.
+
+Save the resulting model `pkl` file to google drive, save the download link.
+
+Original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
+file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier) project.
+
+----
+#### Step 3
+
+
+----
+#### Step 4
+
+
+----
+#### Step 5
+
+
 
 P.S. There are some TensorFlow examples and links [here](https://github.com/foobar167/articles/tree/master/Machine_Learning)
 and [here](https://github.com/foobar167/articles/blob/master/Ubuntu/13_Keras_and_TensorFlow_how-tos.md).
