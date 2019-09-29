@@ -40,6 +40,7 @@ class Filters:
             'pointers4': np.float32([[0, 0], [400, 0], [0, 400], [400, 400]]),
         }
         self.affine = None  # container for random affine values
+        self.detector = None  # blob detector container
         # List of filters in the following format: [name, function, description]
         # Filter functions take frame, convert it and return converted image
         self.container = [
@@ -64,6 +65,10 @@ class Filters:
             ['CLAHE', self.filter_clahe, 'Contrast Limited Adaptive Histogram Equalization (CLAHE)'],
             ['LAB', self.filter_lab, 'Increase the contrast using LAB color space and CLAHE'],
             ['Pyramid', self.filter_pyramid, 'Image pyramid'],
+            ['Laplacian', self.filter_laplacian, 'Laplacian gradient filter'],
+            ['Sobel X', self.filter_sobel_x, 'Sobel / Scharr vertical gradient filter'],
+            ['Sobel Y', self.filter_sobel_y, 'Sobel / Scharr horizontal gradient filter'],
+            ['Blobs', self.filter_blob, 'Blob detection'],
         ]
         self.master.title(f'OpenCV Filtering - {self.container[self.current_filter][2]}')
 
@@ -341,63 +346,63 @@ class Filters:
             y += rows  # increase vertical position of the new frame
         return image  # return image pyramid
 
+    def filter_laplacian(self):
+        """ Laplacian gradient filter """
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        # return cv2.Laplacian(gray, cv2.CV_8U)
+        return np.uint8(np.absolute(cv2.Laplacian(gray, cv2.CV_64F)))
 
-"""
-modes = {
-    'l': 'Laplacian',   # Laplacian gradient filter
-    'm': 'Sobel X',     # Sobel / Scharr vertical gradient filter
-    'n': 'Sobel Y',     # Sobel / Scharr horizontal gradient filter
-    'o': 'Blobs',       # Blob detection
-}
-mode_laplacian   = modes['l']
-mode_sobelx      = modes['m']
-mode_sobely      = modes['n']
-mode_blobs       = modes['o']
-
-detector1 = None
-
-while True:
-    if mode == mode_laplacian:
-        #frame = cv2.Laplacian(gray, cv2.CV_8U)
-        frame = np.uint8(np.absolute(cv2.Laplacian(gray, cv2.CV_64F)))
-    if mode == mode_sobelx:
-        #frame = cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=5)
-        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=5)))
+    def filter_sobel_x(self):
+        """ Sobel / Scharr vertical gradient filter """
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        # return cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=5)
+        # return np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=5)))
+        # return np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=-1)))
         # If ksize=-1, a 3x3 Scharr filter is used which gives better results than 3x3 Sobel filter
-        frame = cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=-1)
-        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=-1)))
-    if mode == mode_sobely:
-        #frame = cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=5)
-        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=5)))
+        return cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=-1)
+
+    def filter_sobel_y(self):
+        """ Sobel / Scharr horizontal gradient filter """
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        # return cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=5)
+        # return np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=5)))
+        # reutnr np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=-1)))
         # If ksize=-1, a 3x3 Scharr filter is used which gives better results than 3x3 Sobel filter
-        frame = cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=-1)
-        #frame = np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=-1)))
-    if mode == mode_blobs:
-        if detector1 is None:
+        return cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=-1)
+
+    def filter_blob(self):
+        """ Blob detection """
+        if self.detector is None:  # detect blobs for the 1st time
             # Setup SimpleBlobDetector parameters
+            self.detector = []  # initialize container as a list
             params = cv2.SimpleBlobDetector_Params()
+            params.minThreshold = 0
+            # params.maxThreshold = 200
+            params.thresholdStep = 10
             params.filterByColor = True
-            params.blobColor = 255  # extract light blobs
             params.filterByArea = True
-            params.maxArea = 40000
+            params.maxArea = 1000  # filter out all blobs with area > 10000 pixels
+            params.minArea = 5  # filter out all blobs with area < 10 pixels
             params.filterByCircularity = True
-            params.minCircularity = 0.7  # circularity of a square is 0.785
-            # Set up the detector with default parameters.
-            detector1 = cv2.SimpleBlobDetector_create(params)
+            params.minCircularity = 0.5  # circularity of a square is 0.5
+            params.minConvexity = 0.1  # convexity of a square is 0.1
+            params.filterByInertia = True
+            params.minInertiaRatio = 0.01  # ellipse like blob
+            # Set up the detector with default parameters
+            params.blobColor = 255  # extract light blobs
+            self.detector.append(cv2.SimpleBlobDetector_create(params))
             params.blobColor = 0  # extract dark blobs
-            detector2 = cv2.SimpleBlobDetector_create(params)
+            self.detector.append(cv2.SimpleBlobDetector_create(params))
 
         # Detect blobs
-        keypoints1 = detector1.detect(frame)
-        keypoints2 = detector2.detect(frame)
+        keypoints1 = self.detector[0].detect(self.frame)
+        keypoints2 = self.detector[1].detect(self.frame)
 
         # Draw detected blobs as green and blue circles
         # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle
         # corresponds to the size of a blob
-        frame2 = cv2.drawKeypoints(frame, keypoints1, np.array([]), (0, 255, 0),
-                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        frame = cv2.drawKeypoints(frame2, keypoints2, np.array([]), (255, 0, 0),
+        frame = cv2.drawKeypoints(self.frame, keypoints1, np.array([]), (255, 0, 0),
                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-    cv2.imshow(window_name, frame)  # show frame
-# """
+        frame = cv2.drawKeypoints(frame, keypoints2, np.array([]), (0, 0, 255),
+                                  cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        return frame

@@ -9,17 +9,15 @@ General object classifier demonstration.
 
    14. [OpenCV Filtering GUI](opencv_filtering)
 
-OpenCV filters demonstration GUI.
+OpenCV Filtering GUI is a set of various realtime filters
+to process images from the webcam.
 
-![Under construction](data/2019.09.25-under-construction-icon.png)
-**Under construction...**
+![OpenCV Filtering GUI](
+opencv_filtering/data/2019.09.29-opencv-filtering-gui.png)
 
    13. [Python notes and links on interesting places](notes_and_links.md)
 
-There are several links yet, but will be more soon.
-
-![Under construction](data/2019.09.25-under-construction-icon.png)
-**Under construction...**
+Bookmarks to remember and re-visit.
 
    12. [Manual image annotation with polygons](manual_image_annotation1)
 
@@ -29,7 +27,7 @@ presses menu button and program cuts rectangular images from selected
 polygons with a scanning window.
 
 ![Manual image annotation with polygons](
-data/2019.01.03-manual-image-annotation-with-polygons.png)
+manual_image_annotation1/data/2019.01.03-manual-image-annotation-with-polygons.png)
 
    11. [Manual image annotation with rectangles](manual_image_annotation2)
 
@@ -39,13 +37,13 @@ areas of interest. After selecting rectangles and pressing menu button
 program cuts rectangle images from the bigger image.
 
 ![Manual image annotation with rectangles](
-data/2019.01.03-manual-image-annotation-with-rectangles.png)
+manual_image_annotation2/data/2019.01.03-manual-image-annotation-with-rectangles.png)
 
    10. [Image viewer](image_viewer)
 
 Image viewer shows image and prints coordinates of the rectangular area in the console.
 
-![Image viewer](data/2019.01.03-image-viewer.png)
+![Image viewer](image_viewer/data/2019.01.03-image-viewer.png)
 
    09. [Advanced zoom](zoom_advanced3.py)
 
@@ -69,7 +67,8 @@ Example is well documented and has many comments inside.
    06. [OpenCV features](camera_features.py)
 
 Demo of various OpenCV features.
-Application is tested for Windows OS and requires webcamera.
+Application is tested for Windows OS and requires webcam.
+There is a [newer version with GUI](opencv_filtering).
 
 ![OpenCV features](data/2019.01.03-opencv-features.png)
 

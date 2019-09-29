@@ -9,7 +9,7 @@ dt = np.dtype([("iq",     np.uint8),
                ("mood",   np.unicode, 32),
                ("flag",   np.bool)])
 
-a = np.loadtxt("./data/file.csv", dtype=dt, delimiter=",")
+a = np.loadtxt("../data/file.csv", dtype=dt, delimiter=",")
 
 print(a)
 print(a[1:]["status"])
