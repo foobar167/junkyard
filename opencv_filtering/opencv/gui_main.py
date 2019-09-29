@@ -35,6 +35,7 @@ class MainGUI(ttk.Frame):
         self._filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
         self.previous_state = 0  # previous state of the event
         self.shortcuts = None  # define hot-keys
+        self.ctrl_shortcuts = None
         self.current_frame = None  # current frame from the camera
         self.panel = None  # image panel
         #
@@ -243,7 +244,7 @@ class MainGUI(ttk.Frame):
                 frame = self.filters.convert(frame)  # convert frame with the current OpenCV filter
                 try:
                     self.current_frame = Image.fromarray(frame)  # convert image for PIL
-                except (AttributeError, ValueError) as err:
+                except (AttributeError, ValueError):
                     logging.warning(f'No frame for filter {self.filters.get_filter()}')
                 image = self.resize_image(self.current_frame)  # resize image for the GUI window
                 imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
