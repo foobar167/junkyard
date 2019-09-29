@@ -1,4 +1,4 @@
-##### OpenCV Filtering GUI application
+#### OpenCV Filtering GUI application
 
 ![OpenCV Filtering GUI](data/2019.09.29-opencv-filtering-gui.png)
 

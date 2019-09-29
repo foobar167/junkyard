@@ -1,4 +1,4 @@
-##### Manual image annotation with rectangles
+#### Manual image annotation with rectangles
 
 ![Manual image annotation with rectangles](data/2019.01.03-manual-image-annotation-with-rectangles.png)
 

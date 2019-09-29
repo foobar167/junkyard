@@ -1,4 +1,4 @@
-##### Image Viewer (demo)
+#### Image Viewer (demo)
 
 ![Image viewer](data/2019.01.03-image-viewer.png)
 

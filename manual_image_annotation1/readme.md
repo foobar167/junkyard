@@ -1,4 +1,4 @@
-##### Manual image annotation with polygons
+#### Manual image annotation with polygons
 
 ![Manual image annotation with polygons](data/2019.01.03-manual-image-annotation-with-polygons.png)
 
