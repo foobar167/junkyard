@@ -109,7 +109,7 @@ class Filters:
     def filter_canny(self):
         """ Canny edge detection """
         gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
-        return cv2.Canny(gray, 100, 200)  # Canny edge detection
+        return cv2.Canny(gray, 50, 200)  # Canny edge detection
 
     def filter_threshold(self):
         """ Adaptive Gaussian threshold """
