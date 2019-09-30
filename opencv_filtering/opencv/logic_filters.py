@@ -165,7 +165,8 @@ class Filters:
         frame = self.frame.copy()  # make a copy
         for threshold in [15, 50, 100, 240]:  # use various thresholds
             ret, thresh = cv2.threshold(gray, threshold, 255, 0)
-            image, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            # image, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             for contour in contours:
                 mask = np.zeros(gray.shape, np.uint8)  # create empty mask
                 cv2.drawContours(mask, [contour], 0, 255, -1)  # fill mask with white color
