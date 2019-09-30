@@ -68,8 +68,11 @@ or go to [step 2](#step-2) if you want to continue with existing bears classific
 
 ----
 #### Step 2
-Run [Jupyter Notebook](https://jupyter.org) called `` on your local machine
-or upload and run it to [Google Colab](https://colab.research.google.com).
+Run [Jupyter Notebook](https://jupyter.org) called
+[`bear_classifier.ipynb`](01_training_script/bear_classifier.ipynb)
+on your local machine with modern GPU or upload and run it to
+[Google Colab](https://colab.research.google.com) if you not have modern GPU.
+
 Replace the bear dataset with your own image dataset.
 It's retraining a `resnet34` image classification model. This is transfer learning.
 
