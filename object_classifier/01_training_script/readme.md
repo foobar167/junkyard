@@ -3,7 +3,7 @@
 Original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
 file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier) project.
 
-Create our own dataset using google images and classify between teddy bear,
+Create dataset using google images and classify between teddy bear,
 grizzly bear and black bear using Pytorch and fastai.
 
 Run in [Jupyter Notebook](https://jupyter.org) file called

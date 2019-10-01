@@ -38,7 +38,7 @@ There are 3 components here:
 
 ----
 #### Step 1
-Install [fast.ai](https://pypi.org/project/fastai/) if you need to train on your local computer:
+Install [fastai](https://pypi.org/project/fastai/) if you need to train on your local computer:
 ```shell script
 # Install PyTorch and Torchvision first, because fast.ai is built on top of PyTorch.
 # Installation video - https://deeplizard.com/learn/video/UWlFM0R_x6I
