@@ -74,11 +74,12 @@ if you have computer **with modern GPU** or upload and run it in
 [Google Colab](https://colab.research.google.com) if you do not have modern GPU.
 
 Replace the bear dataset with your own image dataset.
-It's retraining a `resnet34` image classification model. This is transfer learning.
+Retrain a `resnet34` image classification model.
+Such retraining is called transfer learning.
 
-Save the resulting model pickle `pkl` file to google drive, save the download link.
+Save the resulting model `pkl` file to google drive, save the download link.
 
-Original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
+This is the original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
 file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier) project.
 
 ----
