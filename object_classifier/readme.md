@@ -68,15 +68,15 @@ or go to [step 2](#step-2) if you want to continue with existing bears classific
 
 ----
 #### Step 2
-Run [Jupyter Notebook](https://jupyter.org) called
+Run in [Jupyter Notebook](https://jupyter.org) file called
 [`bear_classifier.ipynb`](01_training_script/bear_classifier.ipynb)
-on your local machine with modern GPU or upload and run it to
-[Google Colab](https://colab.research.google.com) if you not have modern GPU.
+if you have computer **with modern GPU** or upload and run it in
+[Google Colab](https://colab.research.google.com) if you do not have modern GPU.
 
 Replace the bear dataset with your own image dataset.
 It's retraining a `resnet34` image classification model. This is transfer learning.
 
-Save the resulting model `pkl` file to google drive, save the download link.
+Save the resulting model pickle `pkl` file to google drive, save the download link.
 
 Original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
 file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier) project.
