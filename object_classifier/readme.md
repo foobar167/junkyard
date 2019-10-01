@@ -32,9 +32,9 @@ and consists of five steps:
    5. Build the mobile app. Connect your Flutter app to the web app from the previous step.
 
 There are 3 components here:
-   * model training script
-   * web API
-   * mobile app
+   * [model training script](01_training_script)
+   * [web API](02_web_api)
+   * [mobile app](03_mobile_app)
 
 ----
 #### Step 1
