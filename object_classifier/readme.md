@@ -63,8 +63,8 @@ conda activate
 python -m fastai.utils.show_install
 conda deactivate
 ```
-Make sure you have directories `what dirs???`
-or go to [step 2](#step-2) if you want to continue with existing bears classification.
+Create your own directories with images to train or continue with existing
+[bears classification](01_training_script).
 
 ----
 #### Step 2
