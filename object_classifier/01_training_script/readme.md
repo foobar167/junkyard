@@ -6,10 +6,10 @@ file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier)
 Create our own dataset using google images and classify between teddy bear,
 grizzly bear and black bear using Pytorch and fastai.
 
-Run [Jupyter Notebook](https://jupyter.org) called
-[`bear_classifier.ipynb`](bear_classifier.ipynb)
-on your local machine with modern GPU or upload and run it to
-[Google Colab](https://colab.research.google.com) if you not have modern GPU.
+Run in [Jupyter Notebook](https://jupyter.org) file called
+[`bear_classifier.ipynb`](01_training_script/bear_classifier.ipynb)
+if you have computer **with modern GPU** or upload and run it in
+[Google Colab](https://colab.research.google.com) if you do not have modern GPU.
 
 Replace the bear dataset with your own image dataset.
 It's retraining a `resnet34` image classification model. This is transfer learning.
