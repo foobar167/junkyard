@@ -3,3 +3,4 @@ To deploy web service on Render you should have a
 with a starter application.
 
 I don't know how-to integrate this starter app into bigger project like `junkyard`.
+Maybe it is unnecessary.
