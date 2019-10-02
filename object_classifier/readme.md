@@ -1,4 +1,14 @@
-#### General object classifier
+## General object classifier
+
+   - [Introduction](#introduction)
+   - [Step 1. Create dataset](#step-1)
+   - [Step 2. Transfer learning](#step-2)
+   - [Step 3. Signup for Firebase and Stripe](#step-3)
+   - [Step 4. Deploy web API](#step-4)
+   - [Step 5. Build mobile app](#step-5)
+
+---
+### <a name="introduction" />Introduction
 
 ![General object classifier](data/2019.09.25-general-object-classifier.png)
 
@@ -31,13 +41,25 @@ and consists of five steps:
       for instantly creating a web app and API for your classifier.
    5. Build the mobile app. Connect your Flutter app to the web app from the previous step.
 
-There are 3 components here:
+There are 3 components:
    01. [model training script](01_training_script)
    02. [web API](02_web_api)
    03. [mobile app](03_mobile_app)
 
-----
-#### Step 1
+Additionaly some more TensorFlow examples and links [here](https://github.com/foobar167/articles/tree/master/Machine_Learning)
+and [here](https://github.com/foobar167/articles/blob/master/Ubuntu/13_Keras_and_TensorFlow_how-tos.md).
+
+---
+### <a name="step-1" /> Step 1. Create dataset
+Create your own directories with images, download data using
+[google_images_download](https://pypi.org/project/google_images_download) or
+[Fatkun Batch Download Image add-on](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf).
+Find some datasets to train via
+[Google Dataset Search](https://toolbox.google.com/datasetsearch) and
+[Awesome Public Datasets](https://github.com/awesomedata/awesome-public-datasets).
+Or continue with existing
+[bears classification](01_training_script).
+
 Install [fastai](https://pypi.org/project/fastai/) if you need to train on your local computer:
 ```shell script
 # Install PyTorch and Torchvision first, because fast.ai is built on top of PyTorch.
@@ -63,11 +85,12 @@ conda activate
 python -m fastai.utils.show_install
 conda deactivate
 ```
-Create your own directories with images to train or continue with existing
-[bears classification](01_training_script).
 
-----
-#### Step 2
+---
+### <a name="step-2" /> Step 2. Transfer learning
+This is the original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
+file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier) project.
+
 Run in [Jupyter Notebook](https://jupyter.org) file called
 [`bear_classifier.ipynb`](01_training_script/bear_classifier.ipynb)
 if you have computer **with modern GPU** or upload and run it in
@@ -77,23 +100,33 @@ Replace the bear dataset with your own image dataset.
 Retrain a `resnet34` image classification model.
 Such retraining is called transfer learning.
 
-Save the resulting model `pkl` file to google drive, save the download link.
+Save the resulting model `pkl` file to Google Drive and save the download link.
 
-This is the original [`bear_classifier.ipynb`](https://github.com/naveenchanakya/bear-classifier/blob/master/bear_classifier.ipynb)
-file of the [Bear Classifier](https://github.com/naveenchanakya/bear-classifier) project.
+---
+### <a name="step-3" /> Step 3. Signup for Firebase and Stripe
+Signup for [Firebase](https://firebase.google.com) and
+[Stripe](https://stripe.com). Confirm your e-mail during signup.
 
-----
-#### Step 3
+---
+### <a name="step-4" /> Step 4. Deploy web API
+This is the original project
+[Starter for deploying fast.ai models on Render](https://github.com/render-examples/fastai-v3).
 
+[Render](https://render.com/docs) is a modern **cloud provider** that makes it effortless
+and instant to deploy your code in production. You can deploy anything on Render,
+from simple static sites and cron jobs to databases and Docker-ized private services.
 
-----
-#### Step 4
+Render deploys your services directly from GitHub or GitLab.
+All that's needed is to push your code like you normally do.
+Render automatically updates your services and keeps them up and running at all times.
 
+   * Fork or save [web API](02_web_api) repository.
+   * Follow the instructions in its [readme.md](02_web_api/readme.md) to deploy it to [Render](https://render.com).
+   * Once deployed, check that it works.
+   * Then replace line 12 in [`server.py`](02_web_api/app/server.py) of the web example
+     with a link to your own classifier `pkl` file and re-deploy.
+   * Make any cosmetic changes to the front-end interface that you'd like
 
-----
-#### Step 5
+---
+### <a name="step-5" /> Step 5. Build mobile app
 
-
-
-P.S. There are some TensorFlow examples and links [here](https://github.com/foobar167/articles/tree/master/Machine_Learning)
-and [here](https://github.com/foobar167/articles/blob/master/Ubuntu/13_Keras_and_TensorFlow_how-tos.md).
