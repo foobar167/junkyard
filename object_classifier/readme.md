@@ -121,10 +121,11 @@ All that's needed is to push your code like you normally do.
 Render automatically updates your services and keeps them up and running at all times.
 
    * Fork the [web API](https://github.com/foobar167/web_api_for_render) repository.
-   * Follow the instructions in its [readme.md](02_web_api/readme.md) to deploy it to [Render](https://render.com).
+   * Follow the instructions in its [readme.md](https://github.com/foobar167/web_api_for_render)
+     to deploy it to [Render](https://render.com).
    * Once deployed, check that it works.
-   * Then replace line 12 in [`server.py`](02_web_api/app/server.py) of the web example
-     with a link to your own classifier `pkl` file and re-deploy.
+   * Then replace line 12 in [`server.py`](https://github.com/foobar167/web_api_for_render/blob/master/app/server.py)
+     of the web example with a link to your own classifier `pkl` file and re-deploy.
    * Make any cosmetic changes to the front-end interface that you'd like
 
 ---
