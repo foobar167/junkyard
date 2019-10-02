@@ -43,7 +43,7 @@ and consists of five steps:
 
 There are 3 components:
    01. [model training script](01_training_script)
-   02. [web API](02_web_api)
+   02. [web API](https://github.com/foobar167/web_api_for_render)
    03. [mobile app](03_mobile_app)
 
 Additionaly some more TensorFlow examples and links [here](https://github.com/foobar167/articles/tree/master/Machine_Learning)
@@ -120,7 +120,7 @@ Render deploys your services directly from GitHub or GitLab.
 All that's needed is to push your code like you normally do.
 Render automatically updates your services and keeps them up and running at all times.
 
-   * Fork or save [web API](02_web_api) repository.
+   * Fork the [web API](https://github.com/foobar167/web_api_for_render) repository.
    * Follow the instructions in its [readme.md](02_web_api/readme.md) to deploy it to [Render](https://render.com).
    * Once deployed, check that it works.
    * Then replace line 12 in [`server.py`](02_web_api/app/server.py) of the web example
