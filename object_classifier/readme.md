@@ -4,7 +4,7 @@
    - [Step 1. Create dataset](#step-1)
    - [Step 2. Transfer learning](#step-2)
    - [Step 3. Signup for Firebase and Stripe](#step-3)
-   - [Step 4. Deploy web API](#step-4)
+   - [Step 4. Deploy web app](#step-4)
    - [Step 5. Build mobile app](#step-5)
 
 ---
@@ -38,12 +38,12 @@ and consists of five steps:
    3. Sign up for Firebase and Stride.
    4. Deploy the web app. Fast.ai made [this](https://github.com/render-examples/fastai-v3)
       impressively simple starter application for deploying fast.ai models on Render,
-      for instantly creating a web app and API for your classifier.
+      for instantly creating a web app and mobile app for your classifier.
    5. Build the mobile app. Connect your Flutter app to the web app from the previous step.
 
 There are 3 components:
    01. [model training script](01_training_script)
-   02. [web API](https://github.com/foobar167/web_api_for_render)
+   02. [web app](https://github.com/foobar167/web_api_for_render)
    03. [mobile app](03_mobile_app)
 
 Additionaly some more TensorFlow examples and links [here](https://github.com/foobar167/articles/tree/master/Machine_Learning)
@@ -108,7 +108,9 @@ Signup for [Firebase](https://firebase.google.com) and
 [Stripe](https://stripe.com). Confirm your e-mail during signup.
 
 ---
-### <a name="step-4" /> Step 4. Deploy web API
+### <a name="step-4" /> Step 4. Deploy web app
+![Web app](data/2019.10.02_web_app.jpg)
+
 This is the original project
 [Starter for deploying fast.ai models on Render](https://github.com/render-examples/fastai-v3).
 
@@ -120,7 +122,7 @@ Render deploys your services directly from GitHub or GitLab.
 All that's needed is to push your code like you normally do.
 Render automatically updates your services and keeps them up and running at all times.
 
-   * Fork the [web API](https://github.com/foobar167/web_api_for_render) repository.
+   * Fork the [web app](https://github.com/foobar167/web_api_for_render) repository.
    * Follow the instructions in its [readme.md](https://github.com/foobar167/web_api_for_render)
      to deploy it to [Render](https://render.com).
    * Once deployed, check that it works.
