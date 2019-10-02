@@ -3,4 +3,4 @@ To deploy web service on Render you should have a
 with a starter application.
 
 I don't know how-to integrate this starter app into a bigger project like `junkyard`.
-Maybe it is unnecessary.
+And it is **unnecessary**, because it takes **6 minutes** to re-deploy after each commit to GitHub.
