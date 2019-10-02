@@ -125,9 +125,19 @@ Render automatically updates your services and keeps them up and running at all 
      to deploy it to [Render](https://render.com).
    * Once deployed, check that it works.
    * Then replace line 12 in [`server.py`](https://github.com/foobar167/web_api_for_render/blob/master/app/server.py)
-     of the web example with a link to your own classifier `pkl` file and re-deploy.
-   * Make any cosmetic changes to the front-end interface that you'd like
+     of the web example with a link to your own classifier `pkl` file.
+     Update the `model_file_url` variable with the URL copied above.
+     Update `export_file_name` to `bears_trained_model.pkl`.
+     Update `classes` if you have other classes. Re-deploy.
+   * Make any cosmetic changes to the front-end interface that you'd like.
+   * Review (after 6 min) and test the [web-site](https://foobar167.onrender.com)!
 
 ---
 ### <a name="step-5" /> Step 5. Build mobile app
-
+   * [Install](https://flutter.dev/docs/get-started/install) Flutter.
+   * Download this code
+   * Open it in android studio as a new flutter project
+   * It will ask you to 'get' all dependencies, say yes and it'll will all be installed automatically
+   * Replace the default render link in 'main.dart' to the link to your deployed render app
+   * Notice the 2 functions for signup and login. This is where your stripe and firebase authentication code will be placed
+   * See this and this
