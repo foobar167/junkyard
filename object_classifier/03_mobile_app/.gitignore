@@ -32,3 +32,12 @@ temp/
 
 # Log Files
 *.log
+
+# Ignore created packages dependences
+.packages
+
+# Config file to add Firebase to your Android app
+google-services.json
+
+# Config file to add Firebase to your iOS app
+

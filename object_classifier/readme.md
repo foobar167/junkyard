@@ -158,4 +158,15 @@ Render automatically updates your services and keeps them up and running at all 
 Signup for [Firebase](https://firebase.google.com) and
 [Stripe](https://stripe.com). Confirm your e-mail during signup.
 
-See this and this.
+[Connect](https://firebase.google.com/docs/flutter/setup) the user login flow to Firebase:
+   * create a Firebase project to connect to your app;
+   * add Firebase to your Android app with the package name `com.example.flutter_app11`;
+   * download `google-services.json` file in to [android/app](03_mobile_app/android/app) folder;
+   * modify [android/build.gradle](03_mobile_app/android/build.gradle) and
+     [android/app/build.gradle](03_mobile_app/android/app/build.gradle)
+     files if necessary according to instructions. 
+
+and this...
+
+[Prepare](https://flutter.dev/docs/deployment/android) your Android application
+for release to the Google Play Store if you like.

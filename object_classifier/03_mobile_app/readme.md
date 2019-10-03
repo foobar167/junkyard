@@ -1,4 +1,12 @@
 ## Build mobile app
+
+This is the [original project](https://github.com/llSourcell/image_classifier_template)
+of Siraj Raval.
+
+If you have problem with `com2` directory for Windows OS, please, use
+[this issue](https://github.com/llSourcell/image_classifier_template/issues/2#issuecomment-537893334)
+to fix it.
+
    * [Install](https://flutter.dev/docs/get-started/install) Flutter.
      Run `flutter doctor` in console. Resolve problems with certificates and
      [plugins](https://stackoverflow.com/a/52816669/7550928).<br /><br />
