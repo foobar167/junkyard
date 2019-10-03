@@ -27,7 +27,6 @@ class _MyAppState extends State<MyApp> {
   File img;
   TextEditingController _textFieldController = TextEditingController();
 
-
   // The fuction which will upload the image as a file
   void upload(File imageFile) async {
     var stream =
@@ -35,7 +34,7 @@ class _MyAppState extends State<MyApp> {
     var length = await imageFile.length();
 
     String base =
-        "https://your-render-app.onrender.com";
+        "https://foobar167.onrender.com";
 
     var uri = Uri.parse(base + '/analyze');
 
@@ -93,8 +92,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   _loginpopup(BuildContext context) async {
-
-
     Alert(
         context: context,
         title: "LOGIN",
@@ -131,9 +128,8 @@ class _MyAppState extends State<MyApp> {
             ),
           )
         ]).show();
-
-
   }
+
   _signuppopup(BuildContext context) async {
     Alert(
         context: context,
@@ -198,7 +194,6 @@ class _MyAppState extends State<MyApp> {
           )
         ]).show();
   }
-
 
   @override
   Widget build(BuildContext context) {
