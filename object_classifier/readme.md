@@ -3,9 +3,9 @@
    - [Introduction](#introduction)
    - [Step 1. Create dataset](#step-1)
    - [Step 2. Transfer learning](#step-2)
-   - [Step 3. Signup for Firebase and Stripe](#step-3)
-   - [Step 4. Deploy web app](#step-4)
-   - [Step 5. Build mobile app](#step-5)
+   - [Step 3. Deploy web app](#step-3)
+   - [Step 4. Deploy mobile app](#step-4)
+   - [Step 5. Make your app commercial](#step-5)
 
 ---
 ### <a name="introduction" />Introduction
@@ -34,14 +34,14 @@ and consists of five steps:
       vision library (version [1.0.57](https://pypi.org/project/fastai) or later).
       Fast.ai is built on top of [PyTorch](https://pytorch.org).
       During transfer training most weights of neural network are frozen in place
-      except for the last layer. 
-   3. Sign up for Firebase and Stride.
-   4. Deploy the web app. Fast.ai made [this](https://github.com/render-examples/fastai-v3)
+      except for the last layer.
+   3. Deploy the web app. Fast.ai made [this](https://github.com/render-examples/fastai-v3)
       impressively simple starter application for deploying fast.ai models on Render,
       for instantly creating a web app and mobile app for your classifier.
-   5. Build the mobile app. Connect your Flutter app to the web app from the previous step.
+   4. Build the mobile app. Connect your Flutter app to the web app from the previous step.
+   5. Sign up for [Firebase](https://firebase.google.com) and [Stripe](https://stripe.com).
 
-There are 3 components:
+There are main 3 components:
    01. [model training script](01_training_script)
    02. [web app](https://github.com/foobar167/web_api_for_render)
    03. [mobile app](03_mobile_app)
@@ -103,12 +103,7 @@ Such retraining is called transfer learning.
 Save the resulting model `pkl` file to Google Drive and save the download link.
 
 ---
-### <a name="step-3" /> Step 3. Signup for Firebase and Stripe
-Signup for [Firebase](https://firebase.google.com) and
-[Stripe](https://stripe.com). Confirm your e-mail during signup.
-
----
-### <a name="step-4" /> Step 4. Deploy web app
+### <a name="step-3" /> Step 3. Deploy web app
 ![Web app](02_web_app/data/2019.10.02_web_app.jpg)
 
 This is the original project
@@ -135,18 +130,31 @@ Render automatically updates your services and keeps them up and running at all 
    * Review (after 6 min) and test the [web-site](https://foobar167.onrender.com)!
 
 ---
-### <a name="step-5" /> Step 5. Build mobile app
+### <a name="step-4" /> Step 4. Deploy mobile app
    * [Install](https://flutter.dev/docs/get-started/install) Flutter.
-     Run `flutter doctor` in console.
-     Resolve problems with certificates and [plugins](https://stackoverflow.com/a/52816669/7550928).
-     ![`flutter doctor`](03_mobile_app/data/2019.10.02_flutter_doctor.jpg)
-   * Download and open [this code](03_mobile_app) in Android Studio as a new Flutter project.
-   * It will ask you to 'get' all dependencies, say yes and it'll will all be installed automatically.
+     Run `flutter doctor` in console. Resolve problems with certificates and
+     [plugins](https://stackoverflow.com/a/52816669/7550928).<br /><br />
+     ![`flutter doctor`](03_mobile_app/data/2019.10.02_flutter_doctor.jpg)<br /><br />
+   * Download and open [this code](03_mobile_app) in Android Studio as a new Flutter project.<br /><br />
+   * It will ask you to 'get' all dependencies, say yes and it'll will all be installed automatically.<br />
      If you get error `Because flutter_app11 depends on flutter_test any from sdk which doesn't exist
      (the Flutter SDK is not available), version solving failed`. Then you need to configure path to
      Flutter in project settings: `File --> Settings --> Languages & Frameworks --> Flutter -->
-     Flutter SDK path`. Enter your path to Flutter directory.
-     ![Flutter SDK path](03_mobile_app/data/2019.10.03_flutter_sdk_path.jpg)
-   * Replace the default render link in 'main.dart' to the link to your deployed render app
-   * Notice the 2 functions for signup and login. This is where your stripe and firebase authentication code will be placed
-   * See this and this
+     Flutter SDK path`. Enter your path to Flutter directory.<br /><br />
+     ![Flutter SDK path](03_mobile_app/data/2019.10.03_flutter_sdk_path.jpg)<br /><br />
+   * Replace the default render link in [`main.dart`](lib/main.dart)
+     to the link to your deployed render app.<br /><br />
+     ![Replace Render link](03_mobile_app/data/2019.10.03_render_link.jpg)<br /><br />
+     [Dart](https://dart.dev) is a client-optimized programming language for fast apps
+     on multiple platforms. It is developed by Google and is used to build mobile,
+     desktop, backend and web applications.<br /><br />
+   * Notice the 2 functions `user_signup` and `user_login`.
+     This is where your stripe and firebase authentication code will be placed
+     to make your app commercial.<br /><br />
+
+---
+### <a name="step-5" /> Step 5. Make your app commercial
+Signup for [Firebase](https://firebase.google.com) and
+[Stripe](https://stripe.com). Confirm your e-mail during signup.
+
+See this and this.
