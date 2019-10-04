@@ -23,6 +23,8 @@ to fix it.
      Flutter in project settings: `File --> Settings --> Languages & Frameworks --> Flutter -->
      Flutter SDK path`. Enter your path to Flutter directory.<br /><br />
      ![Flutter SDK path](data/2019.10.03_flutter_sdk_path.jpg)<br /><br />
+   * Run `flutter packages get` in console in [project directory](.).
+     It'll update [`.packages`](.packages) file.<br /><br />
    * Replace the default render link in [`main.dart`](lib/main.dart)
      to the link to your deployed render app.<br /><br />
      ![Replace Render link](data/2019.10.03_render_link.jpg)<br /><br />
