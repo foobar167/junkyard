@@ -164,7 +164,10 @@ Signup for [Firebase](https://firebase.google.com) and
    * download `google-services.json` file in to [android/app](03_mobile_app/android/app) folder;
    * modify [android/build.gradle](03_mobile_app/android/build.gradle) and
      [android/app/build.gradle](03_mobile_app/android/app/build.gradle)
-     files if necessary according to instructions. 
+     files if necessary according to instructions;
+   * change `gradle-5.6.2-all.zip` to actual version in `distributionUrl` of
+     [gradle-wrapper.properties](03_mobile_app/android/gradle/wrapper/gradle-wrapper.properties)
+     file.
 
 and this...
 
