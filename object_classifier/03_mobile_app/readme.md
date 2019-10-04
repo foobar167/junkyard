@@ -1,5 +1,9 @@
 ## Build mobile app
 
+![Bear classifier](data/2019.10.04_bear_classifier-1.jpg)
+
+![Bear classifier](data/2019.10.04_bear_classifier-2.jpg)
+
 This is the [original project](https://github.com/llSourcell/image_classifier_template)
 of Siraj Raval.
 

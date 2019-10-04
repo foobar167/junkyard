@@ -10,7 +10,7 @@
 ---
 ### <a name="introduction" />Introduction
 
-![General object classifier](data/2019.09.25-general-object-classifier.png)
+![Bear classifier](03_mobile_app/data/2019.10.04_bear_classifier-2.jpg)
 
 Watch [original video](https://youtu.be/CzPYgRaYWUA) of [Siraj Raval](https://sirajraval.com/) first.
 And review the [original code](https://github.com/llSourcell/image_classifier_template)
@@ -131,6 +131,8 @@ Render automatically updates your services and keeps them up and running at all 
 
 ---
 ### <a name="step-4" /> Step 4. Deploy mobile app
+![Bear classifier](03_mobile_app/data/2019.10.04_bear_classifier-1.jpg)
+
    * [Install](https://flutter.dev/docs/get-started/install) Flutter.
      Run `flutter doctor` in console. Resolve problems with certificates and
      [plugins](https://stackoverflow.com/a/52816669/7550928).<br /><br />
