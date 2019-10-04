@@ -15,5 +15,6 @@
      [Script](https://github.com/hardikvasa/google-images-download)
      for "searching" and "downloading" hundreds of Google images to the local hard disk.
    * [30 Helpful Python Snippets That You Can Learn in 30 Seconds or Less](https://towardsdatascience.com/30-helpful-python-snippets-that-you-can-learn-in-30-seconds-or-less-69bb49204172)
-   * [Sending Emails With Python](https://realpython.com/python-send-email)
+   * [Sending Emails With Python](https://realpython.com/python-send-email).
+     And [my scripts](send_email/) to send e-mails with Python.
    * [Real Python](https://realpython.com) web site with high-quality articles.
