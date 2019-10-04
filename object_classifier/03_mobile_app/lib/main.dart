@@ -247,7 +247,7 @@ class _MyAppState extends State<MyApp> {
           // Align two buttons to right. Alignment to bottom doesn't work.
           alignment: Alignment(1.0, 0),
           child: Column(
-            // Align 2 buttons to bottom. There is no alignment to right.
+            // Align two buttons to bottom. There is no alignment to right.
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
