@@ -5,21 +5,22 @@
 **Under construction...**
 -->
 
-   15. [General object classifier](#object_classifier)
-   14. [OpenCV Filtering GUI](#opencv_filtering)
-   13. [Python notes and links to interesting places](#python_notes)
-   12. [Manual image annotation with polygons](#manual_annotation1)
-   11. [Manual image annotation with rectangles](#manual_annotation2)
-   10. [Image viewer](#image_viewer)
-   09. [Advanced zoom](#zoom)
-   08. [**C** extension for Python](#c_extension)
-   07. [OpenCV + Tkinter snapshot GUI](#opencv_tkinter)
-   06. [OpenCV features](#opencv_features)
-   05. [Multilanguage for Python](#multilanguage)
-   04. [Dynamic menu](#dynamic_menu)
-   03. [Rolling window for 2D array](#rolling_window_2d)
-   02. [SIFT object tracking](#sift)
-   01. [Tkinter progressbar](#progressbar)
+   0. [General object classifier](#object_classifier)
+   0. [OpenCV Filtering GUI](#opencv_filtering)
+   0. [Python notes and links to interesting places](#python_notes)
+   0. [Manual image annotation with polygons](#manual_annotation1)
+   0. [Manual image annotation with rectangles](#manual_annotation2)
+   0. [Image viewer](#image_viewer)
+   0. [Advanced zoom](#zoom)
+   0. [**C** extension for Python](#c_extension)
+   0. [OpenCV + Tkinter snapshot GUI](#opencv_tkinter)
+   0. [OpenCV features](#opencv_features)
+   0. [Multilanguage for Python](#multilanguage)
+   0. [Dynamic menu](#dynamic_menu)
+   0. [Rolling window for 2D array](#rolling_window_2d)
+   0. [SIFT object tracking](#sift)
+   0. [Tkinter progressbar](#progressbar)
+   {: reversed="reversed"}
 
 ---
 ### <a name="object_classifier" />[General object classifier](object_classifier)
