@@ -36,11 +36,11 @@ Object classifier is based on:
    * [Firebase](https://firebase.google.com) for Google Analytics.
 
 And consists of 3 components:
-  01. [model training script](01_training_script) - 
+  01. [model training script](object_classifier/01_training_script) - 
       Jupyter (Colab) script to train a classification model.
   02. [web app](https://github.com/foobar167/web_api_for_render) -
       starter project to deploy a trained classification model to the web.
-  03. [mobile app](03_mobile_app) -
+  03. [mobile app](object_classifier/03_mobile_app) -
       mobile application which connect your web app with mobile phone (tested for Android).
 
 ---
