@@ -4,8 +4,11 @@
 # with a huge resized image for the large zooms.
 import random
 import tkinter as tk
+import platform
 from tkinter import ttk
 from PIL import Image, ImageTk
+
+OS = platform.system()
 
 class AutoScrollbar(ttk.Scrollbar):
     ''' A scrollbar that hides itself if it's not needed.
@@ -94,13 +97,21 @@ class Zoom(ttk.Frame):
     def wheel(self, event):
         ''' Zoom with mouse wheel '''
         scale = 1.0
+        if OS == 'Darwin':
+            if event.delta<0:
+                scale        *= self.delta
+                self.imscale *= self.delta
+            if event.delta>0:
+                scale        /= self.delta
+                self.imscale /= self.delta
+        else:
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.num == 5 or event.delta == -120:
-            scale        *= self.delta
-            self.imscale *= self.delta
-        if event.num == 4 or event.delta == 120:
-            scale        /= self.delta
-            self.imscale /= self.delta
+            if event.num == 5 or event.delta == -120:
+                scale        *= self.delta
+                self.imscale *= self.delta
+            if event.num == 4 or event.delta == 120:
+                scale        /= self.delta
+                self.imscale /= self.delta
         # Rescale all canvas objects
         x = self.canvas.canvasx(event.x)
         y = self.canvas.canvasy(event.y)

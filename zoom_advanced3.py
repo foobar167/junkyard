@@ -3,9 +3,12 @@
 import math
 import warnings
 import tkinter as tk
+import platform
 
 from tkinter import ttk
 from PIL import Image, ImageTk
+
+OS = platform.system()
 
 class AutoScrollbar(ttk.Scrollbar):
     """ A scrollbar that hides itself if it's not needed. Works only for grid geometry manager """
@@ -230,16 +233,27 @@ class CanvasImage:
         y = self.canvas.canvasy(event.y)
         if self.outside(x, y): return  # zoom only inside image area
         scale = 1.0
-        # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.num == 5 or event.delta == -120:  # scroll down, zoom out, smaller
-            if round(self.__min_side * self.imscale) < 30: return  # image is less than 30 pixels
-            self.imscale /= self.__delta
-            scale        /= self.__delta
-        if event.num == 4 or event.delta == 120:  # scroll up, zoom in, bigger
-            i = float(min(self.canvas.winfo_width(), self.canvas.winfo_height()) >> 1)
-            if i < self.imscale: return  # 1 pixel is bigger than the visible area
-            self.imscale *= self.__delta
-            scale        *= self.__delta
+        if OS == 'Darwin':
+            if event.delta<0:  # scroll down, zoom out, smaller
+                if round(self.__min_side * self.imscale) < 30: return  # image is less than 30 pixels
+                self.imscale /= self.__delta
+                scale        /= self.__delta
+            if event.delta>0:  # scroll up, zoom in, bigger
+                i = float(min(self.canvas.winfo_width(), self.canvas.winfo_height()) >> 1)
+                if i < self.imscale: return  # 1 pixel is bigger than the visible area
+                self.imscale *= self.__delta
+                scale        *= self.__delta
+        else:
+            # Respond to Linux (event.num) or Windows (event.delta) wheel event
+            if event.num == 5 or event.delta == -120:  # scroll down, zoom out, smaller
+                if round(self.__min_side * self.imscale) < 30: return  # image is less than 30 pixels
+                self.imscale /= self.__delta
+                scale        /= self.__delta
+            if event.num == 4 or event.delta == 120:  # scroll up, zoom in, bigger
+                i = float(min(self.canvas.winfo_width(), self.canvas.winfo_height()) >> 1)
+                if i < self.imscale: return  # 1 pixel is bigger than the visible area
+                self.imscale *= self.__delta
+                scale        *= self.__delta
         # Take appropriate image from the pyramid
         k = self.imscale * self.__ratio  # temporary coefficient
         self.__curr_img = min((-1) * int(math.log(k, self.__reduction)), len(self.__pyramid) - 1)
