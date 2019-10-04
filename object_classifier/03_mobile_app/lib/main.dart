@@ -10,6 +10,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 
 String txt = "";
 String txt1 = "Upload or take a picture of a bear to classify it";
+
 void main() {
   runApp(new MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -204,6 +205,7 @@ class _MyAppState extends State<MyApp> {
         centerTitle: true,
         title: new Text("Bear Classifier"),
       ),
+
       body: new Container(
         child: Center(
           child: Column(
@@ -218,7 +220,7 @@ class _MyAppState extends State<MyApp> {
               )
                   : new Image.file(img,
                   height: MediaQuery.of(context).size.height * 0.6,
-                  width: MediaQuery.of(context).size.width * 0.8),
+                  width: MediaQuery.of(context).size.width * 0.99),
               new Text(
                 txt,
                 style: TextStyle(
@@ -240,28 +242,36 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      floatingActionButton: new Stack(
-        children: <Widget>[
-          Align(
-              alignment: Alignment(1.0, 1.0),
-              child: new FloatingActionButton(
-                onPressed: (){
-                  image_picker(0);
-                },
-                child: new Icon(Icons.camera_alt),
-              )
-          ),
-          Align(
-              alignment: Alignment(1.0, 0.8),
-              child: new FloatingActionButton(
+
+      floatingActionButton: Align(
+          // Align two buttons to right. Alignment to bottom doesn't work.
+          alignment: Alignment(1.0, 0),
+          child: Column(
+            // Align 2 buttons to bottom. There is no alignment to right.
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                // Set padding between buttons
+                padding: const EdgeInsets.only(bottom: 10.0),
+                // Use camera button
+                child: FloatingActionButton(
+                  onPressed: (){
+                    image_picker(0);
+                  },
+                  child: new Icon(Icons.camera_alt),
+                ),
+              ),
+              // Upload image button
+              FloatingActionButton(
                   onPressed: (){
                     image_picker(1);
                   },
                   child: new Icon(Icons.file_upload)
               )
+            ],
           ),
-        ],
       ),
+
     );
   }
 }
