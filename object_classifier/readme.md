@@ -9,6 +9,7 @@
 
 ---
 ### <a name="introduction" />Introduction
+Classifies 3 types of bears: bronw, black and teddy bear.
 
 ![Bear classifier](03_mobile_app/data/2019.10.04_bear_classifier-2.jpg)
 
@@ -17,11 +18,12 @@ And review the [original code](https://github.com/llSourcell/image_classifier_te
 of an image classification startup.
 
 General object classifier is based on:
+   * [Python](https://www.python.org) and [fast.ai](https://www.fast.ai)
+     for model training through deep learning;
    * [Flutter](https://flutter.dev) mobile development framework with a single code base
      for Android and iOS applications;
-   * [Python](https://www.python.org) for the deep learning web component;
-   * [Firebase](https://firebase.google.com) for user authentication;
-   * [Stripe](https://stripe.com) as the payment processor. 
+   * [Firebase](https://firebase.google.com) for Google Analytics and user authentication;
+   * [Stripe](https://stripe.com) as the payment processor.
 
 and consists of five steps:
    1. Find an image dataset via [Google Dataset Search](https://toolbox.google.com/datasetsearch)
@@ -40,11 +42,15 @@ and consists of five steps:
       for instantly creating a web app and mobile app for your classifier.
    4. Build the mobile app. Connect your Flutter app to the web app from the previous step.
    5. Sign up for [Firebase](https://firebase.google.com) and [Stripe](https://stripe.com).
+      **This step is not finished**.
 
 There are main 3 components:
-   01. [model training script](01_training_script)
-   02. [web app](https://github.com/foobar167/web_api_for_render)
-   03. [mobile app](03_mobile_app)
+   01. [model training script](01_training_script) - 
+       Jupyter (Colab) script to train a classification model.
+   02. [web app](https://github.com/foobar167/web_api_for_render) -
+       starter project to deploy a trained classification model to the web.
+   03. [mobile app](03_mobile_app) -
+       mobile application which connect your web app with mobile phone (tested for Android).
 
 Additionaly some more TensorFlow examples and links [here](https://github.com/foobar167/articles/tree/master/Machine_Learning)
 and [here](https://github.com/foobar167/articles/blob/master/Ubuntu/13_Keras_and_TensorFlow_how-tos.md).

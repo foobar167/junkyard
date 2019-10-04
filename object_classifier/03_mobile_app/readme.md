@@ -1,4 +1,5 @@
 ## Build mobile app
+Mobile application which connect your web app with mobile phone. Tested for Android.
 
 ![Bear classifier](data/2019.10.04_bear_classifier-1.jpg)
 
