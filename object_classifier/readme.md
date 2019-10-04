@@ -169,7 +169,11 @@ Signup for [Firebase](https://firebase.google.com) and
      [gradle-wrapper.properties](03_mobile_app/android/gradle/wrapper/gradle-wrapper.properties)
      file.
 
-and this...
+[Configure](https://pub.dev/packages/stripe_payment) a Flutter to integrate the Stripe plugin
+for iOS and Android if you like, but I did not. 
 
 [Prepare](https://flutter.dev/docs/deployment/android) your Android application
-for release to the Google Play Store if you like.
+for release to the Google Play Store if you like, but I did not.
+
+I excluded (commented out) user authentication code
+in the [main.dart](03_mobile_app/lib/main.dart).

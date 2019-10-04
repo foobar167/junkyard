@@ -18,15 +18,16 @@ void main() {
   ));
 }
 
+
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
+
 class _MyAppState extends State<MyApp> {
   File img;
   TextEditingController _textFieldController = TextEditingController();
-
 
   // The fuction which will upload the image as a file
   void upload(File imageFile) async {
@@ -58,19 +59,19 @@ class _MyAppState extends State<MyApp> {
 
   void user_signup()
   {
-    //enter your firebase signup code here
-    //https://firebase.google.com/docs/flutter/setup
+    // Enter your firebase signup code here
+    // https://firebase.google.com/docs/flutter/setup
 
-    //enter your stripe checkout code
-    //www.stripe.com
+    // Enter your stripe checkout code
+    // www.stripe.com
 
-    //Ideally these should be separate forms, but this
-    //is just a starter template
+    // Ideally these should be separate forms, but this
+    // is just a starter template
   }
 
   void user_login()
   {
-    //Enter firebase login here
+    // Enter Firebase login here
   }
 
   void image_picker(int a) async {
@@ -93,8 +94,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   _loginpopup(BuildContext context) async {
-
-
     Alert(
         context: context,
         title: "LOGIN",
@@ -131,9 +130,8 @@ class _MyAppState extends State<MyApp> {
             ),
           )
         ]).show();
-
-
   }
+
   _signuppopup(BuildContext context) async {
     Alert(
         context: context,
@@ -199,7 +197,6 @@ class _MyAppState extends State<MyApp> {
         ]).show();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -229,12 +226,15 @@ class _MyAppState extends State<MyApp> {
                   fontSize: 32.0,
                 ),
               ),
+
+              /* Commented out user authentication button
               RaisedButton(
                 child: Text('User Authentication'),
                 color: Colors.white,
 
                 onPressed: () => _loginpopup(context),
               ),
+              */
 
             ],
           ),

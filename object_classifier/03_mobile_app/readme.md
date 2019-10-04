@@ -28,3 +28,6 @@ to fix it.
      in the [`main.dart`](lib/main.dart) file.
      This is where your stripe and firebase authentication code will be placed
      to make your app commercial.<br /><br />
+
+I excluded (commented out) user authentication code
+in the [main.dart](03_mobile_app/lib/main.dart).
