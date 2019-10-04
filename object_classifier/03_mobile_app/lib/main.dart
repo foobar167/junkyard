@@ -27,6 +27,7 @@ class _MyAppState extends State<MyApp> {
   File img;
   TextEditingController _textFieldController = TextEditingController();
 
+
   // The fuction which will upload the image as a file
   void upload(File imageFile) async {
     var stream =
@@ -92,6 +93,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   _loginpopup(BuildContext context) async {
+
+
     Alert(
         context: context,
         title: "LOGIN",
@@ -128,8 +131,9 @@ class _MyAppState extends State<MyApp> {
             ),
           )
         ]).show();
-  }
 
+
+  }
   _signuppopup(BuildContext context) async {
     Alert(
         context: context,
@@ -194,6 +198,7 @@ class _MyAppState extends State<MyApp> {
           )
         ]).show();
   }
+
 
   @override
   Widget build(BuildContext context) {

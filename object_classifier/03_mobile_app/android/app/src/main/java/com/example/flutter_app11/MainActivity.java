@@ -1,4 +1,4 @@
-package com.example.bearclassifier;
+package com2.example.flutter_app11;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
