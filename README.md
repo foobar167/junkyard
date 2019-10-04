@@ -5,29 +5,21 @@
 **Under construction...**
 -->
 
-
-
-0. first item
-1. second item
-2. another item {: reversed="reversed"}
-
-<ol reversed>
-  <li>[General object classifier](#object_classifier)</li>
-  <li>[OpenCV Filtering GUI](#opencv_filtering)</li>
-  <li>[Python notes and links to interesting places](#python_notes)</li>
-  <li>[Manual image annotation with polygons](#manual_annotation1)</li>
-  <li>[Manual image annotation with rectangles](#manual_annotation2)</li>
-  <li>[Image viewer](#image_viewer)</li>
-  <li>[Advanced zoom](#zoom)</li>
-  <li>[**C** extension for Python](#c_extension)</li>
-  <li>[OpenCV + Tkinter snapshot GUI](#opencv_tkinter)</li>
-  <li>[OpenCV features](#opencv_features)</li>
-  <li>[Multilanguage for Python](#multilanguage)</li>
-  <li>[Dynamic menu](#dynamic_menu)</li>
-  <li>[Rolling window for 2D array](#rolling_window_2d)</li>
-  <li>[SIFT object tracking](#sift)</li>
-  <li>[Tkinter progressbar](#progressbar)</li>
-</ol>
+   01. [General object classifier](#object_classifier)
+   01. [OpenCV Filtering GUI](#opencv_filtering)
+   01. [Python notes and links to interesting places](#python_notes)
+   01. [Manual image annotation with polygons](#manual_annotation1)
+   01. [Manual image annotation with rectangles](#manual_annotation2)
+   01. [Image viewer](#image_viewer)
+   01. [Advanced zoom](#zoom)
+   01. [**C** extension for Python](#c_extension)
+   01. [OpenCV + Tkinter snapshot GUI](#opencv_tkinter)
+   01. [OpenCV features](#opencv_features)
+   01. [Multilanguage for Python](#multilanguage)
+   01. [Dynamic menu](#dynamic_menu)</li>
+   01. [Rolling window for 2D array](#rolling_window_2d)
+   01. [SIFT object tracking](#sift)
+   01. [Tkinter progressbar](#progressbar)
 
 ---
 ### <a name="object_classifier" />[General object classifier](object_classifier)
