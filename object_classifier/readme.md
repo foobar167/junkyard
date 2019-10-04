@@ -150,6 +150,8 @@ Render automatically updates your services and keeps them up and running at all 
      Flutter in project settings: `File --> Settings --> Languages & Frameworks --> Flutter -->
      Flutter SDK path`. Enter your path to Flutter directory.<br /><br />
      ![Flutter SDK path](03_mobile_app/data/2019.10.03_flutter_sdk_path.jpg)<br /><br />
+   * Run `flutter packages get` in console in [project directory](03_mobile_app).
+     It'll update [`.packages`](03_mobile_app/.packages) file.<br /><br />
    * Replace the default render link in [`main.dart`](03_mobile_app/lib/main.dart)
      to the link to your deployed render app.<br /><br />
      ![Replace Render link](03_mobile_app/data/2019.10.03_render_link.jpg)<br /><br />
