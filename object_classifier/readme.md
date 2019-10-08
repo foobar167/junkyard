@@ -44,7 +44,7 @@ and consists of five steps:
    5. Sign up for [Firebase](https://firebase.google.com) and [Stripe](https://stripe.com).
       **This step is not finished**.
 
-There are main 3 components:
+There are 3 main components:
    01. [model training script](01_training_script) - 
        Jupyter (Colab) script to train a classification model.
    02. [web app](https://github.com/foobar167/web_api_for_render) -
