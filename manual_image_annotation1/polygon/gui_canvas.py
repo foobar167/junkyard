@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Canvas widget to zoom image.
 import os
 import math
 import hashlib
