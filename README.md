@@ -5,9 +5,9 @@
 **Under construction...**
 -->
 
+   01. [Python notes and links to interesting places](#python_notes)
    01. [General object classifier](#object_classifier)
    01. [OpenCV Filtering GUI](#opencv_filtering)
-   01. [Python notes and links to interesting places](#python_notes)
    01. [Manual image annotation with polygons](#manual_annotation1)
    01. [Manual image annotation with rectangles](#manual_annotation2)
    01. [Image viewer](#image_viewer)
@@ -20,6 +20,10 @@
    01. [Rolling window for 2D array](#rolling_window_2d)
    01. [SIFT object tracking](#sift)
    01. [Tkinter progressbar](#progressbar)
+
+---
+### <a name="python_notes" />[Python notes and links to interesting places](notes_and_links.md)
+Bookmarks to remember and re-visit.
 
 ---
 ### <a name="object_classifier" />[General object classifier](object_classifier)
@@ -49,10 +53,6 @@ OpenCV Filtering GUI is a set of various realtime filters
 to process images from the webcam.
 
 ![OpenCV Filtering GUI](opencv_filtering/data/2019.09.29-opencv-filtering-gui.png)
-
----
-### <a name="python_notes" />[Python notes and links to interesting places](notes_and_links.md)
-Bookmarks to remember and re-visit.
 
 ---
 ### <a name="manual_annotation1" />[Manual image annotation with polygons](manual_image_annotation1)
