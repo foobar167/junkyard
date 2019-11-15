@@ -11,9 +11,9 @@
      It is written in Python and powered by the PyTorch deep learning framework.
      This project also contains a Python port of toolkit for evaluating trackers.
      *It'll be my next Python demo soon.*
-   * [Contours image processing](https://datacarpentry.org/image-processing/09-contours/)
-     with Python. How to find contours in an image.
-     [My script](simple_scripts/image_processing_with_python.ipynb) to work with contours.
+   * Course [Image Processing with Python](https://datacarpentry.org/image-processing/).
+     Review [my replica](https://colab.research.google.com/drive/1dtvJ0TxjHN2hebxqjCRhPrzHlZtqO4iV)
+     of this course.
    * [google_images_download](https://pypi.org/project/google_images_download) is a Python
      [Script](https://github.com/hardikvasa/google-images-download)
      for "searching" and "downloading" hundreds of Google images to the local hard disk.
