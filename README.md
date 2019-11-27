@@ -51,6 +51,8 @@ And consists of 3 components:
 ### <a name="opencv_filtering" />[OpenCV Filtering GUI](opencv_filtering)
 OpenCV Filtering GUI is a set of various realtime filters
 to process images from the webcam.
+This GUI is based on the previous [OpenCV features](#opencv_features) demo with
+enhanced Tkinter controls for user-friendly OpenCV real-time filters demonstration.
 
 ![OpenCV Filtering GUI](opencv_filtering/data/2019.09.29-opencv-filtering-gui.png)
 

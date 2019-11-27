@@ -17,6 +17,9 @@
    * [google_images_download](https://pypi.org/project/google_images_download) is a Python
      [Script](https://github.com/hardikvasa/google-images-download)
      for "searching" and "downloading" hundreds of Google images to the local hard disk.
+     I also recommend using [Fatkun Batch Download Image add-on for Chrome browser](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf) —
+     Fast and easy download of many images from Google Images. For this add-on menu
+     _"Ask where to save each file before downloading"_ must be turned off before downloading images.
    * [30 Helpful Python Snippets That You Can Learn in 30 Seconds or Less](
      https://towardsdatascience.com/30-helpful-python-snippets-that-you-can-learn-in-30-seconds-or-less-69bb49204172)
    * [Sending Emails With Python](https://realpython.com/python-send-email).
