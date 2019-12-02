@@ -26,6 +26,13 @@
 Bookmarks to remember and re-visit.
 
 ---
+### <a name="image_processing" />Image Processing with Python
+[My replica](https://colab.research.google.com/drive/1dtvJ0TxjHN2hebxqjCRhPrzHlZtqO4iV)
+of this original course: [Image Processing with Python](https://datacarpentry.org/image-processing/).
+
+![Under construction](data/2019.09.25-under-construction-icon.png)
+
+---
 ### <a name="object_classifier" />[General object classifier](object_classifier)
 Classifies 3 types of bears: bronw, black and teddy bear.
 
