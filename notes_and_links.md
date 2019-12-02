@@ -14,6 +14,9 @@
    * Course [Image Processing with Python](https://datacarpentry.org/image-processing/).
      Review [my replica](https://colab.research.google.com/drive/1dtvJ0TxjHN2hebxqjCRhPrzHlZtqO4iV)
      of this course.
+   * [Imageio](https://imageio.readthedocs.io/en/stable/index.html) is a Python library
+     that provides an easy interface to read and write a wide range of image data,
+     including animated images, video, volumetric data, and scientific formats.
    * [google_images_download](https://pypi.org/project/google_images_download) is a Python
      [Script](https://github.com/hardikvasa/google-images-download)
      for "searching" and "downloading" hundreds of Google images to the local hard disk.
