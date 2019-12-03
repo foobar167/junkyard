@@ -27,10 +27,12 @@ Bookmarks to remember and re-visit.
 
 ---
 ### <a name="image_processing" />Image Processing with Python
+![Under construction](data/2019.09.25-under-construction-icon.png)
+
 [My replica](https://colab.research.google.com/drive/1dtvJ0TxjHN2hebxqjCRhPrzHlZtqO4iV)
 of this original course: [Image Processing with Python](https://datacarpentry.org/image-processing/).
 
-![Under construction](data/2019.09.25-under-construction-icon.png)
+![Image Processing with Python](data/2019.12.03_dice_contours.jpg)
 
 ---
 ### <a name="object_classifier" />[General object classifier](object_classifier)
