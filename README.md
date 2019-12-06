@@ -21,15 +21,16 @@
    01. [SIFT object tracking](#sift)
    01. [Tkinter progressbar](#progressbar)
 
+<!--
+![Under construction](data/2019.09.25-under-construction-icon.png)
+-->
 ---
 ### <a name="python_notes" />[Python notes and links to interesting places](notes_and_links.md)
 Bookmarks to remember and re-visit.
 
 ---
 ### <a name="image_processing" />Image Processing with Python
-![Under construction](data/2019.09.25-under-construction-icon.png)
-
-[My replica](https://colab.research.google.com/drive/1dtvJ0TxjHN2hebxqjCRhPrzHlZtqO4iV)
+[My replica](https://colab.research.google.com/drive/1M6j5FyqwQtAe85RtbOXkqjQldY8eoT7a)
 of this original course: [Image Processing with Python](https://datacarpentry.org/image-processing/).
 
 ![Image Processing with Python](data/2019.12.03_dice_contours.jpg)
