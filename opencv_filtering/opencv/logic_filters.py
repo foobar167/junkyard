@@ -48,11 +48,12 @@ class Filters:
             ['Canny', self.filter_canny, 'Canny edge detection'],
             ['Threshold', self.filter_threshold, 'Adaptive Gaussian threshold'],
             ['Harris', self.filter_harris, 'Harris corner detection'],
-            ['SIFT', self.filter_sift, 'Scale-Invariant Feature Transform (SIFT), patented'],
-            ['SURF', self.filter_surf, 'Speeded-Up Robust Features (SURF), patented'],
-            ['ORB', self.filter_orb, 'Oriented FAST and Rotated BRIEF (ORB), free'],
+            ['SIFT', self.filter_sift, 'SIFT (Scale-Invariant Feature Transform) algorithm, patented'],
+            ['SURF', self.filter_surf, 'SURF (Speeded-Up Robust Features) algorithm, patented'],
+            ['ORB', self.filter_orb, 'ORB (Oriented FAST and Rotated BRIEF) algorithm, free'],
             ['BRIEF', self.filter_brief, 'BRIEF descriptors with the help of CenSurE (STAR) detector'],
             ['Contours', self.filter_contours, 'Draw contours with mean colors inside them'],
+            ['SEEDS', self.filter_seeds, 'SEEDS (Superpixels Extracted via Energy-Driven Sampling) algorithm'],
             ['Blur', self.filter_blur, 'Blur (Gaussian, median, bilateral or classic)'],
             ['Motion', self.filter_motion, 'Motion detection'],
             ['Background', self.filter_background, 'Background subtractor (KNN, MOG2, MOG or GMG)'],
@@ -62,7 +63,7 @@ class Filters:
             ['Affine2', self.filter_affine2, 'Affine random transformations'],
             ['Perspective', self.filter_perspective, 'Perspective random transformations'],
             ['Equalize', self.filter_equalize, 'Histogram Equalization'],
-            ['CLAHE', self.filter_clahe, 'Contrast Limited Adaptive Histogram Equalization (CLAHE)'],
+            ['CLAHE', self.filter_clahe, 'CLAHE (Contrast Limited Adaptive Histogram Equalization) algorithm'],
             ['LAB', self.filter_lab, 'Increase the contrast using LAB color space and CLAHE'],
             ['Pyramid', self.filter_pyramid, 'Image pyramid'],
             ['Laplacian', self.filter_laplacian, 'Laplacian gradient filter'],
@@ -108,17 +109,17 @@ class Filters:
 
     def filter_canny(self):
         """ Canny edge detection """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         return cv2.Canny(gray, 50, 200)  # Canny edge detection
 
     def filter_threshold(self):
         """ Adaptive Gaussian threshold """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
     def filter_harris(self):
         """ Harris corner detection """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         gray = np.float32(gray)  # convert to NumPy array
         # k-size parameter is odd and must be [3, 31]
         dest = cv2.cornerHarris(src=gray, blockSize=2, ksize=5, k=0.07)
@@ -128,7 +129,7 @@ class Filters:
 
     def get_features(self, xfeatures):
         """ Keypoints / features for SIFT, SURF and ORB filters """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         keypoints, descriptor = xfeatures.detectAndCompute(gray, None)
         return cv2.drawKeypoints(image=self.frame, outImage=self.frame, keypoints=keypoints,
                                  flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS, color=(51, 163, 236))
@@ -153,7 +154,7 @@ class Filters:
 
     def filter_brief(self):
         """ BRIEF descriptors with the help of CenSurE (STAR) detector """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         keypoints = cv2.xfeatures2d.StarDetector_create().detect(gray, None)
         keypoints, descriptor = cv2.xfeatures2d.BriefDescriptorExtractor_create().compute(gray, keypoints)
         return cv2.drawKeypoints(image=self.frame, outImage=self.frame, keypoints=keypoints,
@@ -161,7 +162,7 @@ class Filters:
 
     def filter_contours(self):
         """ Draw contours with mean colors inside them """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to gray scale
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         frame = self.frame.copy()  # make a copy
         for threshold in [15, 50, 100, 240]:  # use various thresholds
             ret, thresh = cv2.threshold(gray, threshold, 255, 0)
@@ -175,6 +176,50 @@ class Filters:
             cv2.drawContours(frame, contours, -1, (0, 0, 0), 1)  # draw contours with black color
         return frame
 
+    def filter_seeds(self):
+        """ SEEDS (Superpixels Extracted via Energy-Driven Sampling) algorithm """
+        display_mode = 1  # display mode for SEEDS algorithm
+        num_superpixels = 400
+        prior = 2
+        num_levels = 4
+        histogram_bins = 5
+        num_iterations = 4
+
+        frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2HSV)
+        height, width, channels = frame.shape
+
+        seeds = cv2.ximgproc.createSuperpixelSEEDS(
+            width, height, channels, num_superpixels, num_levels, prior, histogram_bins)
+
+        seeds.iterate(frame, num_iterations)
+        mask = seeds.getLabelContourMask(False)
+
+        if display_mode == 0:
+            frame = cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)  # convert back to RGB
+            # Set superpixels color
+            color_img = np.zeros((height, width, 3), np.uint8)
+            color_img[:] = (255, 0, 0)
+            # Stitch foreground & background together
+            mask_inv = cv2.bitwise_not(mask)
+            result_bg = cv2.bitwise_and(frame, frame, mask=mask_inv)
+            result_fg = cv2.bitwise_and(color_img, color_img, mask=mask)
+            result = cv2.add(result_bg, result_fg)
+            return result
+        elif display_mode == 1:
+            labels = seeds.getLabels()  # get superpixels
+            # Calculate average color of a superpixel in scikit-image library
+            reshaped = frame.reshape((height * width, channels))
+            frame_1d = np.reshape(labels, -1)
+            uni = np.unique(frame_1d)
+            mask = np.zeros(reshaped.shape)
+            for i in uni:
+                loc = np.where(frame_1d == i)[0]
+                mask[loc, :] = np.mean(reshaped[loc, :], axis=0)
+            frame = np.reshape(mask, [height, width, channels]).astype('uint8')
+            return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)
+        else:
+            return mask
+
     def filter_blur(self):
         """ Blur (Gaussian, median, bilateral or classic) """
         # return cv2.GaussianBlur(self.frame, (29, 29), 0)  # Gaussian blur
@@ -187,8 +232,8 @@ class Filters:
         if self.previous is None or self.previous.shape != self.frame.shape:
             self.previous = self.frame.copy()  # remember previous frame
             return self.frame  # return unchanged frame
-        gray1 = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # convert to grayscale
-        gray2 = cv2.cvtColor(self.previous, cv2.COLOR_BGR2GRAY)
+        gray1 = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to grayscale
+        gray2 = cv2.cvtColor(self.previous, cv2.COLOR_RGB2GRAY)
         self.previous = self.frame.copy()  # remember previous frame
         return cv2.absdiff(gray1, gray2)  # get absolute difference between two frames
 
@@ -200,7 +245,7 @@ class Filters:
             # self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorGMG()
             # self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorMOG()
         fgmask = self.background_subtractor.apply(self.frame)
-        return self.frame & cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR)
+        return self.frame & cv2.cvtColor(fgmask, cv2.COLOR_GRAY2RGB)
 
     def filter_skin(self):
         """ Skin tones detection"""
@@ -208,7 +253,7 @@ class Filters:
         lower = np.array([0, 100, 0], dtype='uint8')
         upper = np.array([50, 255, 255], dtype='uint8')
         # Switch to HSV
-        hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(self.frame, cv2.COLOR_RGB2HSV)
         # Find mask of pixels within HSV range
         skin_mask = cv2.inRange(hsv, lower, upper)
         skin_mask = cv2.GaussianBlur(skin_mask, (9, 9), 0)  # noise suppression
@@ -222,7 +267,7 @@ class Filters:
 
     def filter_optflow(self):
         """ Lucas Kanade optical flow """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
         frame = self.frame.copy()  # copy the frame
         if self.previous is None or self.previous.shape != gray.shape:
             self.previous = gray.copy()  # save previous gray frame
@@ -326,12 +371,12 @@ class Filters:
 
     def filter_lab(self):
         """ Increase the contrast using LAB color space and CLAHE """
-        lab = cv2.cvtColor(self.frame, cv2.COLOR_BGR2LAB)  # convert image to LAB color model
+        lab = cv2.cvtColor(self.frame, cv2.COLOR_RGB2LAB)  # convert image to LAB color model
         l, a, b = cv2.split(lab)  # split on l, a, b channels
         clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
         l2 = clahe.apply(l)  # apply CLAHE to L-channel
         lab = cv2.merge((l2, a, b))  # merge enhanced L-channel with the a and b channels
-        return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)  # convert back to BGR and return
+        return cv2.cvtColor(lab, cv2.COLOR_LAB2RGB)  # convert back to RGB and return
 
     def filter_pyramid(self):
         """ Image pyramid """
@@ -349,13 +394,13 @@ class Filters:
 
     def filter_laplacian(self):
         """ Laplacian gradient filter """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
         # return cv2.Laplacian(gray, cv2.CV_8U)
         return np.uint8(np.absolute(cv2.Laplacian(gray, cv2.CV_64F)))
 
     def filter_sobel_x(self):
         """ Sobel / Scharr vertical gradient filter """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
         # return cv2.Sobel(gray, cv2.CV_8U, 1, 0, ksize=5)
         # return np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=5)))
         # return np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=-1)))
@@ -364,7 +409,7 @@ class Filters:
 
     def filter_sobel_y(self):
         """ Sobel / Scharr horizontal gradient filter """
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
         # return cv2.Sobel(gray, cv2.CV_8U, 0, 1, ksize=5)
         # return np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=5)))
         # reutnr np.uint8(np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=-1)))

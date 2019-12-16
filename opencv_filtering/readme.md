@@ -1,6 +1,6 @@
 #### OpenCV Filtering GUI application
 
-![OpenCV Filtering GUI](data/2019.09.29-opencv-filtering-gui.png)
+![OpenCV Filtering GUI](data/2019.12.16-opencv-filtering-gui.png)
 
 OpenCV Filtering GUI is a set of various realtime filters
 to process images from the webcam.
