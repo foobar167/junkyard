@@ -17,6 +17,10 @@ Watch [original video](https://youtu.be/CzPYgRaYWUA) of [Siraj Raval](https://si
 And review the [original code](https://github.com/llSourcell/image_classifier_template)
 of an image classification startup.
 
+This is a **back-end** solution for **image classification** on Android.
+For the **front-end** solution, please, visit my project for
+[object detection on Android](https://github.com/foobar167/android/tree/master/object_detection_demo).
+
 General object classifier is based on:
    * [Python](https://www.python.org) and [fast.ai](https://www.fast.ai)
      for model training through deep learning;
