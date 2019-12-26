@@ -5,7 +5,7 @@
    - [Step 2. Transfer learning](#step-2)
    - [Step 3. Deploy web app](#step-3)
    - [Step 4. Deploy mobile app](#step-4)
-   - [Step 5. Make your app commercial](#step-5)
+   - [Step 5. Make app commercial (not finished)](#step-5)
 
 ---
 ### <a name="introduction" />Introduction
@@ -169,7 +169,7 @@ Render automatically updates your services and keeps them up and running at all 
      to make your app commercial.<br /><br />
 
 ---
-### <a name="step-5" /> Step 5. Make your app commercial
+### <a name="step-5" /> Step 5. Make app commercial (not finished)
 Signup for [Firebase](https://firebase.google.com) and
 [Stripe](https://stripe.com). Confirm your e-mail during signup.
 
