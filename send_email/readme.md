@@ -1,3 +1,6 @@
+### Sending emails with Python
+![Sending emails with Python](../data/2019.12.27_gmail_python.png)
+
 #### Links
    * [Sending Emails With Python](https://realpython.com/python-send-email)
    * [Gmail Python Quickstart](https://developers.google.com/gmail/api/quickstart/python)
