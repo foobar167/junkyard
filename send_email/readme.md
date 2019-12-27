@@ -2,8 +2,10 @@
    * [Sending Emails With Python](https://realpython.com/python-send-email)
    * [Gmail Python Quickstart](https://developers.google.com/gmail/api/quickstart/python)
 
-#### Description
+#### Warning!
+[Spamming is a crime](https://en.wikipedia.org/wiki/Email_spam_legislation_by_country) in many countries.
 
+#### Description
 Use `Yagmail` and `Keyring` packages to send email securely in file
 [send_email_using_yagmail.py](send_email_using_yagmail.py).
 
@@ -15,4 +17,3 @@ Send email using `.starttls()` in file
 
 [quickstart.py](quickstart/quickstart.py) is a simple Python command-line
 application that makes requests to the Gmail API
-

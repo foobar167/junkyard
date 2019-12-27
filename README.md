@@ -8,6 +8,7 @@
    01. [Python notes and links to interesting places](#python_notes)
    01. [General object classifier](#object_classifier)
    01. [OpenCV Filtering GUI](#opencv_filtering)
+   01. [Sending emails with Python](#send_email)
    01. [Manual image annotation with polygons](#manual_annotation1)
    01. [Manual image annotation with rectangles](#manual_annotation2)
    01. [Image viewer](#image_viewer)
@@ -65,6 +66,12 @@ This GUI is based on the previous [OpenCV features](#opencv_features) demo with
 enhanced Tkinter controls for user-friendly OpenCV real-time filters demonstration.
 
 ![OpenCV Filtering GUI](opencv_filtering/data/2019.09.29-opencv-filtering-gui.png)
+
+---
+### <a name="send_email" />[Sending emails with Python](send_email)
+Sending emails with Python.
+
+![Sending emails with Python](data/2019.12.27_gmail_python.png)
 
 ---
 ### <a name="manual_annotation1" />[Manual image annotation with polygons](manual_image_annotation1)
