@@ -71,7 +71,7 @@ enhanced Tkinter controls for user-friendly OpenCV real-time filters demonstrati
 ### <a name="send_email" />[Sending emails with Python](send_email)
 Sending emails with Python.
 
-![Sending emails with Python](data/2019.12.27_gmail_python.png)
+![Sending emails with Python](data/2019.12.27_gmail_python.jpg)
 
 ---
 ### <a name="manual_annotation1" />[Manual image annotation with polygons](manual_image_annotation1)
