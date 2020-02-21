@@ -137,7 +137,7 @@ Example of the dynamic menu for Tkinter GUI.
 ---
 ### <a name="rolling_window" />[Rolling window on NumPy arrays](simple_scripts/rolling_window_on_NumPy_arrays.ipynb)
 General examples for 1D, 2D, 3D and MD rolling window arrays in the on-line
-[CoLab notebook](https://colab.research.google.com/drive/1Zru_-zzbtylgitbwxbi0eDBNhwr8qYl6).
+[CoLab notebook](https://drive.google.com/file/d/1Zru_-zzbtylgitbwxbi0eDBNhwr8qYl6/view?usp=sharing).
 
 It has zero Python cycles inside, so the speed is the same as in **C** programming language.
 
