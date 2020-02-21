@@ -18,7 +18,7 @@
    01. [OpenCV features](#opencv_features)
    01. [Multilanguage for Python](#multilanguage)
    01. [Dynamic menu](#dynamic_menu)</li>
-   01. [Rolling window for 2D array](#rolling_window_2d)
+   01. [Rolling window on NumPy arrays](#rolling_window)
    01. [SIFT object tracking](#sift)
    01. [Tkinter progressbar](#progressbar)
 
@@ -135,9 +135,16 @@ How-to implement multilanguage for Python.
 Example of the dynamic menu for Tkinter GUI.
 
 ---
-### <a name="rolling_window_2d" />[Rolling window for 2D array](rolling_window_advanced.py)
-Example of the rolling window for 2D array. It has zero Python cycles inside,
-so the speed is the same as in **C** programming language.
+### <a name="rolling_window" />[Rolling window on NumPy arrays](simple_scripts/rolling_window_on_NumPy_arrays.ipynb)
+General examples for 1D, 2D, 3D and MD rolling window arrays in the on-line
+[CoLab notebook](https://colab.research.google.com/drive/1Zru_-zzbtylgitbwxbi0eDBNhwr8qYl6).
+
+It has zero Python cycles inside, so the speed is the same as in **C** programming language.
+
+![Rolling window on NumPy arrays](data/2020.02.21-rolling-window.png)
+
+My previous examples of the rolling window for 2D array are
+[here](rolling_window_advanced.py) and [here](rolling_window.py).
 
 ---
 ### <a name="sift" />[SIFT object tracking](sift_tracking.py)
