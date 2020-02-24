@@ -141,7 +141,7 @@ General examples for 1D, 2D, 3D and MD rolling window arrays in the on-line
 
 It has zero Python cycles inside, so the speed is the same as in **C** programming language.
 
-![Rolling window on NumPy arrays](data/2020.02.21-rolling-window.png)
+![Rolling window on NumPy arrays](data/2020.02.24-rolling-window-3d.png)
 
 My previous examples of the rolling window for 2D array are
 [here](rolling_window_advanced.py) and [here](rolling_window.py).
