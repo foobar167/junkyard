@@ -70,8 +70,12 @@ class Filters:
             ['Sobel X', self.filter_sobel_x, 'Sobel / Scharr vertical gradient filter'],
             ['Sobel Y', self.filter_sobel_y, 'Sobel / Scharr horizontal gradient filter'],
             ['Blobs', self.filter_blob, 'Blob detection'],
+            ['First 3 bits', self.filter_3bits, 'Leave the first three bits'],
+            ['Max RGB', self.filter_max_rgb, 'Max RGB filter'],
+            ['Chaotic RGB', self.filter_chaotic_rgb, 'Chaotic color change of the RGB image'],
+            ['Swap RGB', self.filter_swap_rgb, 'Chaotic swap of the RGB channels'],
         ]
-        self.master.title(f'OpenCV Filtering - {self.container[self.current_filter][2]}')
+        self.set_filter(self.current_filter)
 
     def get_filter(self):
         """ Get filter name """
@@ -439,11 +443,10 @@ class Filters:
             self.detector.append(cv2.SimpleBlobDetector_create(params))
             params.blobColor = 0  # extract dark blobs
             self.detector.append(cv2.SimpleBlobDetector_create(params))
-
         # Detect blobs
         keypoints1 = self.detector[0].detect(self.frame)
         keypoints2 = self.detector[1].detect(self.frame)
-
+        #
         # Draw detected blobs as green and blue circles
         # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle
         # corresponds to the size of a blob
@@ -452,3 +455,38 @@ class Filters:
         frame = cv2.drawKeypoints(frame, keypoints2, np.array([]), (0, 0, 255),
                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         return frame
+
+    def filter_3bits(self):
+        """ Leave the first three bits """
+        bgr = (self.frame >> 5) << 5
+        return bgr
+
+    def filter_max_rgb(self):
+        """ Max RGB filter: if r < m: r = 0
+                            if g < m: g = 0
+                            if b < m: b = 0
+            if two channels have the same intensity, such as: (155, 98, 155), in this case,
+            both values are kept and the smallest is reduced to zero: (155, 0, 155) """
+        (b, g, r) = cv2.split(self.frame)  # split the image into its BGR components
+        # Find the maximum pixel intensity values for each (x, y)-coordinate,
+        # then set all pixel values less than M to zero
+        m = np.maximum(np.maximum(r, g), b)
+        r[r < m] = 0
+        g[g < m] = 0
+        b[b < m] = 0
+        # Merge the channels back together and return the image
+        return cv2.merge([b, g, r])
+
+    def filter_chaotic_rgb(self):
+        """ Chaotic color change of the RGB image """
+        bgr = np.int32(self.frame) + random.randint(-128, 128)
+        bgr[bgr < 0] = 0
+        bgr[bgr > 255] = 255
+        return np.uint8(bgr)
+
+    def filter_swap_rgb(self):
+        """ Chaotic swap of the RGB channels """
+        #frame = random.shuffle(list(cv2.split(self.frame)))
+        #print(frame)
+        #return cv2.merge(frame)
+        return self.frame
