@@ -17,8 +17,10 @@ External libraries:
 
 To start OpenCV Filtering GUI:
 ```shell script
-# Install additional packages
+# Install the old OpenCV version for the SIRF and SURF algorithms to work
 pip install opencv-contrib-python==3.4.2.16 pillow numpy
+# OR install the newest OpenCV version (SIRF and SURF algorithms will not work)
+pip install opencv-contrib-python pillow numpy
 # Run it
 python runme.py
 ```
