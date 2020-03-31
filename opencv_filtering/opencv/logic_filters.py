@@ -74,6 +74,7 @@ class Filters:
             ['Max RGB', self.filter_max_rgb, 'Max RGB filter'],
             ['Chaotic RGB', self.filter_chaotic_rgb, 'Chaotic color change of the RGB image'],
             ['Swap RGB', self.filter_swap_rgb, 'Chaotic swap of the RGB channels'],
+            ['Tracker', self.filter_tracker, 'Object Tracking'],
         ]
         self.set_filter(self.current_filter)
 
@@ -479,14 +480,20 @@ class Filters:
 
     def filter_chaotic_rgb(self):
         """ Chaotic color change of the RGB image """
-        bgr = np.int32(self.frame) + random.randint(-128, 128)
+        b = np.full(self.frame.shape[:-1], random.randint(-128, 128))
+        g = np.full(self.frame.shape[:-1], random.randint(-128, 128))
+        r = np.full(self.frame.shape[:-1], random.randint(-128, 128))
+        bgr = np.int32(self.frame) + np.stack((b, g, r), axis=-1)
         bgr[bgr < 0] = 0
         bgr[bgr > 255] = 255
         return np.uint8(bgr)
 
     def filter_swap_rgb(self):
         """ Chaotic swap of the RGB channels """
-        #frame = random.shuffle(list(cv2.split(self.frame)))
-        #print(frame)
-        #return cv2.merge(frame)
+        bgr = cv2.split(self.frame)
+        random.shuffle(bgr)  # randomly shuffle color channels
+        return cv2.merge(bgr)
+
+    def filter_tracker(self):
+        """ OpenCV object tracking """
         return self.frame
