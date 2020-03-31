@@ -33,6 +33,7 @@ class Filters:
             # Container for image mask
             'mask': None,
         }
+        #
         self.affine_start = {  # starting rotation, shift and transformation
             'rotation': 0,
             'shift': [0, 0],
@@ -41,6 +42,7 @@ class Filters:
         }
         self.affine = None  # container for random affine values
         self.detector = None  # blob detector container
+        #
         # List of filters in the following format: [name, function, description]
         # Filter functions take frame, convert it and return converted image
         self.container = [
@@ -495,5 +497,37 @@ class Filters:
         return cv2.merge(bgr)
 
     def filter_tracker(self):
-        """ OpenCV object tracking """
+        """ OpenCV object tracking.
+            Use CSRT when you need higher object tracking accuracy and can
+              tolerate slower FPS throughput.
+            Use KCF when you need faster FPS throughput but can
+              handle slightly lower object tracking accuracy
+            Use MOSSE when you need pure speed.
+            Also leave GOTURN out of the set of usable object trackers
+              as it requires additional model files. """
+        if self.previous is None:
+            # Map strings to their corresponding OpenCV object tracker implementations
+            self.object_trackers = {
+                'csrt': cv2.TrackerCSRT_create,
+                'kcf': cv2.TrackerKCF_create,
+                'boosting': cv2.TrackerBoosting_create,
+                'mil': cv2.TrackerMIL_create,
+                'tld': cv2.TrackerTLD_create,
+                'medianflow': cv2.TrackerMedianFlow_create,
+                'mosse': cv2.TrackerMOSSE_create
+            }
+            self.tracker = self.object_trackers['csrt']()  # object tracker
+            #
+            # Set initial bounding box for the object tracker
+            msg = 'Select a ROI and then press SPACE or ENTER button!'
+            bbox = cv2.selectROI(msg, self.frame, fromCenter=False, showCrosshair=True)
+            self.tracker.init(self.frame, bbox)
+            cv2.destroyWindow(msg)  # destroy ROI window
+            self.previous = self.frame.copy()  # remember previous frame
+        # Grab the new bounding box coordinates of the object
+        success, box = self.tracker.update(self.frame)
+        # Check to see if the tracking was a success
+        if success:
+            x, y, w, h = [int(v) for v in box]
+            cv2.rectangle(self.frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         return self.frame
