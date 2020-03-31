@@ -148,6 +148,9 @@ My previous examples of the rolling window for 2D array are
 
 ---
 ### <a name="sift" />[SIFT object tracking](sift_tracking.py)
+**Note**: SIFT and SURF are for Python version 3.4.2.16 and older. Otherwise use
+[ORB](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_feature2d/py_orb/py_orb.html) algorithm.
+
 Example of the objects tracking using SIFT algorithm.
 SIFT algorithm is free of charge for non-commercial projects.
   1. Open GUI: `python sift_tracking.py`.
