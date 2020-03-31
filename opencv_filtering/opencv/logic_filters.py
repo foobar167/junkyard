@@ -497,4 +497,3 @@ class Filters:
     def filter_tracker(self):
         """ OpenCV object tracking """
         return self.frame
-
