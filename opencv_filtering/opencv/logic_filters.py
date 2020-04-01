@@ -246,12 +246,19 @@ class Filters:
 
     def filter_background(self):
         """ Background subtractor (KNN, MOG2, MOG or GMG) """
+        kernel = None
         if self.background_subtractor is None:
+            self.background_subtractor = cv2.createBackgroundSubtractorMOG2(
+                detectShadows=True,
+                history=30,
+                varThreshold=25)
             # self.background_subtractor = cv2.createBackgroundSubtractorKNN(detectShadows=True)
-            self.background_subtractor = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
             # self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorGMG()
             # self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorMOG()
+            #
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         fgmask = self.background_subtractor.apply(self.frame)
+        fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
         return self.frame & cv2.cvtColor(fgmask, cv2.COLOR_GRAY2RGB)
 
     def filter_skin(self):
