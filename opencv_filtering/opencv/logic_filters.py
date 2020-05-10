@@ -5,6 +5,7 @@ import copy
 import random
 import numpy as np
 
+from multiprocessing.pool import ThreadPool
 from .logic_logger import logging
 
 
@@ -96,6 +97,7 @@ class Filters:
             ['Swap RGB', self.filter_swap_rgb, 'Chaotic swap of the RGB channels'],
             ['Tracker', self.filter_tracker, 'Object Tracking'],
             ['Face Blur', self.filter_face_blur, 'Blurring faces'],
+            ['Gabor', self.filter_gabor, 'Multiple Gabor filter convolutions'],
         ]
         self.set_filter(self.current_filter)
 
@@ -605,3 +607,25 @@ class Filters:
                     (B, G, R), -1)
         # return the pixelated blurred image
         return image
+
+    def filter_gabor(self):
+        """ Multiple Gabor filter convolutions to get Fractalius-like image effect """
+        accum = np.zeros_like(self.frame)
+        filters = self.build_filters()
+        def f(kern):
+            return cv2.filter2D(self.frame, cv2.CV_8UC3, kern)  # convolution with kernel
+        pool = ThreadPool(processes=8)  # number of threads is 8
+        for fimg in pool.imap_unordered(f, filters):
+            np.maximum(accum, fimg, accum)  # get maximum
+        return accum
+
+    @staticmethod
+    def build_filters():
+        """ Array of Gabor filters """
+        filters = []
+        ksize = 31
+        for theta in np.arange(0, np.pi, np.pi / 16):  # rotate Gabor filter
+            kern = cv2.getGaborKernel((ksize, ksize), 4.0, theta, 10.0, 0.5, 0, ktype=cv2.CV_32F)
+            kern /= 1.5 * kern.sum()  # normalize with coefficient 0.67 = 1/1.5
+            filters.append(kern)
+        return filters  # return list of 16 Gabor filters
