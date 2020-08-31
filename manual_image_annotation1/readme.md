@@ -33,4 +33,5 @@ python runme.py
 ```
 
 Software architecture:
+
 ![Software architecture](data/2019.06.17-annotation-with-polygons-architecture.png)
