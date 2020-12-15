@@ -22,7 +22,7 @@ class Polygons(CanvasImage):
         self.roi = True  # is it a ROI or hole
         self.rect = True  # show / hide rolling window rectangle
         self.roll_size = roll_size  # size of the rolling window
-        self.width_line = 2  # lines width
+        self.width_line = 6  # lines width
         self.roll_rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
                                                       state=u'hidden')
         self.dash = (1, 1)  # dash pattern
