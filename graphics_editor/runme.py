@@ -2,8 +2,8 @@
 import os
 import tkinter as tk
 
-from rectangle.logic_logger import init_logging, logging
-from rectangle.gui_main import MainGUI
+from editor.logic_logger import init_logging, logging
+from editor.gui_main import MainGUI
 
 if __name__ == '__main__':
     init_logging()
