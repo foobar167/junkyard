@@ -65,6 +65,7 @@ class Rectangles(CanvasImage):
                 self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
                                         fill=self.color_roi['back'], tags=(self.tag_poly_line, tag_uid))
             self.roi_dict[tag_uid] = point  # remember top left corner in the dictionary
+            # print rectangles number into console
             print('Images: {n}'.format(n=len(self.roi_dict)) + (20 * ' ') + '\r', end='')
 
     def popup(self, event):
@@ -122,6 +123,8 @@ class Rectangles(CanvasImage):
                 self.canvas.delete(i)  # delete lines
                 self.canvas.delete(j)  # delete rectangle
             self.selected_rect.clear()  # clear selection list
+            # print rectangles number into console
+            print('Images: {n}'.format(n=len(self.roi_dict)) + (20 * ' ') + '\r', end='')
             self.hold_menu2 = False  # popup menu is closed
 
     def delete_all(self):
