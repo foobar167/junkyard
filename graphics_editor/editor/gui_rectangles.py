@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+import operator
 import tkinter as tk
 
 from .gui_canvas import CanvasImage
 
 class Rectangles(CanvasImage):
     """ Class of Rectangles. Inherit CanvasImage class """
-    def __init__(self, placeholder, path, rect_size):
+    def __init__(self, placeholder, path):
         """ Initialize the Rectangles """
         CanvasImage.__init__(self, placeholder, path)  # call __init__ of the CanvasImage class
-        self.canvas.bind('<space>', self.set_rect)  # set new rectangle with a spacebar key press
-        self.canvas.bind('<ButtonPress-1>', self.set_rect)  # set new rectangle
+        self.canvas.bind('<ButtonPress-1>', self.start_rect)  # start new rectangle
+        self.canvas.bind('<ButtonRelease-1>', self.finish_rect)  # finish new rectangle
         self.canvas.bind('<ButtonRelease-3>', self.popup)  # call popup menu
         self.canvas.bind('<Motion>', self.motion)  # handle mouse motion
         self.canvas.bind('<Delete>', lambda event: self.delete_rect())  # delete selected rectangle
@@ -19,53 +20,84 @@ class Rectangles(CanvasImage):
         self.menu = tk.Menu(self.canvas, tearoff=0)
         self.menu.add_command(label='Delete', command=self.delete_rect, accelerator=u'Delete')
         # Rectangle parameters
-        self.rect_size = rect_size  # size of the rolling window
         self.width_line = 2  # lines width
         self.dash = (1, 1)  # dash pattern
-        self.color_roi = {'draw'   : 'red',     # draw roi color
-                          'point'  : 'blue',    # point roi color
-                          'back'   : 'yellow',  # background roi color
+        self.color_roi = {'draw': 'red',  # draw roi color
+                          'point': 'blue',  # point roi color
+                          'back': 'yellow',  # background roi color
                           'stipple': 'gray12'}  # stipple value for roi
-        self.rect = self.canvas.create_rectangle((0, 0, 0, 0), width=self.width_line,
-                                                 dash=self.dash, outline=self.color_roi['draw'])
+        self.current_rect = None  # current rectangle to draw on the canvas
+        self.current_rect_coords = None  # current rectangle coordinates
         self.tag_roi = 'roi'  # roi tag
         self.tag_const = 'rect'  # constant tag for rectangle
         self.tag_poly_line = 'poly_line'  # edge of the rectangle
         self.selected_rect = []  # selected rectangles
-        self.roi_dict = {}  # dictionary of all roi rectangles and their top left coords on the canvas
+        self.roi_dict = {}  # dictionary of all rectangles and their coords on the canvas
 
-    def set_rect(self, event):
-        """ Set rectangle """
-        if self.hold_menu2:  # popup menu was opened
-            self.hold_menu2 = False
+    def start_rect(self, event):
+        """ Start to draw rectangle """
+        if self.hold_menu2:  # popup menu is opened
+            self.hold_menu2 = False  # popup menu closes automatically
             self.motion(event)  # motion event for popup menu
-            return
+            return  # exit from drawing new rectangle
         self.motion(event)  # generate motion event. It's needed for menu bar, bug otherwise!
-        if ' '.join(map(str, self.dash)) == self.canvas.itemcget(self.rect, 'dash'):
-            return  # rectangle is out of scope
-        # Calculate coordinates of rectangle top left corner on the zoomed image
-        bbox1 = self.canvas.coords(self.container)  # get image area
-        bbox2 = self.canvas.coords(self.rect)  # get rectangle area
-        x = int((bbox2[0] - bbox1[0]) / self.imscale)  # get (x,y) of top left corner on the image
-        y = int((bbox2[1] - bbox1[1]) / self.imscale)
-        self.draw_rect(bbox2, (x, y))
+        x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
+        y = self.canvas.canvasy(event.y)
+        if self.outside(x, y): return  # starting point is out of scope
+        # Start to draw current rectangle
+        self.current_rect = self.canvas.create_rectangle(
+            (x, y, x, y), width=self.width_line, outline=self.color_roi['draw'])
+        self.current_rect_coords = (x, y)  # save (x, y)
 
-    def draw_rect(self, bbox, point):
-        """ Draw rectangle """
-        # Create identification tag
-        tag_uid = "{x}-{y}".format(x=point[0], y=point[1])  # unique ID
-        if tag_uid not in self.roi_dict:  # save only unique rectangles with different coordinates
+    def finish_rect(self, event):
+        """ Finish to draw rectangle """
+        if not self.current_rect:
+            return  # there is no current rectangle
+        if ' '.join(map(str, self.dash)) == self.canvas.itemcget(self.current_rect, 'dash'):
+            self.delete_current_rect()
+            return  # release button is out of scope
+        # Get rectangle coordinates on the zoomed image
+        bbox1 = self.canvas.coords(self.current_rect)  # get rectangle area
+        if bbox1[0] == bbox1[2] or bbox1[1] == bbox1[3]:
+            self.delete_current_rect()
+            return  # rectangle has no area, so exit and don't draw it
+        bbox2 = self.canvas.coords(self.container)  # get image area
+        # Get rectangle coordinates on the image
+        x1 = int((bbox1[0] - bbox2[0]) / self.imscale)
+        y1 = int((bbox1[1] - bbox2[1]) / self.imscale)
+        x2 = int((bbox1[2] - bbox2[0]) / self.imscale)
+        y2 = int((bbox1[3] - bbox2[1]) / self.imscale)
+        bbox = (x1, y1, x2, y2)  # coords on the image
+        self.draw_rect(bbox1, bbox)  # draw rectangle
+        self.delete_current_rect()
+
+    def delete_current_rect(self):
+        """ Delete current rectangle """
+        self.canvas.delete(self.current_rect)  # delete from the canvas
+        self.current_rect = None
+        self.current_rect_coords = None
+
+    def draw_rect(self, bbox1, bbox2):
+        """ Draw rectangle.
+            bbox1 - rectangle coordinates on the canvas.
+            bbox2 - rectangle coordinates on the image. """
+        # Create rectangle unique ID tag
+        tag_uid = '{}-{}-{}-{}'.format(bbox2[0], bbox2[1], bbox2[2], bbox2[3])
+        if tag_uid not in self.roi_dict:  # save only unique rectangles with different coords
             # Create rectangle. 2nd tag is ALWAYS a unique tag ID + constant string.
-            self.canvas.create_rectangle(bbox, fill=self.color_roi['point'],
-                                         stipple=self.color_roi['stipple'], width=0, state='hidden',
+            self.canvas.create_rectangle(bbox1, fill=self.color_roi['point'],
+                                         stipple=self.color_roi['stipple'],
+                                         width=0, state='hidden',
                                          tags=(self.tag_roi, tag_uid + self.tag_const))
             # Create polyline. 2nd tag is ALWAYS a unique tag ID.
-            vertices = [(bbox[0], bbox[1]), (bbox[2], bbox[1]), (bbox[2], bbox[3]), (bbox[0], bbox[3])]
+            vertices = [(bbox1[0], bbox1[1]), (bbox1[2], bbox1[1]),
+                        (bbox1[2], bbox1[3]), (bbox1[0], bbox1[3]),]
             for j in range(-1, len(vertices) - 1):
                 self.canvas.create_line(vertices[j], vertices[j + 1], width=self.width_line,
-                                        fill=self.color_roi['back'], tags=(self.tag_poly_line, tag_uid))
-            self.roi_dict[tag_uid] = point  # remember top left corner in the dictionary
-            # print rectangles number into console
+                                        fill=self.color_roi['back'],
+                                        tags=(self.tag_poly_line, tag_uid))
+            self.roi_dict[tag_uid] = bbox2  # remember rectangle coordinates in the dictionary
+            # Print rectangles number into console
             print('Images: {n}'.format(n=len(self.roi_dict)) + (20 * ' ') + '\r', end='')
 
     def popup(self, event):
@@ -80,29 +112,23 @@ class Rectangles(CanvasImage):
     def motion(self, event):
         """ Track mouse position over the canvas """
         if self.hold_menu1: return  # popup menu is opened
-        x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
-        y = self.canvas.canvasy(event.y)
-        w = int(self.rect_size[0] * self.imscale) >> 1
-        h = int(self.rect_size[1] * self.imscale) >> 1
-        bbox = self.canvas.coords(self.container)  # get image area
-        if bbox[0] + w <= x < bbox[2] - w and bbox[1] + h <= y < bbox[3] - h:
-            self.canvas.itemconfigure(self.rect, dash='')  # set solid line
-        else:
-            self.canvas.itemconfigure(self.rect, dash=self.dash)  # set dashed line
-        self.canvas.coords(self.rect, (x - w, y - h, x + w, y + h))  # relocate rectangle
-        self.canvas.lift(self.rect)  # set roi into foreground
+        # Redraw current rectangle if it exists
+        if self.current_rect:
+            x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
+            y = self.canvas.canvasy(event.y)
+            if self.outside(x, y):  # outside of the canvas
+                self.canvas.itemconfigure(self.current_rect, dash=self.dash)  # set dashed line
+            else:
+                self.canvas.itemconfigure(self.current_rect, dash='')  # set solid line
+            # Relocate (change) rectangle
+            self.canvas.coords(self.current_rect, (min(self.current_rect_coords[0], x),
+                                                   min(self.current_rect_coords[1], y),
+                                                   max(self.current_rect_coords[0], x),
+                                                   max(self.current_rect_coords[1], y),))
+            self.canvas.lift(self.current_rect)  # set roi into foreground
         # Handle rectangles on the canvas
         self.deselect_rect()  # change color and zeroize selected rectangle
         self.select_rect()  # change color and select rectangle
-
-    def deselect_rect(self):
-        """ Deselect current roi object """
-        if not self.selected_rect: return  # selected rectangles list is empty
-        for i in self.selected_rect:
-            j = i + self.tag_const  # unique tag of the rectangle
-            self.canvas.itemconfigure(i, fill=self.color_roi['back'])  # deselect lines
-            self.canvas.itemconfigure(j, state='hidden')  # hide rectangle
-        self.selected_rect.clear()  # clear the list
 
     def select_rect(self):
         """ Select and change color of the current roi object """
@@ -113,6 +139,15 @@ class Rectangles(CanvasImage):
             self.canvas.itemconfigure(tags[1], fill=self.color_roi['point'])  # select lines
             self.canvas.itemconfigure(j, state='normal')  # show rectangle
             self.selected_rect.append(tags[1])  # remember 2nd unique tag_id
+
+    def deselect_rect(self):
+        """ Deselect current roi object """
+        if not self.selected_rect: return  # selected rectangles list is empty
+        for i in self.selected_rect:
+            j = i + self.tag_const  # unique tag of the rectangle
+            self.canvas.itemconfigure(i, fill=self.color_roi['back'])  # deselect lines
+            self.canvas.itemconfigure(j, state='hidden')  # hide rectangle
+        self.selected_rect.clear()  # clear the list
 
     def delete_rect(self):
         """ Delete selected rectangle """
@@ -138,10 +173,10 @@ class Rectangles(CanvasImage):
     def reset(self, roi):
         """ Reset ROI and holes on the image """
         self.delete_all()  # delete old rectangles
-        bbox1 = self.canvas.coords(self.container)  # get image area
-        for point in roi:  # draw roi rectangles
-            bbox2 = (int(point[0] * self.imscale) + bbox1[0],
-                     int(point[1] * self.imscale) + bbox1[1],
-                     int((point[0] + self.rect_size[0]) * self.imscale) + bbox1[0],
-                     int((point[1] + self.rect_size[1]) * self.imscale) + bbox1[1])
-            self.draw_rect(bbox2, point)
+        bbox2 = self.canvas.coords(self.container)  # get canvas coordinates
+        for bbox in roi:  # draw roi rectangles
+            bbox1 = (int(bbox[0] * self.imscale) + bbox2[0],
+                     int(bbox[1] * self.imscale) + bbox2[1],
+                     int(bbox[2] * self.imscale) + bbox2[0],
+                     int(bbox[3] * self.imscale) + bbox2[1])
+            self.draw_rect(bbox1, bbox)

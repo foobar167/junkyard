@@ -50,10 +50,10 @@ class Menu:
         # Create menu for the view: fullscreen, default size, etc.
         self.__view = tk.Menu(self.menubar, tearoff=False)
         self.__view.add_command(label='Fullscreen',
-                                command=self.__functs["toggle_fullscreen"],
+                                command=self.__functs['toggle_fullscreen'],
                                 accelerator='F11')
         self.__view.add_command(label='Default size',
-                                command=self.__functs["default_geometry"],
+                                command=self.__functs['default_geometry'],
                                 accelerator='F5')
         self.menubar.add_cascade(label='View', menu=self.__view)
 
@@ -63,7 +63,7 @@ class Menu:
         lst = self.__config.get_recent_list()  # get list of recently opened images
         for path in lst:  # get list of recent image paths
             self.__recent_images.add_command(label=path,
-                                             command=lambda x=path: self.__functs["set_image"](x))
+                                             command=lambda x=path: self.__functs['set_image'](x))
         # Disable recent list menu if it is empty.
         if self.__recent_images.index('end') is None:
             self.__file.entryconfigure(self.__label_recent, state='disabled')
@@ -72,7 +72,7 @@ class Menu:
 
     def __check_figures(self):
         """ Check if there are figures on the image and enable/disable menu 'Rolling Window' """
-        if self.__functs["check_roi"]():  # there are regions of interest on the image
+        if self.__functs['check_roi']():  # there are regions of interest on the image
             self.__tools.entryconfigure(self.__label_rect, state='normal')  # enable menu
         else:  # if there are no figures
             self.__tools.entryconfigure(self.__label_rect, state='disabled')  # disable menu

@@ -87,27 +87,6 @@ class Config:
         else:
             self.__config[self.__window][self.__opened_path] = self.__default_opened_path
 
-    def get_rect_size(self):
-        """ Get tuple (width, height) of the rolling window """
-        try:
-            w = self.__config[self.__rectangle][self.__rect_w]
-            h = self.__config[self.__rectangle][self.__rect_h]
-            return int(w), int(h)
-        except KeyError:  # if the key is not in the dictionary of config
-            return self.__default_rect_w, self.__default_rect_h
-
-    def set_rect_size(self, width=None, height=None):
-        """ Set tuple (width, height) of the rolling window """
-        self.__check_section(self.__rectangle)
-        if width:
-            self.__config[self.__rectangle][self.__rect_w] = str(width)
-        else:
-            self.__config[self.__rectangle][self.__rect_w] = str(self.__default_rect_w)
-        if height:
-            self.__config[self.__rectangle][self.__rect_h] = str(height)
-        else:
-            self.__config[self.__rectangle][self.__rect_h] = str(self.__default_rect_h)
-
     def get_recent_list(self):
         """ Get list of recently opened image paths """
         try:
@@ -159,7 +138,6 @@ class Config:
         """ Create new config INI file and put default values in it """
         self.set_win_geometry(self.default_geometry)
         self.set_win_state(self.default_state)
-        self.set_rect_size()
 
     def destroy(self):
         """ Config destructor """

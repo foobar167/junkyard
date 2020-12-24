@@ -174,8 +174,8 @@ class MainGUI(ttk.Frame):
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__close_image()  # close previous image
-        self.__imframe = Rectangles(placeholder=self.__placeholder, path=path,
-                                    rect_size=self.__config.get_rect_size())  # create image frame
+        self.__imframe = Rectangles(placeholder=self.__placeholder,
+                                    path=path)  # create image frame
         self.__imframe.grid()  # show it
         self.master.title(self.__default_title + ': {}'.format(path))  # change window title
         self.__config.set_recent_path(path)  # save image path into config
