@@ -58,15 +58,15 @@ class Rectangles(CanvasImage):
             return  # release button is out of scope
         # Get rectangle coordinates on the zoomed image
         bbox1 = self.canvas.coords(self.current_rect)  # get rectangle area
-        if bbox1[0] == bbox1[2] or bbox1[1] == bbox1[3]:
-            self.delete_current_rect()
-            return  # rectangle has no area, so exit and don't draw it
         bbox2 = self.canvas.coords(self.container)  # get image area
         # Get rectangle coordinates on the image
         x1 = int((bbox1[0] - bbox2[0]) / self.imscale)
         y1 = int((bbox1[1] - bbox2[1]) / self.imscale)
         x2 = int((bbox1[2] - bbox2[0]) / self.imscale)
         y2 = int((bbox1[3] - bbox2[1]) / self.imscale)
+        if x1 == x2 or y1 == y2:
+            self.delete_current_rect()
+            return  # rectangle has no area, so exit and don't draw it
         bbox = (x1, y1, x2, y2)  # coords on the image
         self.draw_rect(bbox1, bbox)  # draw rectangle
         self.delete_current_rect()
