@@ -147,7 +147,7 @@ class Filters:
         return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
     def filter_otsu(self):
-        th = 0  # not needed for Otsu method
+        th = 0         # not needed for Otsu method
         max_val = 255  # not needed for Otsu method
         gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
 
