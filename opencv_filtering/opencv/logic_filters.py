@@ -49,11 +49,11 @@ class Filters:
         self.object_trackers = {
             'csrt': cv2.TrackerCSRT_create,
             'kcf': cv2.TrackerKCF_create,
-            'boosting': cv2.TrackerBoosting_create,
+            #'boosting': cv2.TrackerBoosting_create,      # not supported in opencv 4.5
             'mil': cv2.TrackerMIL_create,
-            'tld': cv2.TrackerTLD_create,
-            'medianflow': cv2.TrackerMedianFlow_create,
-            'mosse': cv2.TrackerMOSSE_create
+            #'tld': cv2.TrackerTLD_create,                # not supported in opencv 4.5
+            #'medianflow': cv2.TrackerMedianFlow_create,  # not supported in opencv 4.5
+            #'mosse': cv2.TrackerMOSSE_create             # not supported in opencv 4.5
         }
         self.tracker = None  # object tracker
         #
