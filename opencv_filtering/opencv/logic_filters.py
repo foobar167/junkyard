@@ -68,6 +68,7 @@ class Filters:
             ['Unchanged', self.filter_unchanged, 'Unchanged original image'],
             ['Canny', self.filter_canny, 'Canny edge detection'],
             ['Threshold', self.filter_threshold, 'Adaptive Gaussian threshold'],
+            ['Otsu', self.filter_otsu, 'Otsu threshold'],
             ['Harris', self.filter_harris, 'Harris corner detection'],
             ['SIFT', self.filter_sift, 'SIFT (Scale-Invariant Feature Transform) algorithm, patented'],
             ['SURF', self.filter_surf, 'SURF (Speeded-Up Robust Features) algorithm, patented'],
@@ -144,6 +145,19 @@ class Filters:
         """ Adaptive Gaussian threshold """
         gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
         return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+
+    def filter_otsu(self):
+        th = 0  # not needed for Otsu method
+        max_val = 255  # not needed for Otsu method
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)  # convert to gray scale
+
+        #_, frame = cv2.threshold(gray, th, max_val, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        #_, frame = cv2.threshold(gray, th, max_val, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        #_, frame = cv2.threshold(gray, th, max_val, cv2.THRESH_TOZERO + cv2.THRESH_OTSU)
+        _, frame = cv2.threshold(gray, th, max_val, cv2.THRESH_TOZERO_INV + cv2.THRESH_OTSU)
+        #_, frame = cv2.threshold(gray, th, max_val, cv2.THRESH_TRUNC + cv2.THRESH_OTSU)
+
+        return frame
 
     def filter_harris(self):
         """ Harris corner detection """
