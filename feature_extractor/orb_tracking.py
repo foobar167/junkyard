@@ -121,7 +121,7 @@ class ORB:
 
         # Store all the good matches as per David G. Lowe's ratio test
         good_matches = []
-        matches_mask = [[0, 0] for _ in range(len(matches))]
+        matches_mask = np.zeros((len(matches), 2), dtype=np.int)
         for i, (m, n) in enumerate(matches):
             if m.distance < 0.75 * n.distance:
                 matches_mask[i] = [1, 0]
