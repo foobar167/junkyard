@@ -12,17 +12,15 @@ if image is None:
 gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # Applying the function
-corners = cv2.goodFeaturesToTrack(gray_image, maxCorners=3, qualityLevel=0.02, minDistance=20)
+corners = cv2.goodFeaturesToTrack(gray_image, maxCorners=50, qualityLevel=0.02, minDistance=20)
 corners = np.squeeze(corners).astype(int)  # squeeze dimensions and convert from float to int
 
-# print(corners)
-# print(corners[:, 1], corners[:, 0])
-image[corners[:, 1], corners[:, 0]] = [0, 0, 255]  # set red dots, doesn't work
-# image[[213, 213, 206], [41, 79, 484]]= [0, 0, 255]  # this works
-
 for i in corners:
-    cv2.circle(image, tuple(i), 5, (0, 255, 0), -1)
+    cv2.circle(image, tuple(i), 5, (0, 255, 0), -1)  # set green cycle
+
+image[corners[:, 1], corners[:, 0]] = (0, 0, 255)  # set red dots
 
 # Showing the image
+# cv2.imwrite('test.png', image)  # JPG codec doesn't write red dots correctly
 cv2.imshow('Shi-Tomasi corner detection', image)
 cv2.waitKey()

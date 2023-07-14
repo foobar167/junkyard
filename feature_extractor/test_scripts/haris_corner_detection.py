@@ -14,7 +14,7 @@ gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 dst = cv2.cornerHarris(gray_image, blockSize=2, ksize=3, k=0.04)
 
 # Dilate to mark the corners
-#dst = cv2.dilate(dst, None)
+dst = cv2.dilate(dst, None)
 image[dst > 0.01 * dst.max()] = [0, 255, 0]
 
 cv2.imshow('Haris corner detection', image)
