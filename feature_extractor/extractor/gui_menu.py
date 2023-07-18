@@ -11,7 +11,7 @@ class Menu:
         self.menubar = tk.Menu(master)  # create main menu bar, public for the main GUI
         self.empty_menu = tk.Menu(master)  # empty menu to hide the real menubar in full screen mode
         # Enable / disable these menu labels
-        self.__label_recent = 'Open recent'
+        self.__label_recent = 'Recent Images'
         self.__label_extractors = 'Extractors'
         # Create menu for the image
         self.__file = tk.Menu(self.menubar, tearoff=False, postcommand=self.__list_recent)
@@ -25,12 +25,6 @@ class Menu:
                                 command=self.__functs['destroy'],
                                 accelerator=u'Alt+F4')
         self.menubar.add_cascade(label='File', menu=self.__file)
-        # Create menu for various feature extractors
-        self.__extractors = tk.Menu(self.menubar, tearoff=False)
-        self.__extractors.add_command(label="Test1",)
-        self.__extractors.add_command(label="Test2",)
-        self.__extractors.add_command(label="Test3",)
-        self.menubar.add_cascade(label=self.__label_extractors, menu=self.__extractors, state='disabled')
         # Create menu for the view: fullscreen, default size, etc.
         self.__view = tk.Menu(self.menubar, tearoff=False)
         self.__view.add_command(label='Fullscreen',
@@ -40,6 +34,12 @@ class Menu:
                                 command=self.__functs['default_geometry'],
                                 accelerator='F5')
         self.menubar.add_cascade(label='View', menu=self.__view)
+        # Create menu for various feature extractors
+        self.__extractors = tk.Menu(self.menubar, tearoff=False)
+        self.__extractors.add_command(label="Test1",)
+        self.__extractors.add_command(label="Test2",)
+        self.__extractors.add_command(label="Test3",)
+        self.menubar.add_cascade(label=self.__label_extractors, menu=self.__extractors, state='disabled')
 
     def __list_recent(self):
         """ List of the recent images """

@@ -1,7 +1,7 @@
 import os
 import tkinter as tk
 
-from PIL import Image, ImageTk
+from PIL import Image
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from .gui_menu import Menu
@@ -9,7 +9,7 @@ from .logic_config import Config
 from .logic_logger import logging, handle_exception
 
 
-class MainGUI():
+class MainGUI:
     """ Main GUI Window """
     def __init__(self):
         """ Initialize the Frame """
@@ -55,14 +55,14 @@ class MainGUI():
         self.gui.bind('<Escape>', lambda event, s=False: self.__toggle_fullscreen(s))
         self.gui.bind('<F5>', lambda event: self.__default_geometry())  # reset default window geometry
         # Handle main window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
-        # don't set default geometry from full screen if resizing is not postponed.
+        # don't set default geometry from fullscreen if resizing is not postponed.
         self.gui.bind('<Configure>', lambda event: self.gui.after_idle(self.__resize_master))
         # Handle keystrokes in the idle mode, because program slows down on a weak computers,
         # when too many keystroke events in the same time.
         self.gui.bind('<Key>', lambda event: self.gui.after_idle(self.__keystroke, event))
 
     def __toggle_fullscreen(self, state=None):
-        """ Enable/disable the full screen mode """
+        """ Enable/disable the fullscreen mode """
         if state is not None:
             self.__fullscreen = state  # set state to fullscreen
         else:
@@ -103,7 +103,7 @@ class MainGUI():
 
     def __default_geometry(self):
         """ Reset default geometry for the main GUI window """
-        self.__toggle_fullscreen(state=False)  # exit from full screen
+        self.__toggle_fullscreen(state=False)  # exit from fullscreen
         self.gui.wm_state(self.__config.default_state)  # exit from zoomed
         self.__config.set_win_geometry(self.__config.default_geometry)  # save default to config
         self.gui.geometry(self.__config.default_geometry)  # set default geometry
@@ -153,8 +153,8 @@ class MainGUI():
         self.__placeholder.rowconfigure(0, weight=1)  # make grid cell expandable
         self.__placeholder.columnconfigure(0, weight=1)
         # If image wasn't closed previously, open this image once again
-        path = self.__config.get_opened_path()
-        if path:
+        path = self.__config.get_recent_image()
+        if path is not None:
             self.__set_image(path)  # open previous image
 
     def __set_image(self, path):
@@ -165,8 +165,9 @@ class MainGUI():
     def __open_image(self):
         """ Open image in the GUI """
         path = askopenfilename(title='Select an image',
-                               initialdir=self.__config.get_recent_path())
-        if path == '': return
+                               initialdir=self.__config.get_recent_dir())
+        if path == '':
+            return
         if not self.check_image(path):  # check if it is an image
             messagebox.showinfo('Not an image',
                                 f'This is not an image: "{path}"\nPlease, select an image.')

@@ -17,11 +17,10 @@ class Config:
         self.default_geometry = '800x600+0+0'  # default window geometry 'WxH±X±Y'
         self.__state = 'State'  # state of the window: normal, zoomed, etc.
         self.default_state = 'normal'  # normal state of the window
-        self.__opened_path = 'OpenedPath'  # last opened path of the task or image
-        self.__default_opened_path = 'None'
+        self.__default_opened_path = './data/2023.06.23_book_cover.jpg'
         #
         self.__recent = 'LastOpened'  # list of last opened paths
-        self.__recent_number = 10  # number of recent paths
+        self.__recent_number = 10 + 1  # number of recent paths
         #
         self.__config = configparser.ConfigParser()  # create config parser
         self.__config.optionxform = lambda option: option  # preserve case for letters
@@ -63,53 +62,45 @@ class Config:
         self.__check_section(self.__window)
         self.__config[self.__window][self.__state] = state
 
-    def get_opened_path(self):
-        """ Get opened path if it wasn't closed previously or return an empty string """
+    def get_recent_image(self):
+        """ Get recently opened image or return a None """
         try:
-            path = self.__config[self.__window][self.__opened_path]
-            if path == None or not os.path.exists(path):
-                return None
-            else:
+            path = self.__config[self.__recent]['1']
+            if os.path.exists(path):
                 return path
+            else:
+                return None
         except KeyError:  # if the key is not in the dictionary of config
             return None
 
-    def set_opened_path(self, path):
-        """ Remember opened path to the config INI file """
-        self.__check_section(self.__window)
-        self.__config[self.__window][self.__opened_path] = path
+    def get_recent_dir(self):
+        """ Get last opened path from config INI file """
+        path = self.get_recent_image()
+        if path is not None:
+            return os.path.abspath(os.path.join(path, os.pardir))  # get parent directory
+        else:
+            return os.getcwd()  # return current directory
 
     def get_recent_list(self):
         """ Get list of recently opened image paths """
         try:
             lst = self.__config.items(self.__recent)  # list of (key, value) pairs
             lst = [path for key, path in lst]  # leave only path
+            lst = lst[1:]  # delete first path, because it is already in use
             for n, path in enumerate(lst):
                 if not os.path.isfile(path):
                     del lst[n]  # delete non-existent file path from the list
             return lst
         except configparser.NoSectionError:  # no section with the list of last opened paths
-            return None
-
-    def get_recent_path(self):
-        """ Get last opened path from config INI file """
-        try:
-            path = self.__config[self.__recent]['1']
-            path = os.path.abspath(os.path.join(path, os.pardir))  # get parent directory
-            if not os.path.exists(path):
-                return os.getcwd()  # return current directory
-            return path
-        except KeyError:  # if the key is not in the dictionary of config
-            return os.getcwd()  # get current directory
+            return []
 
     def set_recent_path(self, path):
         """ Set last opened path to config INI file """
-        try:
-            lst = self.__config.items(self.__recent)  # list of (key, value) pairs
-        except configparser.NoSectionError:  # no section with the list of last opened paths
-            lst = []  # there is no such section
+        self.__check_section(self.__recent)
+        lst = self.__config.items(self.__recent)  # list of (key, value) pairs
         lst = [value for key, value in lst]  # leave only path
-        if path in lst: lst.remove(path)  # delete path from list
+        if path in lst:
+            lst.remove(path)  # delete path from a list
         lst.insert(0, path)  # add path to the beginning of a list
         self.__config.remove_section(self.__recent)  # remove section
         self.__config.add_section(self.__recent)  # create empty section
@@ -130,7 +121,7 @@ class Config:
         """ Create new config INI file and put default values in it """
         self.set_win_geometry(self.default_geometry)
         self.set_win_state(self.default_state)
-        self.set_opened_path(self.__default_opened_path)
+        self.set_recent_path(self.__default_opened_path)
 
     def destroy(self):
         """ Config destructor """
