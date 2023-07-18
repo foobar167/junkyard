@@ -1,0 +1,192 @@
+import os
+import tkinter as tk
+
+from PIL import Image, ImageTk
+from tkinter import messagebox
+from tkinter.filedialog import askopenfilename
+from .gui_menu import Menu
+from .logic_config import Config
+from .logic_logger import logging, handle_exception
+
+
+class MainGUI():
+    """ Main GUI Window """
+    def __init__(self):
+        """ Initialize the Frame """
+        logging.info('Open GUI')
+        self.gui = tk.Tk()  # initialize root window
+        self.__create_instances()
+        self.__create_main_window()
+        self.__create_widgets()
+
+    def __create_instances(self):
+        """ Instances for GUI are created here """
+        self.__config = Config()  # open config file of the main window
+
+    def __create_main_window(self):
+        """ Create main window GUI"""
+        self.__default_title = 'Feature extractor: '
+        self.gui.title(self.__default_title)  # set window title
+        # Get window size/position from config INI file: 'Width × Height ± X ± Y'
+        self.gui.geometry(self.__config.get_win_geometry())
+        self.gui.wm_state(self.__config.get_win_state())  # get window state
+        # Trigger self.destructor function when the root window is closed
+        self.gui.protocol('WM_DELETE_WINDOW', self.destroy)
+        #
+        self.__fullscreen = False  # enable / disable fullscreen mode
+        self.__bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
+        self.__previous_state = 0  # previous state of the event
+        # List of shortcuts in the following format: [name, keycode, function]
+        self.keycode = {}  # init key codes
+        if os.name == 'nt':  # Windows OS
+            self.keycode = {
+                'o': 79,
+            }
+        else:  # Linux OS
+            self.keycode = {
+                'o': 32,
+            }
+        self.__shortcuts = [
+            ['Ctrl+O', self.keycode['o'], self.__open_image],  # open image
+        ]
+        # Bind events to the main window
+        self.gui.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
+        self.gui.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
+        self.gui.bind('<Escape>', lambda event, s=False: self.__toggle_fullscreen(s))
+        self.gui.bind('<F5>', lambda event: self.__default_geometry())  # reset default window geometry
+        # Handle main window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
+        # don't set default geometry from full screen if resizing is not postponed.
+        self.gui.bind('<Configure>', lambda event: self.gui.after_idle(self.__resize_master))
+        # Handle keystrokes in the idle mode, because program slows down on a weak computers,
+        # when too many keystroke events in the same time.
+        self.gui.bind('<Key>', lambda event: self.gui.after_idle(self.__keystroke, event))
+
+    def __toggle_fullscreen(self, state=None):
+        """ Enable/disable the full screen mode """
+        if state is not None:
+            self.__fullscreen = state  # set state to fullscreen
+        else:
+            self.__fullscreen = not self.__fullscreen  # toggling the boolean
+        # Hide menubar in fullscreen mode or show it otherwise
+        if self.__fullscreen:
+            self.__menubar_hide()
+        else:  # show menubar
+            self.__menubar_show()
+        self.gui.wm_attributes('-fullscreen', self.__fullscreen)  # fullscreen mode on/off
+
+    def __menubar_show(self):
+        """ Show menu bar """
+        self.gui.configure(menu=self.__menu.menubar)
+
+    def __menubar_hide(self):
+        """ Hide menu bar """
+        self.gui.configure(menu=self.__menu.empty_menu)
+
+    def __motion(self):
+        """ Track mouse pointer and handle its position """
+        if self.__fullscreen:
+            y = self.gui.winfo_pointery()
+            if 0 <= y < 20:  # if close to the upper side of the main window
+                self.__menubar_show()
+            else:
+                self.__menubar_hide()
+
+    def __keystroke(self, event):
+        """ Language independent handle events from the keyboard """
+        # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
+        if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
+            for shortcut in self.__shortcuts:
+                if event.keycode == shortcut[1]:
+                    shortcut[2]()
+        else:  # remember previous state of the event
+            self.__previous_state = event.state
+
+    def __default_geometry(self):
+        """ Reset default geometry for the main GUI window """
+        self.__toggle_fullscreen(state=False)  # exit from full screen
+        self.gui.wm_state(self.__config.default_state)  # exit from zoomed
+        self.__config.set_win_geometry(self.__config.default_geometry)  # save default to config
+        self.gui.geometry(self.__config.default_geometry)  # set default geometry
+
+    def __resize_master(self):
+        """ Save main window size and position into config file.
+            BUG! There is a BUG when changing window from fullscreen to zoomed and then to normal mode.
+            Main window somehow remembers zoomed mode as normal, so I have to explicitly set
+            previous geometry from config INI file to the main window. """
+        if self.gui.wm_attributes('-fullscreen'):  # don't remember fullscreen geometry
+            self.__bugfix = True  # fixing bug
+            return
+        if self.gui.state() == 'normal':
+            if self.__bugfix is True:  # fixing bug for: fullscreen --> zoomed --> normal
+                self.__bugfix = False
+                # Explicitly set previous geometry to fix the bug
+                self.gui.geometry(self.__config.get_win_geometry())
+                return
+            self.__config.set_win_geometry(self.gui.winfo_geometry())
+        self.__config.set_win_state(self.gui.wm_state())
+
+    def __create_widgets(self):
+        """ Widgets for GUI are created here """
+        # Create menu widget
+        self.functions = {  # dictionary of functions for menu widget
+            "destroy": self.destroy,
+            "toggle_fullscreen": self.__toggle_fullscreen,
+            "default_geometry": self.__default_geometry,
+            "set_image": self.__set_image,
+        }
+        self.__menu = Menu(self.gui, self.__config, self.__shortcuts, self.functions)
+        self.gui.configure(menu=self.__menu.menubar)  # menu should be BEFORE iconbitmap, it's a bug
+        # BUG! Add menu bar to the main window BEFORE iconbitmap command. Otherwise, it will
+        # shrink in height by 20 pixels after each open-close of the main window.
+        this_dir = os.path.dirname(os.path.realpath(__file__))  # directory of this file
+        if os.name == 'nt':  # Windows OS
+            self.gui.iconbitmap(os.path.join(this_dir, 'logo.ico'))  # set logo icon
+        else:  # Linux OS
+            # ICO format does not work for Linux. Use GIF or black and white XBM format instead.
+            img = tk.PhotoImage(file=os.path.join(this_dir, 'logo.gif'))
+            self.gui.tk.call('wm', 'iconphoto', self.gui._w, img)  # set logo icon
+        # Create placeholder frame for the image
+        self.gui.rowconfigure(0, weight=1)  # make grid cell expandable
+        self.gui.columnconfigure(0, weight=1)
+        self.__placeholder = tk.Frame(self.gui)
+        self.__placeholder.grid(row=0, column=0, sticky='nswe')
+        self.__placeholder.rowconfigure(0, weight=1)  # make grid cell expandable
+        self.__placeholder.columnconfigure(0, weight=1)
+        # If image wasn't closed previously, open this image once again
+        path = self.__config.get_opened_path()
+        if path:
+            self.__set_image(path)  # open previous image
+
+    def __set_image(self, path):
+        """ Close previous image and set a new one """
+        self.__config.set_recent_path(path)  # save image path into config
+
+    @handle_exception(0)
+    def __open_image(self):
+        """ Open image in the GUI """
+        path = askopenfilename(title='Select an image',
+                               initialdir=self.__config.get_recent_path())
+        if path == '': return
+        if not self.check_image(path):  # check if it is an image
+            messagebox.showinfo('Not an image',
+                                f'This is not an image: "{path}"\nPlease, select an image.')
+            self.__open_image()  # try to open new image again
+            return
+        #
+        self.__set_image(path)
+
+    @staticmethod
+    def check_image(path):
+        """ Check if it is an image. Static method """
+        try:  # try to open and close image with PIL
+            img = Image.open(path)
+            img.close()
+        except FileNotFoundError or OSError:
+            return False  # not an image
+        return True  # image
+
+    def destroy(self):
+        """ Destroy the main frame object and release all resources """
+        self.__config.destroy()
+        logging.info('Close GUI')
+        self.gui.quit()
