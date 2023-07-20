@@ -74,12 +74,13 @@ class FeatureExtractor:
         """ Draw matches between two images according to feature extractor algorithm """
         keypoints2, descriptor2 = self.compute(image)
 
-        # Sometimes it could be a float NaN descriptor
-        # if np.any(np.isnan(descriptor2)) or np.any(np.isnan(self.descriptor)):
-        #     return self.concat(self.image, image)
-
-        print(descriptor2)
-        matches = self.flann.knnMatch(self.descriptor, descriptor2, k=2)
+        # Sometimes it could be a 'float NaN' descriptor - exception ValueError
+        # or (-215:Assertion failed) (size_t)knn <= index_->size() - exception cv2.error
+        # You can simulate this exception when wipe the camera with a handkerchief.
+        try:
+            matches = self.flann.knnMatch(self.descriptor, descriptor2, k=2)
+        except (ValueError, cv2.error):
+            return self.concat(self.image, image)
 
         # Store all the good matches as per David G. Lowe's ratio test
         good_matches = []

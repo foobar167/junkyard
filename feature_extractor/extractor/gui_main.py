@@ -1,4 +1,5 @@
 import os
+import cv2
 import tkinter as tk
 
 from PIL import Image
@@ -154,7 +155,7 @@ class MainGUI:
     def __set_image(self, path):
         """ Close previous image and set a new one """
         self.__config.set_recent_image(path)  # save image path into config
-        self.__extractor.set_image(path)  # update image to track
+        self.__extractor.set_image(cv2.imread(path))  # update image to track
 
     @handle_exception(0)
     def __open_image(self):

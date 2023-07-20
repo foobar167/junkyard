@@ -13,7 +13,6 @@ class Display:
         self.video_stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # default resolution is 640×480
         self.extractor = extractor  # feature extractor object
         # Create tk.Frame container in GUI and make it expandable
-
         container = tk.Frame(gui)
         container.pack(fill=tk.BOTH, expand=1)
         # Configure the rows and columns to have a non-zero weight so that they will take up the extra space
@@ -41,7 +40,8 @@ class Display:
             imgtk = ImageTk.PhotoImage(image=image)  # convert image for tkinter
             self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk)  # show the image
-        self.panel.after(1, self.video_loop)  # call the same function after 1 millisecond
+        # Try to not set 1 ms or less than 10 ms, because the app will lag.
+        self.panel.after(10, self.video_loop)  # call the same function after 10 milliseconds
 
     def resize_image(self, image):
         """ Resize image proportionally """
