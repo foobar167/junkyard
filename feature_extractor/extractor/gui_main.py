@@ -133,10 +133,10 @@ class MainGUI:
         """ Widgets for GUI are created here """
         # Create menu widget
         self.functions = {  # dictionary of functions for menu widget
-            "destroy": self.destroy,
-            "toggle_fullscreen": self.__toggle_fullscreen,
-            "default_geometry": self.__default_geometry,
-            "set_image": self.__set_image,
+            'destroy': self.destroy,
+            'toggle_fullscreen': self.__toggle_fullscreen,
+            'default_geometry': self.__default_geometry,
+            'set_image': self.__set_image,
         }
         self.__menu = Menu(self.gui, self.__config, self.__shortcuts, self.functions)
         self.gui.configure(menu=self.__menu.menubar)  # menu should be BEFORE iconbitmap, it's a bug

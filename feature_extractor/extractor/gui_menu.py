@@ -36,9 +36,9 @@ class Menu:
         self.menubar.add_cascade(label='View', menu=self.__view)
         # Create menu for various feature extractors
         self.__extractors = tk.Menu(self.menubar, tearoff=False)
-        self.__extractors.add_command(label="Test1",)
-        self.__extractors.add_command(label="Test2",)
-        self.__extractors.add_command(label="Test3",)
+        self.__extractors.add_command(label='Test1',)
+        self.__extractors.add_command(label='Test2',)
+        self.__extractors.add_command(label='Test3',)
         self.menubar.add_cascade(label=self.__label_extractors, menu=self.__extractors, state='disabled')
 
     def __list_recent(self):

@@ -1,6 +1,5 @@
 # Run file to start application
 import os
-import tkinter as tk
 
 from extractor.logic_logger import init_logging, logging
 from extractor.gui_main import MainGUI
