@@ -66,33 +66,12 @@ class Config:
         """ Get recently opened image or return a None """
         try:
             path = self.__config[self.__recent]['1']
-            if os.path.exists(path):
+            if os.path.isfile(path):
                 return path
             else:
                 return None
         except KeyError:  # if the key is not in the dictionary of config
             return None
-
-    def get_recent_dir(self):
-        """ Get last opened path from config INI file """
-        path = self.get_recent_image()
-        if path is not None:
-            return os.path.abspath(os.path.join(path, os.pardir))  # get parent directory
-        else:
-            return os.getcwd()  # return current directory
-
-    def get_recent_list(self):
-        """ Get list of recently opened image paths """
-        try:
-            lst = self.__config.items(self.__recent)  # list of (key, value) pairs
-            lst = [path for key, path in lst]  # leave only path
-            lst = lst[1:]  # delete first path, because it is already in use
-            for n, path in enumerate(lst):
-                if not os.path.isfile(path):
-                    del lst[n]  # delete non-existent file path from the list
-            return lst
-        except configparser.NoSectionError:  # no section with the list of last opened paths
-            return []
 
     def set_recent_image(self, path):
         """ Set last opened path to config INI file """
@@ -106,11 +85,45 @@ class Config:
         self.__config.add_section(self.__recent)  # create empty section
         key = 1
         for name in lst:
-            if os.path.exists(name):
+            if os.path.isfile(name):
                 self.__config[self.__recent][str(key)] = name
                 key += 1
             if key > self.__recent_number:
                 break  # exit from the cycle
+
+    def get_recent_dir(self):
+        """ Get last opened path from config INI file """
+        path = self.get_recent_image()
+        if path is not None:
+            return os.path.abspath(os.path.join(path, os.pardir))  # get parent directory
+        else:
+            return os.getcwd()  # return current directory
+
+    def get_recent_list(self, del_first=True):
+        """ Get list of recently opened image paths """
+        try:
+            lst = self.__config.items(self.__recent)  # list of (key, value) pairs
+            lst = [path for key, path in lst]  # leave only path
+            if del_first:
+                lst = lst[1:]  # delete first path, because it is already in use
+            for n, path in enumerate(lst):
+                if not os.path.isfile(path):
+                    del lst[n]  # delete non-existent file path from the list
+            return lst
+        except configparser.NoSectionError:  # no section with the list of last opened paths
+            return []
+
+    def __set_recent_list(self):
+        """ Set recently opened image paths to INI config file """
+        self.__check_section(self.__recent)
+        lst = self.get_recent_list(del_first=False)
+        self.__config.remove_section(self.__recent)  # remove section
+        self.__config.add_section(self.__recent)  # create empty section
+        key = 1
+        for name in lst:
+            if os.path.isfile(name):
+                self.__config[self.__recent][str(key)] = name  # add file to section
+                key += 1
 
     def __new_config(self):
         """ Create new config INI file and put default values in it """
@@ -120,5 +133,6 @@ class Config:
 
     def destroy(self):
         """ Config destructor """
+        self.__set_recent_list()  # exclude non-existing file paths from the list
         with open(self.__config_path, 'w') as configfile:
             self.__config.write(configfile)  # save config file

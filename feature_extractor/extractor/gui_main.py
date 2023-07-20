@@ -25,7 +25,8 @@ class MainGUI:
     def __create_instances(self):
         """ Instances for GUI are created here """
         self._config = Config()  # open config file of the main window
-        self._extractor = FeatureExtractor(self._config.get_recent_image())  # feature extractors
+        subclasses = FeatureExtractor.__subclasses__()  # get list of all subclasses of the abstract class
+        self._extractor = subclasses[0](self._config.get_recent_image())  # feature extractors
 
     def __create_main_window(self):
         """ Create main window GUI"""
