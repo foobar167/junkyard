@@ -5,7 +5,9 @@ from PIL import Image
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from .gui_menu import Menu
+from .gui_display import Display
 from .logic_config import Config
+from .logic_extractor import FeatureExtractor
 from .logic_logger import logging, handle_exception
 
 
@@ -22,6 +24,7 @@ class MainGUI:
     def __create_instances(self):
         """ Instances for GUI are created here """
         self.__config = Config()  # open config file of the main window
+        self.__extractor = FeatureExtractor(self.__config.get_recent_image())  # feature extractors
 
     def __create_main_window(self):
         """ Create main window GUI"""
@@ -145,39 +148,28 @@ class MainGUI:
             # ICO format does not work for Linux. Use GIF or black and white XBM format instead.
             img = tk.PhotoImage(file=os.path.join(this_dir, 'logo.gif'))
             self.gui.tk.call('wm', 'iconphoto', self.gui._w, img)  # set logo icon
-        # Create placeholder frame for the image
-        self.gui.rowconfigure(0, weight=1)  # make grid cell expandable
-        self.gui.columnconfigure(0, weight=1)
-        self.__placeholder = tk.Frame(self.gui)
-        self.__placeholder.grid(row=0, column=0, sticky='nswe')
-        self.__placeholder.rowconfigure(0, weight=1)  # make grid cell expandable
-        self.__placeholder.columnconfigure(0, weight=1)
-        # If image wasn't closed previously, open this image once again
-        path = self.__config.get_recent_image()
-        if path is not None:
-            self.__set_image(path)  # open previous image
+        # Create GUI display
+        self.__display = Display(self.gui, self.__extractor)
 
     def __set_image(self, path):
         """ Close previous image and set a new one """
-        self.__config.set_recent_path(path)  # save image path into config
+        self.__config.set_recent_image(path)  # save image path into config
+        self.__extractor.set_image(path)  # update image to track
 
     @handle_exception(0)
     def __open_image(self):
         """ Open image in the GUI """
-        path = askopenfilename(title='Select an image',
-                               initialdir=self.__config.get_recent_dir())
+        path = askopenfilename(title='Select an image', initialdir=self.__config.get_recent_dir())
         if path == '':
             return
-        if not self.check_image(path):  # check if it is an image
-            messagebox.showinfo('Not an image',
-                                f'This is not an image: "{path}"\nPlease, select an image.')
+        if not self.is_image(path):  # check if it is an image
+            messagebox.showinfo('Not an image', f'This is not an image: "{path}"\nPlease, select an image.')
             self.__open_image()  # try to open new image again
             return
-        #
         self.__set_image(path)
 
     @staticmethod
-    def check_image(path):
+    def is_image(path):
         """ Check if it is an image. Static method """
         try:  # try to open and close image with PIL
             img = Image.open(path)
@@ -190,4 +182,5 @@ class MainGUI:
         """ Destroy the main frame object and release all resources """
         self.__config.destroy()
         logging.info('Close GUI')
+        self.__display.destroy()
         self.gui.quit()

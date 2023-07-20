@@ -94,7 +94,7 @@ class Config:
         except configparser.NoSectionError:  # no section with the list of last opened paths
             return []
 
-    def set_recent_path(self, path):
+    def set_recent_image(self, path):
         """ Set last opened path to config INI file """
         self.__check_section(self.__recent)
         lst = self.__config.items(self.__recent)  # list of (key, value) pairs
@@ -112,17 +112,13 @@ class Config:
             if key > self.__recent_number:
                 break  # exit from the cycle
 
-    def save(self):
-        """ Save config file """
-        with open(self.__config_path, 'w') as configfile:
-            self.__config.write(configfile)
-
     def __new_config(self):
         """ Create new config INI file and put default values in it """
         self.set_win_geometry(self.default_geometry)
         self.set_win_state(self.default_state)
-        self.set_recent_path(self.__default_opened_path)
+        self.set_recent_image(self.__default_opened_path)
 
     def destroy(self):
         """ Config destructor """
-        self.save()
+        with open(self.__config_path, 'w') as configfile:
+            self.__config.write(configfile)  # save config file

@@ -4,7 +4,8 @@
 
 **Under construction...**
 
-Feature extraction algorithms with GUI for tests and education.
+Objects tracking using feature extraction algorithms with GUI
+for tests and education.
 
 ... `some explanations should be here`
 
