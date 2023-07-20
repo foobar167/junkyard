@@ -35,7 +35,7 @@ def handle_uncaught_exception(errtype, value, traceback):
     logger.error('Uncaught exception occurred', exc_info=(errtype, value, traceback))
 
 
-def handle_exception(exit_code = 0):
+def handle_exception(exit_code=0):
     """ Use: @land.logger.handle_exception(0)
         before every function which could cast an exception """
     def wrapper(func):
