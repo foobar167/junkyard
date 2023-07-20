@@ -24,16 +24,16 @@ class MainGUI:
 
     def __create_instances(self):
         """ Instances for GUI are created here """
-        self.__config = Config()  # open config file of the main window
-        self.__extractor = FeatureExtractor(self.__config.get_recent_image())  # feature extractors
+        self._config = Config()  # open config file of the main window
+        self._extractor = FeatureExtractor(self._config.get_recent_image())  # feature extractors
 
     def __create_main_window(self):
         """ Create main window GUI"""
         self.__default_title = 'Feature extractor: '
         self.gui.title(self.__default_title)  # set window title
         # Get window size/position from config INI file: 'Width × Height ± X ± Y'
-        self.gui.geometry(self.__config.get_win_geometry())
-        self.gui.wm_state(self.__config.get_win_state())  # get window state
+        self.gui.geometry(self._config.get_win_geometry())
+        self.gui.wm_state(self._config.get_win_state())  # get window state
         # Trigger self.destructor function when the root window is closed
         self.gui.protocol('WM_DELETE_WINDOW', self.destroy)
         #
@@ -50,14 +50,14 @@ class MainGUI:
             self.keycode = {
                 'o': 32,
             }
-        self.__shortcuts = [
+        self._shortcuts = [
             ['Ctrl+O', self.keycode['o'], self.__open_image],  # open image
         ]
         # Bind events to the main window
         self.gui.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
-        self.gui.bind('<F11>', lambda event: self.__toggle_fullscreen())  # toggle fullscreen mode
-        self.gui.bind('<Escape>', lambda event, s=False: self.__toggle_fullscreen(s))
-        self.gui.bind('<F5>', lambda event: self.__default_geometry())  # reset default window geometry
+        self.gui.bind('<F11>', lambda event: self._toggle_fullscreen())  # toggle fullscreen mode
+        self.gui.bind('<Escape>', lambda event, s=False: self._toggle_fullscreen(s))
+        self.gui.bind('<F5>', lambda event: self._default_geometry())  # reset default window geometry
         # Handle main window resizing in the idle mode, because consecutive keystrokes <F11> - <F5>
         # don't set default geometry from fullscreen if resizing is not postponed.
         self.gui.bind('<Configure>', lambda event: self.gui.after_idle(self.__resize_master))
@@ -65,7 +65,7 @@ class MainGUI:
         # when too many keystroke events in the same time.
         self.gui.bind('<Key>', lambda event: self.gui.after_idle(self.__keystroke, event))
 
-    def __toggle_fullscreen(self, state=None):
+    def _toggle_fullscreen(self, state=None):
         """ Enable/disable the fullscreen mode """
         if state is not None:
             self.__fullscreen = state  # set state to fullscreen
@@ -99,18 +99,18 @@ class MainGUI:
         """ Language independent handle events from the keyboard """
         # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
         if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
-            for shortcut in self.__shortcuts:
+            for shortcut in self._shortcuts:
                 if event.keycode == shortcut[1]:
                     shortcut[2]()
         else:  # remember previous state of the event
             self.__previous_state = event.state
 
-    def __default_geometry(self):
+    def _default_geometry(self):
         """ Reset default geometry for the main GUI window """
-        self.__toggle_fullscreen(state=False)  # exit from fullscreen
-        self.gui.wm_state(self.__config.default_state)  # exit from zoomed
-        self.__config.set_win_geometry(self.__config.default_geometry)  # save default to config
-        self.gui.geometry(self.__config.default_geometry)  # set default geometry
+        self._toggle_fullscreen(state=False)  # exit from fullscreen
+        self.gui.wm_state(self._config.default_state)  # exit from zoomed
+        self._config.set_win_geometry(self._config.default_geometry)  # save default to config
+        self.gui.geometry(self._config.default_geometry)  # set default geometry
 
     def __resize_master(self):
         """ Save main window size and position into config file.
@@ -124,21 +124,15 @@ class MainGUI:
             if self.__bugfix is True:  # fixing bug for: fullscreen --> zoomed --> normal
                 self.__bugfix = False
                 # Explicitly set previous geometry to fix the bug
-                self.gui.geometry(self.__config.get_win_geometry())
+                self.gui.geometry(self._config.get_win_geometry())
                 return
-            self.__config.set_win_geometry(self.gui.winfo_geometry())
-        self.__config.set_win_state(self.gui.wm_state())
+            self._config.set_win_geometry(self.gui.winfo_geometry())
+        self._config.set_win_state(self.gui.wm_state())
 
     def __create_widgets(self):
         """ Widgets for GUI are created here """
         # Create menu widget
-        self.functions = {  # dictionary of functions for menu widget
-            'destroy': self.destroy,
-            'toggle_fullscreen': self.__toggle_fullscreen,
-            'default_geometry': self.__default_geometry,
-            'set_image': self.__set_image,
-        }
-        self.__menu = Menu(self.gui, self.__config, self.__shortcuts, self.functions)
+        self.__menu = Menu(self)
         self.gui.configure(menu=self.__menu.menubar)  # menu should be BEFORE iconbitmap, it's a bug
         # BUG! Add menu bar to the main window BEFORE iconbitmap command. Otherwise, it will
         # shrink in height by 20 pixels after each open-close of the main window.
@@ -150,24 +144,24 @@ class MainGUI:
             img = tk.PhotoImage(file=os.path.join(this_dir, 'logo.gif'))
             self.gui.tk.call('wm', 'iconphoto', self.gui._w, img)  # set logo icon
         # Create GUI display
-        self.__display = Display(self.gui, self.__extractor)
+        self.__display = Display(self)
 
-    def __set_image(self, path):
+    def _set_image(self, path):
         """ Close previous image and set a new one """
-        self.__config.set_recent_image(path)  # save image path into config
-        self.__extractor.set_image(cv2.imread(path))  # update image to track
+        self._config.set_recent_image(path)  # save image path into config
+        self._extractor.set_image(cv2.imread(path))  # update image to track
 
     @handle_exception(0)
     def __open_image(self):
         """ Open image in the GUI """
-        path = askopenfilename(title='Select an image', initialdir=self.__config.get_recent_dir())
+        path = askopenfilename(title='Select an image', initialdir=self._config.get_recent_dir())
         if path == '':
             return
         if not self.is_image(path):  # check if it is an image
             messagebox.showinfo('Not an image', f'This is not an image: "{path}"\nPlease, select an image.')
             self.__open_image()  # try to open new image again
             return
-        self.__set_image(path)
+        self._set_image(path)
 
     @staticmethod
     def is_image(path):
@@ -181,7 +175,7 @@ class MainGUI:
 
     def destroy(self):
         """ Destroy the main frame object and release all resources """
-        self.__config.destroy()
         logging.info('Close GUI')
+        self._config.destroy()
         self.__display.destroy()
         self.gui.quit()
