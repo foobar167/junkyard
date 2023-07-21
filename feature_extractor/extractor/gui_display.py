@@ -35,8 +35,8 @@ class Display:
         """ Get frame from the video stream and show it in Tkinter """
         ok, frame = self.__video_stream.read()  # read frame from video stream
         if ok:  # frame captured without any errors
-            if self.__main_window._extractor.image is not None:
-                frame = self.__main_window._extractor.tracking(frame)
+            if self.__main_window.extractor.image is not None:
+                frame = self.__main_window.extractor.tracking(frame)
             frame = self.__resize_image(frame)  # resize frame for the GUI window
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)  # convert from BGR to RGBA
             image = Image.fromarray(cv2image)  # convert image for PIL
@@ -66,11 +66,11 @@ class Display:
         """ Take a new snapshot. Save it to the file. Pass the name of the new file to the application """
         uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
         filename = f'{uid}.png'  # construct filename from the UID
-        filepath = os.path.join(self.__main_window._config.config_dir, filename)  # construct output path
+        filepath = os.path.join(self.__main_window.config.config_dir, filename)  # construct output path
         logging.info(f'Take a new snapshot: {filepath}')
         _, frame = self.__video_stream.read()  # read frame from video stream
         cv2.imwrite(filepath, frame)  # save image frame
-        self.__main_window._set_image(filepath)  # close previous image and set a new one
+        self.__main_window.set_image(filepath)  # close previous image and set a new one
 
     def destroy(self):
         """ Release all resources """

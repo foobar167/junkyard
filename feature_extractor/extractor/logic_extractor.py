@@ -7,11 +7,6 @@ from abc import ABC, abstractmethod
 class FeatureExtractor(ABC):
     """ Feature extractor abstract base class (ABC) """
     def __init__(self, impath=None):
-        # self.extractor = cv2.ORB_create()  # initiate ORB feature extractor
-        # self.detect_and_compute = self.detect_and_compute_1
-        # self.nn_match_ratio = 0.73  # nearest neighbor matching ratio
-        # self.matches = 10  # number of good matches to draw quadrilateral
-
         # self.extractor = cv2.xfeatures2d.BriefDescriptorExtractor_create()  # initiate BRIEF extractor
         # self.detect_and_compute = self.detect_and_compute_2
         # self.nn_match_ratio = 0.73  # nearest neighbor matching ratio
@@ -43,6 +38,12 @@ class FeatureExtractor(ABC):
 
     @property
     @abstractmethod
+    def name(self):
+        """ Short feature extractor name for menu and config INI file """
+        pass
+
+    @property
+    @abstractmethod
     def _extractor(self):
         """ Feature extractor initializer """
         pass
@@ -50,7 +51,7 @@ class FeatureExtractor(ABC):
     @property
     def _ratio(self):
         """ Nearest neighbor matching ratio """
-        return 0.73  # default value
+        return 0.70  # default value
 
     @property
     def _matches(self):
@@ -136,9 +137,16 @@ class FeatureExtractor(ABC):
 
 
 class AKAZE(FeatureExtractor):
+    name = 'AKAZE'
     _extractor = cv2.AKAZE_create()  # initiate AKAZE feature extractor
-    _ratio = 0.7  # nearest neighbor matching ratio
-    _matches = 6  # number of good matches to draw quadrilateral
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptor """
+        return self._extractor.detectAndCompute(gray, None)
+
+class ORB(FeatureExtractor):
+    name = 'ORB'
+    _extractor = cv2.ORB_create()  # initiate ORB feature extractor
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptor """

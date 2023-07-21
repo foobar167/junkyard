@@ -16,25 +16,39 @@ class MainGUI:
     """ Main GUI Window """
     def __init__(self):
         """ Initialize the Frame """
-        logging.info('Open GUI')
-        self.gui = tk.Tk()  # initialize root window
         self.__create_instances()
         self.__create_main_window()
         self.__create_widgets()
 
     def __create_instances(self):
         """ Instances for GUI are created here """
-        self._config = Config()  # open config file of the main window
-        subclasses = FeatureExtractor.__subclasses__()  # get list of all subclasses of the abstract class
-        self._extractor = subclasses[0](self._config.get_recent_image())  # feature extractors
+        self.config = Config()  # open config file of the main window
+        extractors_list = FeatureExtractor.__subclasses__()  # list of all subclasses of the abstract class
+        if extractors_list:
+            index = 0
+            name = self.config.get_extractor_name()  # get last used extractor name from config
+            if name is not None:
+                lst = [i.name for i in extractors_list]
+                if name in lst:
+                    index = lst.index(name)
+                else:
+                    logging.warning(f'Feature extractor "{name}" does not exist. Set the 1st in the list')
+            else:  # if name is None or not in the list, set the 1st feature extracto in the list
+                logging.info('No feature extractor in config. Set the 1st in the list')
+            self.extractor = extractors_list[index](self.config.get_recent_image())
+        else:
+            logging.error('There are no feature extractors in the application')
+            exit(-1)
+        logging.info('Open GUI')
+        self.gui = tk.Tk()  # initialize root window
 
     def __create_main_window(self):
         """ Create main window GUI"""
         self.__default_title = 'Feature extractor: '
         self.gui.title(self.__default_title)  # set window title
         # Get window size/position from config INI file: 'Width × Height ± X ± Y'
-        self.gui.geometry(self._config.get_win_geometry())
-        self.gui.wm_state(self._config.get_win_state())  # get window state
+        self.gui.geometry(self.config.get_win_geometry())
+        self.gui.wm_state(self.config.get_win_state())  # get window state
         # Trigger self.destructor function when the root window is closed
         self.gui.protocol('WM_DELETE_WINDOW', self.destroy)
         #
@@ -109,9 +123,9 @@ class MainGUI:
     def _default_geometry(self):
         """ Reset default geometry for the main GUI window """
         self._toggle_fullscreen(state=False)  # exit from fullscreen
-        self.gui.wm_state(self._config.default_state)  # exit from zoomed
-        self._config.set_win_geometry(self._config.default_geometry)  # save default to config
-        self.gui.geometry(self._config.default_geometry)  # set default geometry
+        self.gui.wm_state(self.config.default_state)  # exit from zoomed
+        self.config.set_win_geometry(self.config.default_geometry)  # save default to config
+        self.gui.geometry(self.config.default_geometry)  # set default geometry
 
     def __resize_master(self):
         """ Save main window size and position into config file.
@@ -125,10 +139,10 @@ class MainGUI:
             if self.__bugfix is True:  # fixing bug for: fullscreen --> zoomed --> normal
                 self.__bugfix = False
                 # Explicitly set previous geometry to fix the bug
-                self.gui.geometry(self._config.get_win_geometry())
+                self.gui.geometry(self.config.get_win_geometry())
                 return
-            self._config.set_win_geometry(self.gui.winfo_geometry())
-        self._config.set_win_state(self.gui.wm_state())
+            self.config.set_win_geometry(self.gui.winfo_geometry())
+        self.config.set_win_state(self.gui.wm_state())
 
     def __create_widgets(self):
         """ Widgets for GUI are created here """
@@ -147,22 +161,22 @@ class MainGUI:
         # Create GUI display
         self.__display = Display(self)
 
-    def _set_image(self, path):
+    def set_image(self, path):
         """ Close previous image and set a new one """
-        self._config.set_recent_image(path)  # save image path into config
-        self._extractor.set_image(cv2.imread(path))  # update image to track
+        self.config.set_recent_image(path)  # save image path into config
+        self.extractor.set_image(cv2.imread(path))  # update image to track
 
     @handle_exception(0)
     def __open_image(self):
         """ Open image in the GUI """
-        path = askopenfilename(title='Select an image', initialdir=self._config.get_recent_dir())
+        path = askopenfilename(title='Select an image', initialdir=self.config.get_recent_dir())
         if path == '':
             return
         if not self.is_image(path):  # check if it is an image
             messagebox.showinfo('Not an image', f'This is not an image: "{path}"\nPlease, select an image.')
             self.__open_image()  # try to open new image again
             return
-        self._set_image(path)
+        self.set_image(path)
 
     @staticmethod
     def is_image(path):
@@ -177,6 +191,6 @@ class MainGUI:
     def destroy(self):
         """ Destroy the main frame object and release all resources """
         logging.info('Close GUI')
-        self._config.destroy()
+        self.config.destroy()
         self.__display.destroy()
         self.gui.quit()
