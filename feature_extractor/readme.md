@@ -15,9 +15,10 @@ which is in the `temp` directory.
 Tested on **Windows** for Python **3.7**.
 
 External libraries:
-   * **OpenCV** to process images.
-   * **NumPy** to support arrays.
-   * **Pillow** to open images of [various formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html).
+   * **OpenCV** to process images, version >= 4.8.
+   * **NumPy** to support arrays, version >= 1.17.
+   * **Pillow** to open images of [various formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html),
+version >= 6.1.
 
 To start:
 ```shell

@@ -1,4 +1,4 @@
-# Haris corner detection
+# Harris corner detection
 # URL: https://www.geeksforgeeks.org/feature-detection-and-matching-with-opencv-python/
 import cv2
 
@@ -17,5 +17,5 @@ dst = cv2.cornerHarris(gray_image, blockSize=2, ksize=3, k=0.04)
 dst = cv2.dilate(dst, None)
 image[dst > 0.01 * dst.max()] = [0, 255, 0]
 
-cv2.imshow('Haris corner detection', image)
+cv2.imshow('Harris corner detection', image)
 cv2.waitKey()
