@@ -44,7 +44,7 @@ class Display:
             self.__panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
             self.__panel.config(image=imgtk)  # show the image
         # Try to not set 1 ms or less than 10 ms, because the app will lag.
-        self.__panel.after(10, self.__video_loop)  # call the same function after 10 milliseconds
+        self.__panel.after(20, self.__video_loop)  # call the same function after 20 milliseconds
 
     def __resize_image(self, image):
         """ Resize image proportionally """

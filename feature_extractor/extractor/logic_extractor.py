@@ -8,11 +8,6 @@ class FeatureExtractor(ABC):
     """ Feature extractor abstract base class (ABC) """
     def __init__(self, impath=None):
         # self.extractor = cv2.xfeatures2d.BriefDescriptorExtractor_create()  # initiate BRIEF extractor
-        # self.detect_and_compute = self.detect_and_compute_2
-        # self.nn_match_ratio = 0.73  # nearest neighbor matching ratio
-        # self.matches = 10  # number of good matches to draw quadrilateral
-
-        # self.extractor = cv2.xfeatures2d.BriefDescriptorExtractor_create()  # initiate BRIEF extractor
         # self.detect_and_compute = self.detect_and_compute_3
         # self.nn_match_ratio = 0.73  # nearest neighbor matching ratio
         # self.matches = 5  # number of good matches to draw quadrilateral
@@ -26,13 +21,13 @@ class FeatureExtractor(ABC):
         }
         self.__flann = cv2.FlannBasedMatcher(self.__params['index_params'], self.__params['search_params'])
 
-        self.image, self.__keypoints, self.__descriptor, self.__pts = None, None, None, None
+        self.image, self.__keypoints, self.__descriptors, self.__pts = None, None, None, None
         image = cv2.imread(impath)  # return None if image doesn't exist
         self.set_image(image)
 
     @abstractmethod
     def _detect_and_compute(self, gray):
-        """ Detect keypoints and compute descriptor.
+        """ Detect keypoints and compute descriptors.
             Cannot use private '__' methods here. Only public and protected '_' methods. """
         pass
 
@@ -57,47 +52,37 @@ class FeatureExtractor(ABC):
     def _matches(self):
         return 10  # default value
 
+    def __get_keypoints_and_descriptors(self, image):
+        """ Prepare data and compute keypoints and descriptors """
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # color BGR to grayscale
+        keypoints, descriptors = self._detect_and_compute(gray)
+        descriptors = np.float32(descriptors)  # convert from uint8 to float32 for FLANN matcher
+        return keypoints, descriptors
+
     def set_image(self, image):
         """ Set current image with object to track """
         self.image = image
         if image is not None:
-            self.__keypoints, self.__descriptor = self.__compute(image)
+            self.__keypoints, self.__descriptors = self.__get_keypoints_and_descriptors(image)
             h, w = image.shape[:2]  # color image has shape [h, w, 3]
             self.__pts = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]).reshape(-1, 1, 2)
 
-    def __detect_and_compute_1(self, gray):
-        """ Detect keypoints and compute descriptor """
-        return self._extractor.detectAndCompute(gray, None)
-
-    def __detect_and_compute_2(self, gray):
-        """ Detect keypoints and compute descriptor """
-        star = cv2.xfeatures2d.StarDetector_create()  # initiate FAST detector
-        keypoints = star.detect(gray, None)  # find the keypoints with STAR (CenSurE) feature detector
-        return self._extractor.compute(gray, keypoints)  # compute the descriptors with BRIEF
-
-    def __detect_and_compute_3(self, gray):
-        """ Detect keypoints and compute descriptor """
-        corners = cv2.goodFeaturesToTrack(gray, maxCorners=250, qualityLevel=0.02, minDistance=20)
-        corners = np.squeeze(corners).astype(int)  # squeeze dimensions and convert from float to int
-        keypoints = [cv2.KeyPoint(c[0], c[1], 13) for c in corners]  # convert coordinates to Keypoint type
-        return self._extractor.compute(gray, keypoints)  # compute the descriptors with BRIEF
-
-    def __compute(self, image):
-        """ Compute keypoints and descriptor """
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # color BGR to grayscale
-        keypoints, descriptor = self._detect_and_compute(gray)
-        descriptor = np.float32(descriptor)  # convert from uint8 to float32 for FLANN matcher
-        return keypoints, descriptor
+    # def __detect_and_compute_3(self, gray):
+    #     """ Detect keypoints and compute descriptors """
+    #     corners = cv2.goodFeaturesToTrack(gray, maxCorners=250, qualityLevel=0.02, minDistance=20)
+    #     corners = np.squeeze(corners).astype(int)  # squeeze dimensions and convert from float to int
+    #     keypoints = [cv2.KeyPoint(c[0], c[1], 13) for c in corners]  # convert coordinates to Keypoint type
+    #     return self._extractor.compute(gray, keypoints)  # compute the descriptors with BRIEF
 
     def tracking(self, image):
         """ Draw matches between two images according to feature extractor algorithm """
-        keypoints2, descriptor2 = self.__compute(image)
+        keypoints2, descriptors2 = self.__get_keypoints_and_descriptors(image)
 
-        # Sometimes it could be a 'float NaN' descriptor - exception ValueError
+        # Sometimes it could be a 'float NaN' descriptors - exception ValueError
         # or (-215:Assertion failed) (size_t)knn <= index_->size() - exception cv2.error
         # You can simulate this exception when wipe the camera with a handkerchief.
         try:
-            matches = self.__flann.knnMatch(self.__descriptor, descriptor2, k=2)
+            matches = self.__flann.knnMatch(self.__descriptors, descriptors2, k=2)
         except (ValueError, cv2.error):
             return self.__concat(self.image, image)
 
@@ -137,17 +122,45 @@ class FeatureExtractor(ABC):
 
 
 class AKAZE(FeatureExtractor):
+    """ AKAZE keypoint detector and descriptor extractor """
     name = 'AKAZE'
     _extractor = cv2.AKAZE_create()  # initiate AKAZE feature extractor
 
     def _detect_and_compute(self, gray):
-        """ Detect keypoints and compute descriptor """
-        return self._extractor.detectAndCompute(gray, None)
+        """ Detect keypoints and compute descriptors """
+        return self._extractor.detectAndCompute(gray, None)  # return keypoints and descriptors
+
+
+class KAZE(FeatureExtractor):
+    """ KAZE keypoint detector and descriptor extractor """
+    name = 'KAZE'
+    _extractor = cv2.KAZE_create()  # initiate KAZE feature extractor
+    _ratio = 0.55  # nearest neighbor matching ratio
+    _matches = 4  # number of good matches to draw quadrilateral
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        return self._extractor.detectAndCompute(gray, None)  # return keypoints and descriptors
+
 
 class ORB(FeatureExtractor):
+    """ ORB (Oriented FAST and Rotated BRIEF) algorithm """
     name = 'ORB'
     _extractor = cv2.ORB_create()  # initiate ORB feature extractor
 
     def _detect_and_compute(self, gray):
-        """ Detect keypoints and compute descriptor """
-        return self._extractor.detectAndCompute(gray, None)
+        """ Detect keypoints and compute descriptors """
+        return self._extractor.detectAndCompute(gray, None)  # return keypoints and descriptors
+
+
+class FastBrief(FeatureExtractor):
+    """ FAST (Features from Accelerated Segment Test) and
+        BRIEF (Binary Robust Independent Elementary Features) algorithms """
+    name = 'FAST+BRIEF'
+    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor_create()  # initiate BRIEF extractor
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        star = cv2.xfeatures2d.StarDetector_create()  # initiate FAST corner detector
+        keypoints = star.detect(gray, None)  # find the keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute keypoints and descriptors with BRIEF
