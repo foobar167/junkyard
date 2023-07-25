@@ -44,8 +44,8 @@ class MainGUI:
 
     def __create_main_window(self):
         """ Create main window GUI"""
-        self.__default_title = 'Feature extractor: '
-        self.gui.title(self.__default_title)  # set window title
+        self.default_title = 'Feature extractor'
+        self.gui.title(self.default_title + ': '+ self.extractor.name)  # set window title
         # Get window size/position from config INI file: 'Width × Height ± X ± Y'
         self.gui.geometry(self.config.get_win_geometry())
         self.gui.wm_state(self.config.get_win_state())  # get window state
@@ -55,19 +55,6 @@ class MainGUI:
         self.__fullscreen = False  # enable / disable fullscreen mode
         self.__bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
         self.__previous_state = 0  # previous state of the event
-        # List of shortcuts in the following format: [name, keycode, function]
-        self.keycode = {}  # init key codes
-        if os.name == 'nt':  # Windows OS
-            self.keycode = {
-                'o': 79,
-            }
-        else:  # Linux OS
-            self.keycode = {
-                'o': 32,
-            }
-        self._shortcuts = [
-            ['Ctrl+O', self.keycode['o'], self.__open_image],  # open image
-        ]
         # Bind events to the main window
         self.gui.bind('<Motion>', lambda event: self.__motion())  # track and handle mouse pointer position
         self.gui.bind('<F11>', lambda event: self._toggle_fullscreen())  # toggle fullscreen mode
@@ -114,11 +101,16 @@ class MainGUI:
         """ Language independent handle events from the keyboard """
         # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
         if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
-            for shortcut in self._shortcuts:
-                if event.keycode == shortcut[1]:
-                    shortcut[2]()
-        else:  # remember previous state of the event
-            self.__previous_state = event.state
+            if event.keycode in self._shortcuts['open'][2]:  # <Ctrl>+<O> is pressed
+                self._shortcuts['open'][3]()  # open new image
+            elif event.keycode in self._shortcuts['save'][2]:  # <Ctrl>+<S> is pressed
+                self._shortcuts['save'][3]()  # take a snapshot
+        else:  # <Ctrl> key is not pressed
+            self.__previous_state = event.state  # remember previous state of the event
+            if event.keycode in self._shortcuts['next'][2]:  # keycode 'next' is pressed
+                self._shortcuts['next'][3]()  # next extractor
+            elif event.keycode in self._shortcuts['prev'][2]:  # keycode 'prev' is pressed
+                self._shortcuts['prev'][3]()  # last extractor
 
     def _default_geometry(self):
         """ Reset default geometry for the main GUI window """
@@ -146,8 +138,7 @@ class MainGUI:
 
     def __create_widgets(self):
         """ Widgets for GUI are created here """
-        # Create menu widget
-        self.__menu = Menu(self)
+        self.__menu = Menu(self)  # create menu widget
         self.gui.configure(menu=self.__menu.menubar)  # menu should be BEFORE iconbitmap, it's a bug
         # BUG! Add menu bar to the main window BEFORE iconbitmap command. Otherwise, it will
         # shrink in height by 20 pixels after each open-close of the main window.
@@ -158,8 +149,31 @@ class MainGUI:
             # ICO format does not work for Linux. Use GIF or black and white XBM format instead.
             img = tk.PhotoImage(file=os.path.join(this_dir, 'logo.gif'))
             self.gui.tk.call('wm', 'iconphoto', self.gui._w, img)  # set logo icon
-        # Create GUI display
-        self.__display = Display(self)
+        self.__display = Display(self)  # create GUI display
+        # List of shortcuts in the following format: [menu_name, keystroke, keycode, function]
+        self.keycode = {}  # init key codes
+        if os.name == 'nt':  # Windows OS
+            self.keycode = {
+                'o': [79],
+                's': [83],
+                '→': [68, 39, 102, 34],  # keys: 'd', 'Right', scroll right, PageDown
+                '←': [65, 37, 100, 33],  # keys: 'a', 'Left', scroll left, PageUp
+            }
+        else:  # Linux OS (no Mac OS)
+            self.keycode = {
+                'o': [32],
+                's': [39],
+                '→': [40, 114, 85],  # keys: 'd', 'Right', PageDown
+                '←': [38, 113, 83],  # keys: 'a', 'Left', PageUp
+            }
+        self._shortcuts = {
+            'open': ['Open image', 'Ctrl+O', self.keycode['o'], self.__open_image],  # open image
+            'next': ['Next Extractor →', '→', self.keycode['→'], self.__menu.next_extractor],  # set next extractor
+            'save': ['Get snapshot', 'Ctrl+S', self.keycode['s'], self.__display.get_snapshot],  # take a new snapshot
+            'prev': ['← Prev Extractor', '←', self.keycode['←'], self.__menu.prev_extractor],  # set previous extractor
+        }
+        self.__menu.create_menu()
+        self.__display.add_buttons()
 
     def set_image(self, path):
         """ Close previous image and set a new one """

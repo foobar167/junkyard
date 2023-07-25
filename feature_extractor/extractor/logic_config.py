@@ -17,7 +17,7 @@ class Config:
         self.default_geometry = '800x600+0+0'  # default window geometry 'WxH±X±Y'
         self.__state = 'State'  # state of the window: normal, zoomed, etc.
         self.default_state = 'normal'  # normal state of the window
-        self.__default_opened_path = './data/2023.06.23_book_cover.jpg'
+        self.__default_opened_path = './data/book_cover.jpg'
         #
         self.__extractor = 'FeatureExtractor'  # info about feature extractor
         self.__name = 'Name'  # name of the last used feature extractor

@@ -16,20 +16,26 @@ class Display:
         self.__video_stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # set video resolution to 800×600 or 960×720
         self.__video_stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # default resolution is 640×480
         # Create tk.Frame container in GUI and make it expandable
-        container = tk.Frame(self.__main_window.gui)
-        container.pack(fill=tk.BOTH, expand=1)
+        self.container = tk.Frame(self.__main_window.gui)
+        self.container.pack(fill=tk.BOTH, expand=1)
         # Configure the rows and columns to have a non-zero weight so that they will take up the extra space
-        container.rowconfigure(0, weight=1)
-        container.columnconfigure(0, weight=1)
-        self.__panel = tk.Label(container, text='Web camera image', anchor='center')  # initialize image panel
+        self.container.rowconfigure(0, weight=1)
+        self.container.columnconfigure(0, weight=1)
+        self.__panel = tk.Label(self.container, text='Web camera image', anchor='center')  # initialize image panel
         self.__panel.grid(row=0, column=0, sticky='nswe')  # make tk.Label expandable
-        # Button, when pressed, the current frame will be taken
-        buttons = tk.Label(container)  # initialize buttons panel
-        buttons.grid(row=1, column=0, sticky='we')
-        btn = tk.Button(buttons, text='Get snapshot', command=self.__get_snapshot)
-        btn.pack(fill='both', expand=True, padx=10, pady=5)
         #
         self.__video_loop()  # start a video loop
+
+    def add_buttons(self):
+        """ Add buttons to the bottom of the GUI window """
+        buttons = tk.Label(self.container)  # initialize buttons panel
+        buttons.grid(row=1, column=0)
+        tk.Button(buttons, text=self.__main_window._shortcuts['prev'][0],
+                  command=self.__main_window._shortcuts['prev'][3]).pack(side=tk.LEFT)
+        tk.Button(buttons, text=self.__main_window._shortcuts['save'][0],
+                  command=self.__main_window._shortcuts['save'][3]).pack(side=tk.LEFT)
+        tk.Button(buttons, text=self.__main_window._shortcuts['next'][0],
+                  command=self.__main_window._shortcuts['next'][3]).pack(side=tk.LEFT)
 
     def __video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
@@ -62,7 +68,7 @@ class Display:
         # Interpolation could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
         return cv2.resize(image, shape, interpolation=Image.ANTIALIAS)
 
-    def __get_snapshot(self):
+    def get_snapshot(self):
         """ Take a new snapshot. Save it to the file. Pass the name of the new file to the application """
         uid = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')  # unique ID from the current timestamp
         filename = f'{uid}.png'  # construct filename from the UID

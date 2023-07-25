@@ -11,7 +11,7 @@ class FeatureExtractor(ABC):
         index_params = dict(algorithm=1, trees=5)  # Flann Matcher parameter
         search_params = dict(checks=50)  # Flann parameter, or pass empty dictionary instead
         self.__draw_params = dict(outImg=None, matchColor=(127, 255, 127),
-                                singlePointColor=(210, 250, 250), flags=0)  # quadrilateral draw parameters
+                                  singlePointColor=(210, 250, 250), flags=0)  # quadrilateral draw parameters
         self.__flann = cv2.FlannBasedMatcher(index_params, search_params)
 
         self.image, self.__keypoints, self.__descriptors, self.__pts = None, None, None, None
@@ -106,6 +106,16 @@ class FeatureExtractor(ABC):
         image[:h1, :w1, :3] = image1
         image[:h2, w1:w1+w2, :3] = image2
         return image
+
+
+class SIFT(FeatureExtractor):
+    """ SIFT (Scale-Invariant Feature Transform) algorithm """
+    name = 'SIFT'  # SIFT became free since March 2020
+    _extractor = cv2.SIFT.create()  # initiate SIFT feature extractor
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        return self._extractor.detectAndCompute(gray, None)  # return keypoints and descriptors
 
 
 class AKAZE(FeatureExtractor):
