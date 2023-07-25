@@ -75,7 +75,7 @@ class FeatureExtractor(ABC):
 
         # Store all the good matches as per David G. Lowe's ratio test
         good_matches = []
-        matches_mask = np.zeros((len(matches), 2), dtype=np.int)
+        matches_mask = np.zeros((len(matches), 2), dtype=np.int32)
         for i, (m, n) in enumerate(matches):
             if m.distance < self._ratio * n.distance:
                 matches_mask[i] = [1, 0]
@@ -308,4 +308,3 @@ class StarDetectorLATCH(FeatureExtractor):
 #         # Use color image, gray image throws error:
 #         # (-215:Assertion failed) _src.channels() == 3 in function 'cv::xfeatures2d::LUCIDImpl::compute'
 #         return self._extractor.compute(self.image, keypoints)  # compute descriptors
-

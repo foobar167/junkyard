@@ -45,7 +45,7 @@ class MainGUI:
     def __create_main_window(self):
         """ Create main window GUI"""
         self.default_title = 'Feature extractor'
-        self.gui.title(self.default_title + ': '+ self.extractor.name)  # set window title
+        self.gui.title(self.default_title + ': ' + self.extractor.name)  # set window title
         # Get window size/position from config INI file: 'Width × Height ± X ± Y'
         self.gui.geometry(self.config.get_win_geometry())
         self.gui.wm_state(self.config.get_win_state())  # get window state
@@ -101,16 +101,16 @@ class MainGUI:
         """ Language independent handle events from the keyboard """
         # print(event.keycode, event.keysym, event.state)  # uncomment it for debug purposes
         if event.state - self.__previous_state == 4:  # check if <Control> key is pressed
-            if event.keycode in self._shortcuts['open'][2]:  # <Ctrl>+<O> is pressed
-                self._shortcuts['open'][3]()  # open new image
-            elif event.keycode in self._shortcuts['save'][2]:  # <Ctrl>+<S> is pressed
-                self._shortcuts['save'][3]()  # take a snapshot
+            if event.keycode in self.shortcuts['open'][2]:  # <Ctrl>+<O> is pressed
+                self.shortcuts['open'][3]()  # open new image
+            elif event.keycode in self.shortcuts['save'][2]:  # <Ctrl>+<S> is pressed
+                self.shortcuts['save'][3]()  # take a snapshot
         else:  # <Ctrl> key is not pressed
             self.__previous_state = event.state  # remember previous state of the event
-            if event.keycode in self._shortcuts['next'][2]:  # keycode 'next' is pressed
-                self._shortcuts['next'][3]()  # next extractor
-            elif event.keycode in self._shortcuts['prev'][2]:  # keycode 'prev' is pressed
-                self._shortcuts['prev'][3]()  # last extractor
+            if event.keycode in self.shortcuts['next'][2]:  # keycode 'next' is pressed
+                self.shortcuts['next'][3]()  # next extractor
+            elif event.keycode in self.shortcuts['prev'][2]:  # keycode 'prev' is pressed
+                self.shortcuts['prev'][3]()  # last extractor
 
     def _default_geometry(self):
         """ Reset default geometry for the main GUI window """
@@ -166,7 +166,7 @@ class MainGUI:
                 '→': [40, 114, 85],  # keys: 'd', 'Right', PageDown
                 '←': [38, 113, 83],  # keys: 'a', 'Left', PageUp
             }
-        self._shortcuts = {
+        self.shortcuts = {
             'open': ['Open image', 'Ctrl+O', self.keycode['o'], self.__open_image],  # open image
             'next': ['Next Extractor →', '→', self.keycode['→'], self.__menu.next_extractor],  # set next extractor
             'save': ['Get snapshot', 'Ctrl+S', self.keycode['s'], self.__display.get_snapshot],  # take a new snapshot
