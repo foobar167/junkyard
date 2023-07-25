@@ -110,8 +110,18 @@ class FeatureExtractor(ABC):
 
 class SIFT(FeatureExtractor):
     """ SIFT (Scale-Invariant Feature Transform) algorithm """
-    name = 'SIFT'  # SIFT became free since March 2020
-    _extractor = cv2.SIFT.create()  # initiate SIFT feature extractor
+    name = 'SIFT'  # SIFT became free since March 2020, and SURF is still private
+    _extractor = cv2.SIFT.create()  # initiate SIFT keypoint detector and descriptor extractor
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        return self._extractor.detectAndCompute(gray, None)  # return keypoints and descriptors
+
+
+class BRISK(FeatureExtractor):
+    """ BRISK (Binary Robust Invariant Scalable Keypoints) algorithm """
+    name = 'BRISK'
+    _extractor = cv2.BRISK.create()  # init BRISK keypoint detector and descriptor extractor
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
@@ -121,7 +131,7 @@ class SIFT(FeatureExtractor):
 class AKAZE(FeatureExtractor):
     """ AKAZE keypoint detector and descriptor extractor """
     name = 'AKAZE'
-    _extractor = cv2.AKAZE.create()  # initiate AKAZE feature extractor
+    _extractor = cv2.AKAZE.create()  # initiate AKAZE keypoint detector and descriptor extractor
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
@@ -131,7 +141,7 @@ class AKAZE(FeatureExtractor):
 class KAZE(FeatureExtractor):
     """ KAZE keypoint detector and descriptor extractor """
     name = 'KAZE'
-    _extractor = cv2.KAZE.create()  # initiate KAZE feature extractor
+    _extractor = cv2.KAZE.create()  # initiate KAZE keypoint detector and descriptor extractor
     _ratio = 0.55  # nearest neighbor matching ratio
     _matches = 4  # number of good matches to draw quadrilateral
 
@@ -141,9 +151,9 @@ class KAZE(FeatureExtractor):
 
 
 class ORB(FeatureExtractor):
-    """ ORB (Oriented FAST and Rotated BRIEF) algorithm """
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector and descriptor extractor """
     name = 'ORB'
-    _extractor = cv2.ORB.create()  # init ORB feature extractor
+    _extractor = cv2.ORB.create()  # init ORB
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
@@ -151,10 +161,10 @@ class ORB(FeatureExtractor):
 
 
 class BEBLID(FeatureExtractor):
-    """ BEBLID (Boosted Efficient Binary Local Image Descriptor) algorithm.
+    """ BEBLID (Boosted Efficient Binary Local Image Descriptor) descriptor extractor.
         They say it is on 14 % better than ORB. """
     name = 'BEBLID'
-    _extractor = cv2.ORB.create(10000)  # init ORB feature extractor, detect a maximum of 10000 corners
+    _extractor = cv2.ORB.create(10000)  # init ORB, detect a maximum of 10000 corners
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
@@ -169,46 +179,65 @@ class BEBLID(FeatureExtractor):
         return keypoints, descriptors
 
 
-class FastBrief(FeatureExtractor):
-    """ FAST (Features from Accelerated Segment Test) and
-        BRIEF (Binary Robust Independent Elementary Features) algorithms """
-    name = 'FAST + BRIEF'
-    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # initiate BRIEF extractor
+class StarDetectorFREAK(FeatureExtractor):
+    """ StarDetector keypoint detector and
+        FREAK (Fast Retina Keypoint) descriptor extractor """
+    name = 'StarDetector + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate FAST corner detector
+        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__star.detect(gray, None)  # find the keypoints with STAR (CenSurE) feature detector
-        return self._extractor.compute(gray, keypoints)  # compute descriptors with BRIEF
+        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
-class ShiTomasiBRIEF(FeatureExtractor):
+class FastFreak(FeatureExtractor):
+    """ FAST (Features from Accelerated Segment Test) keypoint detector and
+        FREAK (Fast Retina Keypoint) descriptor extractor """
+    name = 'FAST + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__fast = cv2.FastFeatureDetector.create()  # initiate FAST keypoint detector
+        # self.__fast.setNonmaxSuppression(0)  # disable nonmaxSuppression (more keypoints, slower)
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__fast.detect(gray, None)  # find keypoints
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class ShiTomasiFREAK(FeatureExtractor):
     """ Shi-Tomasi Corner Detector and
-        BRIEF (Binary Robust Independent Elementary Features) algorithms """
-    name = 'Shi-Tomasi + BRIEF'
-    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # initiate BRIEF extractor
+        FREAK (Fast Retina Keypoint) descriptor extractor """
+    name = 'Shi-Tomasi + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
     # _ratio = 0.7  # nearest neighbor matching ratio
     # _matches = 10  # number of good matches to draw quadrilateral
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        # Find 250 strongest corners in the image by Shi-Tomasi method
-        coordinates = cv2.goodFeaturesToTrack(gray, maxCorners=250, qualityLevel=0.02, minDistance=20)
+        # Find 500 strongest corners in the image by Shi-Tomasi method
+        coordinates = cv2.goodFeaturesToTrack(gray, maxCorners=1000, qualityLevel=0.02, minDistance=20)
         coordinates = np.squeeze(coordinates)  # squeeze dimensions (this is a float type)
         keypoints = [cv2.KeyPoint(c[0], c[1], 13) for c in coordinates]  # convert corner coordinates to KeyPoint type
-        return self._extractor.compute(gray, keypoints)  # compute descriptors with BRIEF
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
-class HarrisBRIEF(FeatureExtractor):
+class HarrisFREAK(FeatureExtractor):
     """ Harris Corner Detector and
-        BRIEF (Binary Robust Independent Elementary Features) algorithms """
-    name = 'Harris + BRIEF'
-    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # initiate BRIEF extractor
+        FREAK (Fast Retina Keypoint) descriptor extractor """
+    name = 'Harris + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
     _ratio = 0.55  # nearest neighbor matching ratio
     # _matches = 10  # number of good matches to draw quadrilateral
 
@@ -218,7 +247,64 @@ class HarrisBRIEF(FeatureExtractor):
         dst = cv2.cornerHarris(gray, blockSize=2, ksize=3, k=0.04)  # Harris corners detector
         dst = cv2.dilate(dst, None)  # dilate the result to mark the corners
         mask = np.zeros_like(gray)  # create a mask to identify corners
-        mask[dst > 0.05 * dst.max()] = 255  # all pixels above a certain threshold are converted to white
+        mask[dst > 0.2 * dst.max()] = 255  # all pixels above a certain threshold are converted to white
         coordinates = np.argwhere(mask).astype(float)  # create an array that lists all the pixels that are corners
         keypoints = [cv2.KeyPoint(c[1], c[0], 13) for c in coordinates]  # convert corner coordinates to KeyPoint type
         return self._extractor.compute(gray, keypoints)  # compute descriptors with BRIEF
+
+
+class StarDetectorBrief(FeatureExtractor):
+    """ StarDetector keypoint detector and
+        BRIEF (Binary Robust Independent Elementary Features) descriptor extractor """
+    name = 'StarDetector + BRIEF'
+    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # init BRIEF descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class StarDetectorLATCH(FeatureExtractor):
+    """ StarDetector keypoint detector and
+        LATCH (Learned Arrangements of Three Patch Codes) binary descriptor
+        based on learned comparisons of triplets of image patches """
+    name = 'StarDetector + LATCH'
+    _extractor = cv2.xfeatures2d.LATCH.create()  # init LATCH descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+# class StarDetectorLUCID(FeatureExtractor):
+#     """ StarDetector keypoint detector and LUCID descriptor extractor.
+#         Does not work! Commented for now. """
+#     name = 'StarDetector + LUCID'
+#     _extractor = cv2.xfeatures2d.LUCID.create()  # init LUCID descriptor extractor
+#
+#     def __init__(self, impath=None):
+#         """ Set additional variables to the child class """
+#         self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+#         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+#         super().__init__(impath)  # add a call to the parent's __init__() function
+#
+#     def _detect_and_compute(self, gray):
+#         """ Detect keypoints and compute descriptors """
+#         keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+#         # Use color image, gray image throws error:
+#         # (-215:Assertion failed) _src.channels() == 3 in function 'cv::xfeatures2d::LUCIDImpl::compute'
+#         return self._extractor.compute(self.image, keypoints)  # compute descriptors
