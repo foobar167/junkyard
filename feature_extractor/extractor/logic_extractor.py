@@ -308,3 +308,4 @@ class StarDetectorLATCH(FeatureExtractor):
 #         # Use color image, gray image throws error:
 #         # (-215:Assertion failed) _src.channels() == 3 in function 'cv::xfeatures2d::LUCIDImpl::compute'
 #         return self._extractor.compute(self.image, keypoints)  # compute descriptors
+
