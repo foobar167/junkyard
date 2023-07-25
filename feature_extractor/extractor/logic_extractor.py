@@ -88,7 +88,7 @@ class FeatureExtractor(ABC):
             matrix, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
             if matrix is not None:  # not empty
                 dst = cv2.perspectiveTransform(self.__pts, matrix)  # apply perspective algorithm
-                image = cv2.polylines(image, [np.int32(dst)], True, (226, 43, 138), 3)  # color (B,G,R)
+                image = cv2.polylines(image, [np.int32(dst)], True, (0, 35, 255), 3)  # color (B,G,R)
 
         return cv2.drawMatchesKnn(self.image, self.__keypoints, image, keypoints2,
                                   matches, matchesMask=matches_mask, **self.__draw_params)
