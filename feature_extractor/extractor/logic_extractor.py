@@ -12,6 +12,7 @@ class FeatureExtractor(ABC):
         search_params = dict(checks=50)  # Flann parameter, or pass empty dictionary instead
         self.__draw_params = dict(outImg=None, matchColor=(127, 255, 127),
                                   singlePointColor=(210, 250, 250), flags=0)  # quadrilateral draw parameters
+        self.__frame_color = (0, 35, 255)  # (blue, green, red)
         self.__flann = cv2.FlannBasedMatcher(index_params, search_params)
 
         self.image, self.__keypoints, self.__descriptors, self.__pts = None, None, None, None
@@ -88,7 +89,7 @@ class FeatureExtractor(ABC):
             matrix, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
             if matrix is not None:  # not empty
                 dst = cv2.perspectiveTransform(self.__pts, matrix)  # apply perspective algorithm
-                image = cv2.polylines(image, [np.int32(dst)], True, (0, 35, 255), 3)  # color (B,G,R)
+                image = cv2.polylines(image, [np.int32(dst)], True, self.__frame_color, 3)  # color (B,G,R)
 
         return cv2.drawMatchesKnn(self.image, self.__keypoints, image, keypoints2,
                                   matches, matchesMask=matches_mask, **self.__draw_params)
@@ -109,7 +110,9 @@ class FeatureExtractor(ABC):
 
 
 class SIFT(FeatureExtractor):
-    """ SIFT (Scale-Invariant Feature Transform) algorithm """
+    """ SIFT (Scale-Invariant Feature Transform) algorithm.
+            SIFT consist of 4 main steps, which are: 1) scale space extreme detection;
+            2) key-point localization; 3) orientation assignment; 4) key-point descriptor. """
     name = 'SIFT'  # SIFT became free since March 2020, and SURF is still private
     _extractor = cv2.SIFT.create()  # initiate SIFT keypoint detector and descriptor extractor
 
@@ -119,7 +122,9 @@ class SIFT(FeatureExtractor):
 
 
 class BRISK(FeatureExtractor):
-    """ BRISK (Binary Robust Invariant Scalable Keypoints) algorithm """
+    """ BRISK (Binary Robust Invariant Scalable Keypoints) algorithm.
+            Uses AGAST for feature detection and FAST scores as a metric.
+            BRISK sampling pattern is made up of concentric circles. """
     name = 'BRISK'
     _extractor = cv2.BRISK.create()  # init BRISK keypoint detector and descriptor extractor
 
@@ -129,7 +134,8 @@ class BRISK(FeatureExtractor):
 
 
 class AKAZE(FeatureExtractor):
-    """ AKAZE keypoint detector and descriptor extractor """
+    """ AKAZE keypoint detector and descriptor extractor.
+            Faster version of KAZE detector using Fast Explicit Diffusion. """
     name = 'AKAZE'
     _extractor = cv2.AKAZE.create()  # initiate AKAZE keypoint detector and descriptor extractor
 
@@ -139,7 +145,10 @@ class AKAZE(FeatureExtractor):
 
 
 class KAZE(FeatureExtractor):
-    """ KAZE keypoint detector and descriptor extractor """
+    """ KAZE keypoint detector and descriptor extractor.
+            Points of interest as found using nonlinear diffusion filtering which preserves edges
+            and improves the distinctiveness. It is computationally expensive, but it has better performance
+            and a more stable repeatability score than FAST/AGAST based detectors. """
     name = 'KAZE'
     _extractor = cv2.KAZE.create()  # initiate KAZE keypoint detector and descriptor extractor
     _ratio = 0.55  # nearest neighbor matching ratio
@@ -151,7 +160,10 @@ class KAZE(FeatureExtractor):
 
 
 class ORB(FeatureExtractor):
-    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector and descriptor extractor """
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector and descriptor extractor.
+            ORB is a mashup of FAST and BRIEF, it uses FAST for keypoint detection and a
+            modified BRIEF (rBRIEF) for the descriptor which makes it rotation invariant.
+            ORB is less computationally expensive than BRISK but BRISK is a much better descriptor than ORB. """
     name = 'ORB'
     _extractor = cv2.ORB.create()  # init ORB
 
@@ -162,7 +174,7 @@ class ORB(FeatureExtractor):
 
 class BEBLID(FeatureExtractor):
     """ BEBLID (Boosted Efficient Binary Local Image Descriptor) descriptor extractor.
-        They say it is on 14 % better than ORB. """
+            They say it is on 14 % better than ORB. """
     name = 'BEBLID'
     _extractor = cv2.ORB.create(10000)  # init ORB, detect a maximum of 10000 corners
 
@@ -180,8 +192,10 @@ class BEBLID(FeatureExtractor):
 
 
 class StarDetectorFREAK(FeatureExtractor):
-    """ StarDetector keypoint detector and
-        FREAK (Fast Retina Keypoint) descriptor extractor """
+    """ StarDetector keypoint detector.
+        FREAK (Fast Retina Keypoint) descriptor extractor.
+            A cascade of binary strings is computed by efficiently comparing image intensities
+            over a retinal sampling pattern. """
     name = 'StarDetector + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
 
@@ -197,9 +211,32 @@ class StarDetectorFREAK(FeatureExtractor):
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
+class MserFreak(FeatureExtractor):
+    """ MSER (Maximally Stable Extremal Region extractor) detector of regions.
+            MSER is used for images that have uniform regions separated by strong intensity changes.
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
+    name = 'MSER + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__mser = cv2.MSER.create()  # initiate MSER
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        # MSER is for detecting regions but can be used to find keypoints
+        keypoints = self.__mser.detect(gray, None)
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
 class FastFreak(FeatureExtractor):
-    """ FAST (Features from Accelerated Segment Test) keypoint detector and
-        FREAK (Fast Retina Keypoint) descriptor extractor """
+    """ FAST (Features from Accelerated Segment Test) keypoint detector.
+            FAST - circular template based corner feature detector.
+            A point is considered a corner only if a there is a certain number of contiguous pixels
+            in the circle which are lighter/darker than the center pixel.
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
     name = 'FAST + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
 
@@ -217,8 +254,8 @@ class FastFreak(FeatureExtractor):
 
 
 class ShiTomasiFREAK(FeatureExtractor):
-    """ Shi-Tomasi Corner Detector and
-        FREAK (Fast Retina Keypoint) descriptor extractor """
+    """ Shi-Tomasi Corner Detector.
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
     name = 'Shi-Tomasi + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
     # _ratio = 0.7  # nearest neighbor matching ratio
@@ -234,8 +271,8 @@ class ShiTomasiFREAK(FeatureExtractor):
 
 
 class HarrisFREAK(FeatureExtractor):
-    """ Harris Corner Detector and
-        FREAK (Fast Retina Keypoint) descriptor extractor """
+    """ Harris Corner Detector.
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
     name = 'Harris + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
     _ratio = 0.55  # nearest neighbor matching ratio
@@ -253,11 +290,32 @@ class HarrisFREAK(FeatureExtractor):
         return self._extractor.compute(gray, keypoints)  # compute descriptors with BRIEF
 
 
+class StarDetectorDAISY(FeatureExtractor):
+    """ StarDetector keypoint detector.
+        DAISY (A Fast Local Descriptor for Dense Matching) descriptor extractor.
+            DAISY is designed for dense point matching,
+            which means it computes a descriptor for every pixel in the image. """
+    name = 'StarDetector + DAISY'
+    _extractor = cv2.xfeatures2d.DAISY.create()  # init DAISY descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
 class StarDetectorBrief(FeatureExtractor):
-    """ StarDetector keypoint detector and
-        BRIEF (Binary Robust Independent Elementary Features) descriptor extractor """
+    """ StarDetector keypoint detector.
+        BRIEF (Binary Robust Independent Elementary Features) is a fast feature descriptor
+            (not a feature detector). """
     name = 'StarDetector + BRIEF'
-    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # init BRIEF descriptor extractor
+    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # init BRIEF
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
@@ -272,9 +330,13 @@ class StarDetectorBrief(FeatureExtractor):
 
 
 class StarDetectorLATCH(FeatureExtractor):
-    """ StarDetector keypoint detector and
+    """ StarDetector keypoint detector.
         LATCH (Learned Arrangements of Three Patch Codes) binary descriptor
-        based on learned comparisons of triplets of image patches """
+        based on learned comparisons of triplets of image patches.
+            It is a binary descriptor that uses 3×3 patches for comparison.
+            LATCH elects 3 patches, the first of which is named anchor, and then calculates the
+            Frobenius distance between an anchor and the other 2 pixels.
+            After that, it compares both distances, learned and selects the best patch triples. """
     name = 'StarDetector + LATCH'
     _extractor = cv2.xfeatures2d.LATCH.create()  # init LATCH descriptor extractor
 
@@ -291,8 +353,11 @@ class StarDetectorLATCH(FeatureExtractor):
 
 
 # class StarDetectorLUCID(FeatureExtractor):
-#     """ StarDetector keypoint detector and LUCID descriptor extractor.
-#         Does not work! Commented for now. """
+#     """ StarDetector keypoint detector. LUCID descriptor extractor.
+#         DOES NOT WORK! Commented for now.
+#           LUCID (Locally Uniform Comparison Image Descriptor) is based on the linear time permutation distance
+#           among RGB ordered value of two image patches.
+#           LUCID uses Hamming distance as a comparing method in the matching stage. """
 #     name = 'StarDetector + LUCID'
 #     _extractor = cv2.xfeatures2d.LUCID.create()  # init LUCID descriptor extractor
 #
@@ -308,3 +373,42 @@ class StarDetectorLATCH(FeatureExtractor):
 #         # Use color image, gray image throws error:
 #         # (-215:Assertion failed) _src.channels() == 3 in function 'cv::xfeatures2d::LUCIDImpl::compute'
 #         return self._extractor.compute(self.image, keypoints)  # compute descriptors
+
+# AGAST is a faster version of FAST feature detector.
+
+# GFTT - Good Features To Track - Used to detect features using Harris or GFTT corner detection algorithms.
+# It is a combination of these two algorithms.
+# It makes use of local auto-correlation function with respect to the intensity of the image.
+
+# SimpleBlobDetector- Used to detect blobs and filter them based on different characteristics.
+# It uses thresholding,grouping and merging of blobs to determine relevant features.
+
+# HarrisLaplace - Gradient based corner detection. Harris detector gives the position and orientation of a corner,
+# convolution with Laplacian function gives the size of area of interest near the corner.
+
+# MSDDetector (Maximal Self-Dissimilarity Keypoint Detector).
+# Self Similarity can be defined as the set of distances of a patch to those located in its surroundings,
+# with distances usually measured through the Sum of Squared Distances.
+# Whenever the task mandates looking for large rather than small minima over such distances,
+# we will use the term self-dissimilarity.
+
+# STAR - It uses a bi-level approximation of the Laplacian Of Gaussian(LOG) filter.
+
+# SURF - Speed-Up Robust Feature - SURF is computationally faster than SIFT and
+# it is robust against image transformation and noise.
+# It consists of two major steps: (1) Key point detection (2) key point description.
+# SURF is a private algorithm, so it is excluded from OpenCV library.
+
+# VGG - Oxford Visual Geometry Group descriptor trained end to end using
+# Descriptor Learning Using Convex Optimisation (DLCO).
+
+# HAAR - It is a machine learning based approach where a cascade classifier is trained from a lot of
+# positive and negative images. It is then used to detect objects in other images.
+
+# LBP - Local Binary Patterns - LBP is much faster than Haar but slightly less accurate. It requires less computing
+# resources as it does all the calculations using integers unlike Haar which make use of floating point data.
+
+# HOG - Histogram of Oriented Gradient - A HOG descriptor is computed by calculating image gradients that
+# capture contour and silhouette information of grayscale images. The gradient information is pooled into a
+# 1-D histogram of orientations, that forms the input for machine learning algorithms such as random forests,
+# support vector machines, or logistic regression classifiers.
