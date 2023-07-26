@@ -12,18 +12,17 @@ for tests and education.
 All parameters are saved in configuration INI file `config.ini`,
 which is in the `temp` directory.
 
-Tested on **Windows** for Python **3.7**.
+Tested on **Windows** for Python **3.11**.
 
 External libraries:
-   * **OpenCV** to process images, version >= 4.8.
-   * **NumPy** to support arrays, version >= 1.17.
-   * **Pillow** to open images of [various formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html),
-version >= 6.1.
+   * **OpenCV** to process images.
+   * **NumPy** to support arrays.
+   * **Pillow** to open images of [various formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html).
 
 To start:
 ```shell
 # Install additional libraries
-pip install opencv-contrib-python numpy pillow
+pip install -r requirements.txt
 # Run the application
 python runme.py
 ```
