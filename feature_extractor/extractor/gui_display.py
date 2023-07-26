@@ -30,12 +30,12 @@ class Display:
         """ Add buttons to the bottom of the GUI window """
         buttons = tk.Label(self.container)  # initialize buttons panel
         buttons.grid(row=1, column=0)
-        tk.Button(buttons, text=self.__main_window._shortcuts['prev'][0],
-                  command=self.__main_window._shortcuts['prev'][3]).pack(side=tk.LEFT)
-        tk.Button(buttons, text=self.__main_window._shortcuts['save'][0],
-                  command=self.__main_window._shortcuts['save'][3]).pack(side=tk.LEFT)
-        tk.Button(buttons, text=self.__main_window._shortcuts['next'][0],
-                  command=self.__main_window._shortcuts['next'][3]).pack(side=tk.LEFT)
+        tk.Button(buttons, text=self.__main_window.shortcuts['prev'][0],
+                  command=self.__main_window.shortcuts['prev'][3]).pack(side=tk.LEFT)
+        tk.Button(buttons, text=self.__main_window.shortcuts['save'][0],
+                  command=self.__main_window.shortcuts['save'][3]).pack(side=tk.LEFT)
+        tk.Button(buttons, text=self.__main_window.shortcuts['next'][0],
+                  command=self.__main_window.shortcuts['next'][3]).pack(side=tk.LEFT)
 
     def __video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """

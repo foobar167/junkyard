@@ -75,7 +75,7 @@ class FeatureExtractor(ABC):
 
         # Store all the good matches as per David G. Lowe's ratio test
         good_matches = []
-        matches_mask = np.zeros((len(matches), 2), dtype=np.int)
+        matches_mask = np.zeros((len(matches), 2), dtype=np.int32)
         for i, (m, n) in enumerate(matches):
             if m.distance < self._ratio * n.distance:
                 matches_mask[i] = [1, 0]
@@ -88,7 +88,7 @@ class FeatureExtractor(ABC):
             matrix, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
             if matrix is not None:  # not empty
                 dst = cv2.perspectiveTransform(self.__pts, matrix)  # apply perspective algorithm
-                image = cv2.polylines(image, [np.int32(dst)], True, (226, 43, 138), 3)  # color (B,G,R)
+                image = cv2.polylines(image, [np.int32(dst)], True, (0, 35, 255), 3)  # color (B,G,R)
 
         return cv2.drawMatchesKnn(self.image, self.__keypoints, image, keypoints2,
                                   matches, matchesMask=matches_mask, **self.__draw_params)

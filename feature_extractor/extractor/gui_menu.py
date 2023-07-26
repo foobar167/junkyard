@@ -20,9 +20,9 @@ class Menu:
         """ Create menu bars """
         # Create menu 'File'
         self.__file = tk.Menu(self.menubar, tearoff=False, postcommand=self.__recent_list)
-        self.__file.add_command(label=self.__main_window._shortcuts['open'][0],
-                                command=self.__main_window._shortcuts['open'][3],
-                                accelerator=self.__main_window._shortcuts['open'][1])
+        self.__file.add_command(label=self.__main_window.shortcuts['open'][0],
+                                command=self.__main_window.shortcuts['open'][3],
+                                accelerator=self.__main_window.shortcuts['open'][1])
         self.__recent_images = tk.Menu(self.__file, tearoff=False)
         self.__file.add_cascade(label=self.__label_recent, menu=self.__recent_images)
         self.__file.add_separator()
