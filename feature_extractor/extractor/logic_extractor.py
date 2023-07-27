@@ -150,7 +150,10 @@ class KAZE(FeatureExtractor):
             and improves the distinctiveness. It is computationally expensive, but it has better performance
             and a more stable repeatability score than FAST/AGAST based detectors. """
     name = 'KAZE'
-    _extractor = cv2.KAZE.create()  # initiate KAZE keypoint detector and descriptor extractor
+    _extractor = cv2.KAZE.create(
+        nOctaves=2,  # default: 4
+        nOctaveLayers=4,  # default: 4
+    )  # initiate KAZE keypoint detector and descriptor extractor
     _ratio = 0.55  # default: 0.7; nearest neighbor matching ratio
     _matches = 4  # default: 10; number of good matches to draw quadrilateral
 
@@ -339,7 +342,9 @@ class AgastFreak(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__agast = cv2.AgastFeatureDetector.create()  # initiate AGAST keypoint detector
+        self.__agast = cv2.AgastFeatureDetector.create(
+            threshold=14,  # default: 10
+        )  # initiate AGAST keypoint detector
         # self.__fast.setNonmaxSuppression(0)  # disable nonmaxSuppression (more keypoints, slower)
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
@@ -361,7 +366,9 @@ class FastFreak(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__fast = cv2.FastFeatureDetector.create()  # initiate FAST keypoint detector
+        self.__fast = cv2.FastFeatureDetector.create(
+            threshold=14,  # default: 10
+        )  # initiate FAST keypoint detector
         # self.__fast.setNonmaxSuppression(0)  # disable nonmaxSuppression (more keypoints, slower)
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
@@ -418,7 +425,12 @@ class HarrisFREAK(FeatureExtractor):
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
         # This filter smooths the image, reduces noise, while preserving the edges
-        dst = cv2.cornerHarris(gray, blockSize=2, ksize=3, k=0.04)  # Harris corners detector
+        dst = cv2.cornerHarris(
+            gray,
+            blockSize=2,  # neighborhood size (see the details on cornerEigenValsAndVecs )
+            ksize=5,  # aperture parameter for the Sobel operator
+            k=0.07,  # Harris detector free parameter
+        )  # Harris corners detector
         dst = cv2.dilate(dst, None)  # dilate the result to mark the corners
         mask = np.zeros_like(gray)  # create a mask to identify corners
         mask[dst > 0.2 * dst.max()] = 255  # all pixels above a certain threshold are converted to white
