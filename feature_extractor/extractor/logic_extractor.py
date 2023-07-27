@@ -82,6 +82,7 @@ class FeatureExtractor(ABC):
                 matches_mask[i] = [1, 0]
                 good_matches.append(m)
 
+        print(len(good_matches))  # print good matches if necessary
         if len(good_matches) > self._matches:  # draw a quadrilateral if there are enough matches
             src_pts = np.float32([self.__keypoints[m.queryIdx].pt for m in good_matches])
             dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in good_matches])
@@ -119,6 +120,28 @@ class SIFT(FeatureExtractor):
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
         return self._extractor.detectAndCompute(gray, None)  # return keypoints and descriptors
+
+
+class RootSIFT(FeatureExtractor):
+    """ 2012 paper "Three things everyone should know to improve object retrieval"
+            RootSIFT increases object recognition accuracy, quantization, and retrieval accuracy. """
+    name = 'RootSIFT'
+    _extractor = cv2.SIFT.create()  # initiate SIFT keypoint detector and descriptor extractor
+
+    def compute(self, gray, keypoints, eps=1e-7):
+        keypoints, descriptors = self._extractor.compute(gray, keypoints)  # compute SIFT descriptors
+        if len(keypoints) == 0:   # if there are no keypoints or descriptors, return an empty tuple
+            return [], None
+        # Apply the Hellinger kernel by first L1-normalizing and taking the square-root
+        descriptors /= (descriptors.sum(axis=1, keepdims=True) + eps)
+        descriptors = np.sqrt(descriptors)
+        # descriptors /= (np.linalg.norm(descriptors, axis=1, ord=2) + eps)
+        return keypoints, descriptors
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self._extractor.detect(gray)  # use SIFT as keypoint detector
+        return self.compute(gray, keypoints)  # return keypoints and descriptors
 
 
 class BRISK(FeatureExtractor):
@@ -240,6 +263,27 @@ class OrbBeblid(FeatureExtractor):
         keypoints = self.__orb.detect(gray, None)
         keypoints, descriptors = self._extractor.compute(gray, keypoints)
         return keypoints, descriptors
+
+
+class HarrisLaplaceFREAK(FeatureExtractor):
+    """ Harris-Laplace feature detector
+            Paper of Krystian Mikolajczyk and Cordelia Schmid. Scale & affine invariant interest point detectors.
+            International journal of computer vision, 60(1):63–86, 2004.
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
+    name = 'HarrisLaplace + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__harris = cv2.xfeatures2d.HarrisLaplaceFeatureDetector.create()  # init Harris-Laplace
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        # MSER is for detecting regions but can be used to find keypoints
+        keypoints = self.__harris.detect(gray, None)
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
 class StarDetectorFREAK(FeatureExtractor):
@@ -437,6 +481,30 @@ class HarrisFREAK(FeatureExtractor):
         coordinates = np.argwhere(mask).astype(float)  # create an array that lists all the pixels that are corners
         keypoints = [cv2.KeyPoint(c[1], c[0], 13) for c in coordinates]  # convert corner coordinates to KeyPoint type
         return self._extractor.compute(gray, keypoints)  # compute descriptors with BRIEF
+
+
+class StarDetectorVGG(FeatureExtractor):
+    """ StarDetector keypoint detector.
+        VGG (Oxford Visual Geometry Group) descriptor trained end to end using
+            "Descriptor Learning Using Convex Optimisation" (DLCO) aparatus described in
+            paper of K. Simonyan, A. Vedaldi, and A. Zisserman.
+            Learning local feature descriptors using convex optimisation.
+            IEEE Transactions on Pattern Analysis and Machine Intelligence, 2014. """
+    name = 'StarDetector + VGG'
+    _extractor = cv2.xfeatures2d.VGG.create(
+        scale_factor=6.25  # default: 6.25 - good for scale, bad for rotations
+    )  # init VGG descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
 class StarDetectorDAISY(FeatureExtractor):
