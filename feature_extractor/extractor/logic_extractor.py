@@ -264,7 +264,7 @@ class OrbTeblid(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -330,7 +330,7 @@ class StarDetectorFREAK(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -422,7 +422,7 @@ class SimpleBlobDetectorFREAK(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -534,49 +534,56 @@ class HarrisFREAK(FeatureExtractor):
         return self._extractor.compute(gray, keypoints)  # compute descriptors with BRIEF
 
 
-class StarDetectorVGG(FeatureExtractor):
-    """ StarDetector keypoint detector.
+class OrbVgg(FeatureExtractor):
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector.
         VGG (Oxford Visual Geometry Group) descriptor trained end to end using
             "Descriptor Learning Using Convex Optimisation" (DLCO) aparatus described in
             paper of K. Simonyan, A. Vedaldi, and A. Zisserman.
             Learning local feature descriptors using convex optimisation.
             IEEE Transactions on Pattern Analysis and Machine Intelligence, 2014. """
-    name = 'StarDetector + VGG'
+    name = 'ORB + VGG'
     _extractor = cv2.xfeatures2d.VGG.create(
-        scale_factor=6.25  # default: 6.25 - good for scale, bad for rotations
+        scale_factor=0.75  # default: 6.25
     )  # init VGG descriptor extractor
+    # _ratio = 0.7  # default: 0.7; nearest neighbor matching ratio
+    _matches = 4  # default: 10; number of good matches to draw quadrilateral
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.ORB.create(
+            nfeatures=400,  # default: 500
+        )  # init ORB detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
-class StarDetectorBoostDesc(FeatureExtractor):
-    """ StarDetector keypoint detector.
+class OrbBoostDesc(FeatureExtractor):
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector.
         BoostDesc (Learning Image Descriptors with Boosting) described in papers:
             'Boosting binary keypoint descriptors' and 'Learning image descriptors with boosting'. """
-    name = 'StarDetector + BoostDesc'
+    name = 'ORB + BoostDesc'
     _extractor = cv2.xfeatures2d.BoostDesc.create(
         desc=200,  # default: 302; could be (100, 101, 102, 200, 300, 301, 302)
-        scale_factor=6.25,  # default: 6.25 - good for scale, bad for rotations
+        scale_factor=0.75  # default: 6.25
     )  # init BoostDesc descriptor extractor
+    _matches = 6  # default: 10; number of good matches to draw quadrilateral
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.ORB.create(
+            nfeatures=400,  # default: 500
+        )  # init ORB detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -596,49 +603,77 @@ class StarDetectorDAISY(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
-class StarDetectorBrief(FeatureExtractor):
-    """ StarDetector keypoint detector.
-        BRIEF (Binary Robust Independent Elementary Features) is a fast feature descriptor
-            (not a feature detector). """
-    name = 'StarDetector + BRIEF'
-    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create()  # init BRIEF
+class SiftDaisy(FeatureExtractor):
+    """ SIFT (Scale-Invariant Feature Transform) algorithm.
+        DAISY (A Fast Local Descriptor for Dense Matching) descriptor extractor.
+            DAISY is designed for dense point matching,
+            which means it computes a descriptor for every pixel in the image. """
+    name = 'SIFT + DAISY'
+    _extractor = cv2.xfeatures2d.DAISY.create(
+        use_orientation=True,  # default: False; True - for orientation invariance
+    )  # init DAISY descriptor extractor
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.SIFT.create()  # init SIFT detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
-class StarDetectorLATCH(FeatureExtractor):
-    """ StarDetector keypoint detector.
+class OrbBrief(FeatureExtractor):
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector.
+        BRIEF (Binary Robust Independent Elementary Features) is a fast feature descriptor
+            (not a feature detector). """
+    name = 'ORB + BRIEF'
+    _extractor = cv2.xfeatures2d.BriefDescriptorExtractor.create(
+        use_orientation=True,  # default: False; - True for rotation invariance
+    )  # init BRIEF
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__detector = cv2.ORB.create(
+            nfeatures=2500,  # default: 500
+        )  # init ORB
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__detector.detect(gray, None)
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class OrbLatch(FeatureExtractor):
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector.
         LATCH (Learned Arrangements of Three Patch Codes) binary descriptor
         based on learned comparisons of triplets of image patches.
             It is a binary descriptor that uses 3×3 patches for comparison.
             LATCH elects 3 patches, the first of which is named anchor, and then calculates the
             Frobenius distance between an anchor and the other 2 pixels.
             After that, it compares both distances, learned and selects the best patch triples. """
-    name = 'StarDetector + LATCH'
+    name = 'ORB + LATCH'
     _extractor = cv2.xfeatures2d.LATCH.create()  # init LATCH descriptor extractor
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.ORB.create(
+            nfeatures=2000,  # default: 500
+        )  # init ORB
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -659,7 +694,7 @@ class StarDetectorLATCH(FeatureExtractor):
 #
 #     def _detect_and_compute(self, gray):
 #         """ Detect keypoints and compute descriptors """
-#         keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+#         keypoints = self.__detector.detect(gray, None)
 #         # Use color image, gray image throws error:
 #         # (-215:Assertion failed) _src.channels() == 3 in function 'cv::xfeatures2d::LUCIDImpl::compute'
 #         return self._extractor.compute(self.image, keypoints)  # compute descriptors
