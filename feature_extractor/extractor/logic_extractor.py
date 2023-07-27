@@ -82,7 +82,7 @@ class FeatureExtractor(ABC):
                 matches_mask[i] = [1, 0]
                 good_matches.append(m)
 
-        print(len(good_matches))  # print good matches if necessary
+        # print(len(good_matches))  # print good matches if necessary
         if len(good_matches) > self._matches:  # draw a quadrilateral if there are enough matches
             src_pts = np.float32([self.__keypoints[m.queryIdx].pt for m in good_matches])
             dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in good_matches])
@@ -224,7 +224,7 @@ class MSDDetectorFREAK(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__msd = cv2.xfeatures2d.MSDDetector.create(
+        self.__detector = cv2.xfeatures2d.MSDDetector.create(
             m_patch_radius=3,  # default: 3
             m_search_area_radius=3,  # default: 5
             m_nms_radius=2,  # default: 5
@@ -240,7 +240,31 @@ class MSDDetectorFREAK(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__msd.detect(gray, None)  # find keypoints with MSDDetector
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with MSDDetector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class OrbTeblid(FeatureExtractor):
+    """ ORB (Oriented FAST and Rotated BRIEF) keypoint detector.
+        TEBLID (Triplet-based Efficient Binary Local Image Descriptor) descriptor extractor.
+            It is an improvement over BEBLID, that uses triplet loss, hard negative mining,
+            and anchor swap to improve the image matching results. """
+    name = 'ORB + TEBLID'
+    _extractor = cv2.xfeatures2d.TEBLID.create(
+        scale_factor=0.75,  # 0.75 for ORB, 5.00 for StarDetector
+    )  # init TEBLID descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__detector = cv2.ORB.create(
+            nfeatures=4000,  # default: 500
+        )  # init ORB
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -250,44 +274,48 @@ class OrbBeblid(FeatureExtractor):
             They say it is on 14 % better than ORB descriptor extractor.
          """
     name = 'ORB + BEBLID'
-    _extractor = cv2.xfeatures2d.BEBLID.create(0.75)  # the scale for the ORB keypoints is [0.75, 1.0]
+    _extractor = cv2.xfeatures2d.BEBLID.create(
+        scale_factor=0.75,  # the scale for the ORB keypoints is [0.75, 1.0]
+    )  # init BEBLID
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__orb = cv2.ORB.create(10000)  # init ORB, detect a maximum of 10000 corners
+        self.__detector = cv2.ORB.create(
+            nfeatures=4000,  # default: 500
+        )  # init ORB
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__orb.detect(gray, None)
+        keypoints = self.__detector.detect(gray, None)
         keypoints, descriptors = self._extractor.compute(gray, keypoints)
         return keypoints, descriptors
 
 
 class HarrisLaplaceFREAK(FeatureExtractor):
-    """ Harris-Laplace feature detector
-            Paper of Krystian Mikolajczyk and Cordelia Schmid. Scale & affine invariant interest point detectors.
-            International journal of computer vision, 60(1):63–86, 2004.
+    """ Harris-Laplace - Gradient based corner detection. Harris detector gives the position
+            and orientation of a corner, convolution with Laplacian function gives the
+            size of area of interest near the corner.
         FREAK (Fast Retina Keypoint) descriptor extractor. """
     name = 'HarrisLaplace + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__harris = cv2.xfeatures2d.HarrisLaplaceFeatureDetector.create()  # init Harris-Laplace
+        self.__detector = cv2.xfeatures2d.HarrisLaplaceFeatureDetector.create()  # init Harris-Laplace
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        # MSER is for detecting regions but can be used to find keypoints
-        keypoints = self.__harris.detect(gray, None)
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
 class StarDetectorFREAK(FeatureExtractor):
     """ StarDetector keypoint detector.
+            It uses a bi-level approximation of the Laplacian Of Gaussian(LOG) filter.
         FREAK (Fast Retina Keypoint) descriptor extractor.
             A cascade of binary strings is computed by efficiently comparing image intensities
             over a retinal sampling pattern. """
@@ -296,13 +324,53 @@ class StarDetectorFREAK(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class TbmrFreak(FeatureExtractor):
+    """ TBMR (Tree-Based Morse Regions) feature detector.
+            This algorithm is based on Component Tree (Min/Max) as well as MSER,
+            but uses a Morse-theory approach to extract features. Features are ellipses (similar to MSER,
+            however a MSER feature can never be a TBMR feature and vice versa).
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
+    name = 'TBMR + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__detector = cv2.xfeatures2d.TBMR.create()  # initiate TBMR
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__detector.detect(gray, None)
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class MserFreak(FeatureExtractor):
+    """ MSER (Maximally Stable Extremal Region extractor) detector of regions.
+            MSER is used for images that have uniform regions separated by strong intensity changes.
+        FREAK (Fast Retina Keypoint) descriptor extractor. """
+    name = 'MSER + FREAK'
+    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__detector = cv2.MSER.create()  # MSER is for detecting regions but can be used to find keypoints
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -348,33 +416,13 @@ class SimpleBlobDetectorFREAK(FeatureExtractor):
         params.minInertiaRatio = 0.1  # default: 0.1
         params.maxInertiaRatio = float('inf')  # default: Inf
         #
-        self.__blobs = cv2.SimpleBlobDetector.create(params)  # initiate SimpleBlobDetector with the parameters
+        self.__detector = cv2.SimpleBlobDetector.create(params)  # initiate SimpleBlobDetector with the parameters
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__blobs.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
-        return self._extractor.compute(gray, keypoints)  # compute descriptors
-
-
-class MserFreak(FeatureExtractor):
-    """ MSER (Maximally Stable Extremal Region extractor) detector of regions.
-            MSER is used for images that have uniform regions separated by strong intensity changes.
-        FREAK (Fast Retina Keypoint) descriptor extractor. """
-    name = 'MSER + FREAK'
-    _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
-
-    def __init__(self, impath=None):
-        """ Set additional variables to the child class """
-        self.__mser = cv2.MSER.create()  # initiate MSER
-        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
-        super().__init__(impath)  # add a call to the parent's __init__() function
-
-    def _detect_and_compute(self, gray):
-        """ Detect keypoints and compute descriptors """
-        # MSER is for detecting regions but can be used to find keypoints
-        keypoints = self.__mser.detect(gray, None)
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -383,10 +431,12 @@ class AgastFreak(FeatureExtractor):
         AGAST descriptor extractor is a faster version of FAST feature detector. """
     name = 'AGAST + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+    _ratio = 0.65  # default: 0.7; nearest neighbor matching ratio
+    _matches = 10  # default: 10; number of good matches to draw quadrilateral
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__agast = cv2.AgastFeatureDetector.create(
+        self.__detector = cv2.AgastFeatureDetector.create(
             threshold=14,  # default: 10
         )  # initiate AGAST keypoint detector
         # self.__fast.setNonmaxSuppression(0)  # disable nonmaxSuppression (more keypoints, slower)
@@ -395,7 +445,7 @@ class AgastFreak(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__agast.detect(gray, None)  # find keypoints
+        keypoints = self.__detector.detect(gray, None)  # find keypoints
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -407,10 +457,12 @@ class FastFreak(FeatureExtractor):
         FREAK (Fast Retina Keypoint) descriptor extractor. """
     name = 'FAST + FREAK'
     _extractor = cv2.xfeatures2d.FREAK.create()  # init FREAK descriptor extractor
+    _ratio = 0.65  # default: 0.7; nearest neighbor matching ratio
+    _matches = 10  # default: 10; number of good matches to draw quadrilateral
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__fast = cv2.FastFeatureDetector.create(
+        self.__detector = cv2.FastFeatureDetector.create(
             threshold=14,  # default: 10
         )  # initiate FAST keypoint detector
         # self.__fast.setNonmaxSuppression(0)  # disable nonmaxSuppression (more keypoints, slower)
@@ -419,7 +471,7 @@ class FastFreak(FeatureExtractor):
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__fast.detect(gray, None)  # find keypoints
+        keypoints = self.__detector.detect(gray, None)  # find keypoints
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -433,14 +485,13 @@ class GFTTDetectorFREAK(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__gftt = cv2.GFTTDetector.create()  # initiate GFTT
+        self.__detector = cv2.GFTTDetector.create()  # initiate GFTT
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        # MSER is for detecting regions but can be used to find keypoints
-        keypoints = self.__gftt.detect(gray, None)
+        keypoints = self.__detector.detect(gray, None)
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -497,13 +548,35 @@ class StarDetectorVGG(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        return self._extractor.compute(gray, keypoints)  # compute descriptors
+
+
+class StarDetectorBoostDesc(FeatureExtractor):
+    """ StarDetector keypoint detector.
+        BoostDesc (Learning Image Descriptors with Boosting) described in papers:
+            'Boosting binary keypoint descriptors' and 'Learning image descriptors with boosting'. """
+    name = 'StarDetector + BoostDesc'
+    _extractor = cv2.xfeatures2d.BoostDesc.create(
+        desc=200,  # default: 302; could be (100, 101, 102, 200, 300, 301, 302)
+        scale_factor=6.25,  # default: 6.25 - good for scale, bad for rotations
+    )  # init BoostDesc descriptor extractor
+
+    def __init__(self, impath=None):
+        """ Set additional variables to the child class """
+        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
+        super().__init__(impath)  # add a call to the parent's __init__() function
+
+    def _detect_and_compute(self, gray):
+        """ Detect keypoints and compute descriptors """
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -517,13 +590,13 @@ class StarDetectorDAISY(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -536,13 +609,13 @@ class StarDetectorBrief(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -559,13 +632,13 @@ class StarDetectorLATCH(FeatureExtractor):
 
     def __init__(self, impath=None):
         """ Set additional variables to the child class """
-        self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+        self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
         super().__init__(impath)  # add a call to the parent's __init__() function
 
     def _detect_and_compute(self, gray):
         """ Detect keypoints and compute descriptors """
-        keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+        keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
         return self._extractor.compute(gray, keypoints)  # compute descriptors
 
 
@@ -580,38 +653,19 @@ class StarDetectorLATCH(FeatureExtractor):
 #
 #     def __init__(self, impath=None):
 #         """ Set additional variables to the child class """
-#         self.__star = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
+#         self.__detector = cv2.xfeatures2d.StarDetector.create()  # initiate StarDetector keypoint detector
 #         # Initialize all variables BEFORE super() function. Otherwise, there will be an error.
 #         super().__init__(impath)  # add a call to the parent's __init__() function
 #
 #     def _detect_and_compute(self, gray):
 #         """ Detect keypoints and compute descriptors """
-#         keypoints = self.__star.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
+#         keypoints = self.__detector.detect(gray, None)  # find keypoints with STAR (CenSurE) feature detector
 #         # Use color image, gray image throws error:
 #         # (-215:Assertion failed) _src.channels() == 3 in function 'cv::xfeatures2d::LUCIDImpl::compute'
 #         return self._extractor.compute(self.image, keypoints)  # compute descriptors
 
 
-# HarrisLaplace - Gradient based corner detection. Harris detector gives the position and orientation of a corner,
-# convolution with Laplacian function gives the size of area of interest near the corner.
-
-# STAR - It uses a bi-level approximation of the Laplacian Of Gaussian(LOG) filter.
-
 # SURF is a private algorithm, so it is excluded from OpenCV library.
 #     SURF (Speed-Up Robust Feature) is computationally faster than SIFT,
 #     and it is robust against image transformation and noise.
 #     It consists of two major steps: (1) Key point detection; (2) key point description.
-
-# VGG - Oxford Visual Geometry Group descriptor trained end to end using
-# Descriptor Learning Using Convex Optimisation (DLCO).
-
-# HAAR - It is a machine learning based approach where a cascade classifier is trained from a lot of
-# positive and negative images. It is then used to detect objects in other images.
-
-# LBP - Local Binary Patterns - LBP is much faster than Haar but slightly less accurate. It requires less computing
-# resources as it does all the calculations using integers unlike Haar which make use of floating point data.
-
-# HOG - Histogram of Oriented Gradient - A HOG descriptor is computed by calculating image gradients that
-# capture contour and silhouette information of grayscale images. The gradient information is pooled into a
-# 1-D histogram of orientations, that forms the input for machine learning algorithms such as random forests,
-# support vector machines, or logistic regression classifiers.
