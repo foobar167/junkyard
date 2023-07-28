@@ -1,18 +1,18 @@
-#### Simple Python graphics editor
+#### OpenCV feature detector and descriptor extractor
 
 ![Under construction](../data/2019.09.25-under-construction-icon.png)
 
 **Under construction...**
 
+![Snapshot from application](./data/snapshot.jpg)
+
 Objects tracking using feature extraction algorithms with GUI
 for tests and education.
 
-... `some explanations should be here`
+Snapshots, logs and configuration parameters are saved in `temp` directory
+of this folder.
 
-All parameters are saved in configuration INI file `config.ini`,
-which is in the `temp` directory.
-
-Tested on **Windows** for Python **3.11**.
+Tested on **Windows 10** for Python **3.11**.
 
 External libraries:
    * **OpenCV** to process images.
