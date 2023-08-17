@@ -9,8 +9,8 @@
 Objects tracking using feature extraction algorithms with GUI
 for tests and education. 
 
-**Only** OpenCV integrated detectors are used, descriptors and
-detector-descriptors. Neural Network detector-descriptors (such as
+**Only** OpenCV integrated detectors, descriptors and
+detector-descriptors are used. Neural Network detector-descriptors (such as
 R2D2, D2NET, SUPERPOINT, ORB-SLAM2, DELF, CONTEXTDESC, LFNET, KEYNET, DISK,
 [etc](https://github.com/luigifreda/pyslam/blob/master/feature_types.py))
 and descriptors (such as TFEAT, HARDNET, GEODESC, SOSNET, L2NET, LOGPOLAR,
