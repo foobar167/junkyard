@@ -9,9 +9,7 @@
 Objects tracking using feature extraction algorithms with GUI
 for tests and education. 
 
-Snapshots, logs and configuration parameters are saved in `temp` directory
-of this folder.
-Used **only** OpenCV integrated detectors, descriptors and
+**Only** OpenCV integrated detectors are used, descriptors and
 detector-descriptors. Neural Network detector-descriptors (such as
 R2D2, D2NET, SUPERPOINT, ORB-SLAM2, DELF, CONTEXTDESC, LFNET, KEYNET, DISK,
 [etc](https://github.com/luigifreda/pyslam/blob/master/feature_types.py))
@@ -24,6 +22,8 @@ for education and fun. It doesn't mean that lower methods are always ineffective
 but for this task it is so (because there is no "silver bullet" method for all tasks).
 All feature detector-descriptor logic is in the
 [logic_extractor.py](./extractor/logic_extractor.py) file.
+Snapshots, logs and configuration parameters are saved in `temp` directory
+of this folder.
 In general the source code of the GUI is not as elegant as I would like, but it works :-).
 
 Tested on **Windows 10** for Python **3.11**.
