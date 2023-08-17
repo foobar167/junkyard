@@ -29,3 +29,5 @@ python runme.py
 
 Software architecture:
 `architecture diagram`
+
+[MS PowerPoint presentation](./data/2023.07.25-presentation-opencv-descriptos.pptx) of the application.
