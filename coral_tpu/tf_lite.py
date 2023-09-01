@@ -144,7 +144,7 @@ if len(runtime) > 5:
     runtime = runtime[2:]  # skip the first 2 values
 elif len(runtime) > 1:
     runtime = runtime[1:]  # skip the 1st value
-print(f'\n' f'Average time of last {len(runtime)} runs: {np.average(runtime)} ms\n')
+print(f'\n' f'Average time of last {len(runtime)} runs: {np.average(runtime):.2f} ms\n')
 
 # Clear resources. Otherwise, there will be an error: "Segmentation fault (core dumped)".
 del interpreter
