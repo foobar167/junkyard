@@ -1,0 +1,414 @@
+Raspberry Pi 4
+  OS: Debian GNU/Linux 11 (bullseye)
+  CPU: ARM Cortex-A72, 1800 MHz, 4 cores
+    Coral TPU:   5.2 ms
+    CPU TF:      117.8 ms
+    CPU TF-Lite: 140.8 ms
+
+Cool Pi 4B
+  OS: Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish)
+  CPU: ARM Cortex-A76, 2400 MHz, 4 cores
+         and
+       ARM Cortex-A55, 1800 MHz, 4 cores
+    Coral TPU:   4.8 ms
+    CPU TF:      19.7 ms
+    CPU TF-Lite: 23.9 ms
+
+Desktop
+  OS: Windows 10
+  CPU: Intel i7-4770, 3600 MHz, 4 cores
+    Coral TPU:   4.7 ms
+    CPU TF:      215.5 ms
+    CPU TF-Lite: 6420.3 ms
+
+=========================================
+===============    Pi4    ===============
+=========================================
+
+python benchmarks/tf_lite_benchmarks.py
+
+Architecture:                    aarch64
+CPU op-mode(s):                  32-bit, 64-bit
+Byte Order:                      Little Endian
+CPU(s):                          4
+On-line CPU(s) list:             0-3
+Thread(s) per core:              1
+Core(s) per socket:              4
+Socket(s):                       1
+Vendor ID:                       ARM
+Model:                           3
+Model name:                      Cortex-A72
+Stepping:                        r0p3
+CPU max MHz:                     1800.0000
+CPU min MHz:                     600.0000
+BogoMIPS:                        108.00
+L1d cache:                       128 KiB
+L1i cache:                       192 KiB
+L2 cache:                        1 MiB
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Retbleed:          Not affected
+Vulnerability Spec store bypass: Vulnerable
+Vulnerability Spectre v1:        Mitigation; __user pointer sanitization
+Vulnerability Spectre v2:        Vulnerable
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+Flags:                           fp asimd evtstrm crc32 cpuid
+
+--- Run on Coral TPU ---
+-------- INFERENCE TIME --------
+21.3 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.2 ms
+5.1 ms
+5.1 ms
+5.2 ms
+5.2 ms
+5.1 ms
+5.2 ms
+5.1 ms
+5.1 ms
+5.1 ms
+5.1 ms
+5.1 ms
+5.1 ms
+-------- RESULTS --------
+macaw: 0.94531
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 5.15519380569458 ms
+
+
+--- Run on CPU with TF library ---
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+-------- INFERENCE TIME --------
+121.3 ms
+118.1 ms
+117.9 ms
+118.1 ms
+117.9 ms
+117.9 ms
+117.9 ms
+117.9 ms
+117.9 ms
+117.7 ms
+117.7 ms
+117.8 ms
+117.8 ms
+117.8 ms
+117.8 ms
+117.7 ms
+117.6 ms
+117.7 ms
+117.7 ms
+117.7 ms
+118.0 ms
+117.7 ms
+-------- RESULTS --------
+macaw: 0.95703
+lorikeet: 0.00391
+toilet tissue, toilet paper, bathroom tissue: 0.00000
+
+Average time of last 20 runs: 117.81080961227417 ms
+
+
+--- Run on CPU with tflite_runtime library ---
+-------- INFERENCE TIME --------
+145.1 ms
+138.4 ms
+138.4 ms
+138.4 ms
+138.4 ms
+138.4 ms
+138.3 ms
+139.6 ms
+149.2 ms
+175.0 ms
+138.5 ms
+138.4 ms
+138.4 ms
+138.5 ms
+138.6 ms
+138.5 ms
+138.4 ms
+138.4 ms
+138.3 ms
+138.5 ms
+138.3 ms
+138.3 ms
+-------- RESULTS --------
+macaw: 0.94141
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 140.843403339386 ms
+
+=========================================
+===============  CoolPi   ===============
+=========================================
+
+python benchmarks/tf_lite_benchmarks.py
+
+Architecture:           aarch64
+  CPU op-mode(s):       32-bit, 64-bit
+  Byte Order:           Little Endian
+CPU(s):                 8
+  On-line CPU(s) list:  0-7
+Vendor ID:              ARM
+  Model name:           Cortex-A55
+    Model:              0
+    Thread(s) per core: 1
+    Core(s) per socket: 1
+    Socket(s):          1
+    Stepping:           r2p0
+    CPU max MHz:        1800.0000
+    CPU min MHz:        408.0000
+    BogoMIPS:           48.00
+    Flags:              fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+  Model name:           Cortex-A76
+    Model:              0
+    Thread(s) per core: 1
+    Core(s) per socket: 2
+    Socket(s):          2
+    Stepping:           r4p0
+    CPU max MHz:        2400.0000
+    CPU min MHz:        408.0000
+    BogoMIPS:           48.00
+    Flags:              fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+  Model name:           Cortex-A55
+    Model:              0
+    Thread(s) per core: 1
+    Core(s) per socket: 3
+    Socket(s):          1
+    Stepping:           r2p0
+    CPU max MHz:        1800.0000
+    CPU min MHz:        408.0000
+    BogoMIPS:           48.00
+    Flags:              fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+Caches (sum of all):
+  L1d:                  384 KiB (8 instances)
+  L1i:                  384 KiB (8 instances)
+  L2:                   2.5 MiB (8 instances)
+  L3:                   3 MiB (1 instance)
+Vulnerabilities:
+  Itlb multihit:        Not affected
+  L1tf:                 Not affected
+  Mds:                  Not affected
+  Meltdown:             Not affected
+  Spec store bypass:    Mitigation; Speculative Store Bypass disabled via prctl
+  Spectre v1:           Mitigation; __user pointer sanitization
+  Spectre v2:           Mitigation; CSV2, BHB
+  Srbds:                Not affected
+  Tsx async abort:      Not affected
+
+--- Run on Coral TPU ---
+-------- INFERENCE TIME --------
+16.6 ms
+4.8 ms
+4.8 ms
+4.7 ms
+4.8 ms
+4.8 ms
+4.8 ms
+4.9 ms
+4.8 ms
+4.9 ms
+4.8 ms
+4.9 ms
+4.7 ms
+4.9 ms
+4.7 ms
+4.9 ms
+4.9 ms
+4.9 ms
+4.8 ms
+4.9 ms
+4.8 ms
+4.9 ms
+-------- RESULTS --------
+macaw: 0.94531
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 4.829049110412598 ms
+
+
+--- Run on CPU with TF library ---
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+-------- INFERENCE TIME --------
+20.9 ms
+19.7 ms
+19.7 ms
+19.8 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+19.7 ms
+-------- RESULTS --------
+macaw: 0.95703
+lorikeet: 0.00391
+toilet tissue, toilet paper, bathroom tissue: 0.00000
+
+Average time of last 20 runs: 19.684040546417236 ms
+
+
+--- Run on CPU with tflite_runtime library ---
+-------- INFERENCE TIME --------
+25.9 ms
+23.8 ms
+23.8 ms
+23.9 ms
+23.8 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.8 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+23.9 ms
+-------- RESULTS --------
+macaw: 0.94141
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 23.859894275665283 ms
+
+=========================================
+===============  Desktop  ===============
+=========================================
+
+python benchmarks/tf_lite_benchmarks.py
+
+Name                                     NumberOfCores
+Intel(R) Core(TM) i7-4770 CPU @ 3.40GHz  4
+
+
+--- Run on Coral TPU ---
+-------- INFERENCE TIME --------
+19.1 ms
+5.0 ms
+5.0 ms
+5.0 ms
+5.0 ms
+5.0 ms
+5.1 ms
+5.0 ms
+5.0 ms
+5.0 ms
+4.5 ms
+5.0 ms
+5.0 ms
+5.0 ms
+5.0 ms
+5.0 ms
+5.1 ms
+0.0 ms
+9.0 ms
+5.0 ms
+5.0 ms
+0.0 ms
+-------- RESULTS --------
+macaw: 0.94531
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 4.699885845184326 ms
+
+
+--- Run on CPU with TF library ---
+-------- INFERENCE TIME --------
+220.6 ms
+215.9 ms
+216.7 ms
+203.1 ms
+218.8 ms
+218.7 ms
+218.8 ms
+218.8 ms
+203.1 ms
+218.7 ms
+218.8 ms
+218.8 ms
+218.8 ms
+203.1 ms
+218.8 ms
+218.7 ms
+218.8 ms
+218.8 ms
+203.1 ms
+218.8 ms
+218.8 ms
+218.7 ms
+-------- RESULTS --------
+macaw: 0.94531
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 215.5221939086914 ms
+
+
+--- Run on CPU with tflite_runtime library ---
+-------- INFERENCE TIME --------
+6374.6 ms
+6390.6 ms
+6390.6 ms
+6390.6 ms
+6390.6 ms
+6390.6 ms
+6359.4 ms
+6375.0 ms
+6359.4 ms
+6359.4 ms
+6390.6 ms
+6406.2 ms
+6453.1 ms
+6406.2 ms
+6375.0 ms
+6531.2 ms
+6687.5 ms
+6671.9 ms
+6390.6 ms
+6359.4 ms
+6359.4 ms
+6359.4 ms
+-------- RESULTS --------
+macaw: 0.95312
+bee eater: 0.00391
+lorikeet: 0.00391
+
+Average time of last 20 runs: 6420.31329870224 ms
