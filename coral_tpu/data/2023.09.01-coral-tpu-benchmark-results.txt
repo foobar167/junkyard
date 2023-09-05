@@ -1,25 +1,28 @@
 Raspberry Pi 4
   OS: Debian GNU/Linux 11 (bullseye)
   CPU: ARM Cortex-A72, 1800 MHz, 4 cores
-    Coral TPU:   5.2 ms
-    CPU TF:      117.8 ms
-    CPU TF-Lite: 140.8 ms
+
+    Coral TPU:   5,2 ms
+    CPU TF:      117,8 ms
+    CPU TF-Lite: 140,8 ms
 
 Cool Pi 4B
   OS: Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish)
   CPU: ARM Cortex-A76, 2400 MHz, 4 cores
          and
        ARM Cortex-A55, 1800 MHz, 4 cores
-    Coral TPU:   4.8 ms
-    CPU TF:      19.7 ms
-    CPU TF-Lite: 23.9 ms
+
+    Coral TPU:   4,8 ms
+    CPU TF:      19,7 ms
+    CPU TF-Lite: 23,9 ms
 
 Desktop
   OS: Windows 10
   CPU: Intel i7-4770, 3600 MHz, 4 cores
-    Coral TPU:   4.7 ms
-    CPU TF:      215.5 ms
-    CPU TF-Lite: 6420.3 ms
+
+    Coral TPU:   4,7 ms
+    CPU TF:      215,5 ms
+    CPU TF-Lite: 6420,3 ms
 
 =========================================
 ===============    Pi4    ===============
