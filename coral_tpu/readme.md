@@ -14,13 +14,15 @@ are shown on the diagram below. Less is better
 
 ![Google Coral benchmarks diagram](data/coral-tpu-benchmarks.jpg)
 
-   * Pi4 – **Raspberry Pi 4 Model B** single board computer (SBC) with chipset
-Broadcom BCM2711 which runs the Debian GNU/Linux 11 (bullseye) operating system (OS).
-   * CoolPi – **Cool Pi 4 Model B** SBC with chipset Rockchip RK3588s
-which runs Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish) OS.
-   * Desktop – CPU **Intel i7-4770** personal computer with chipset
-Intel Lynx Point Z87 (Intel Haswell) which runs Microsoft Windows 10 OS.
+   * Pi4 – **Raspberry Pi 4 Model B** single board computer (SBC) with
+Broadcom BCM2711 chipset running the Debian GNU/Linux 11 (bullseye)
+operating system (OS).
+   * CoolPi – **Cool Pi 4 Model B** SBC with Rockchip RK3588s chipset
+running Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish) OS.
+   * Desktop – CPU **Intel i7-4770** personal computer with
+Intel Lynx Point Z87 (Intel Haswell) chipset running Microsoft Windows 10 OS.
 
+<br />
 
 * "TPU+TFLite" – performance tests for Coral TPU with 4 TOPS.
 * "CPU+TF" – performance tests for CPU and the TensorFlow library (TF).
