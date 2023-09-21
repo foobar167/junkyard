@@ -22,7 +22,9 @@ running Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish) OS.
    * Desktop – CPU **Intel i7-4770** personal computer with
 Intel Lynx Point Z87 (Intel Haswell) chipset running Microsoft Windows 10 OS.
 
-<br />
+For clarity, time is presented on a logarithmic scale,
+since the speed in milliseconds (ms) for the same classification task
+differs by tens and even thousands of times.
 
 * "TPU+TFLite" – performance tests for Coral TPU with 4 TOPS.
 * "CPU+TF" – performance tests for CPU and the TensorFlow library (TF).
