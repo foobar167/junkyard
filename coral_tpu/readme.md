@@ -33,7 +33,7 @@ does not work with existing neural network models.
 Tests are made for the image classification task using
 **MobileNet v3** artificial neural network model trained on ImageNet dataset.
 Files `tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite` for TPU and
-`tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite` for CPU from the Coral
+`tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite` for CPU are from the Coral
 [data repository](https://github.com/google-coral/test_data/tree/104342d2d3480b3e66203073dac24f4e2dbb4c41).
 The benchmark software is located in the files
 [tf_lite.py](tf_lite.py) and
