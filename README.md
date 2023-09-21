@@ -6,6 +6,7 @@
 -->
 
    01. [PyTorch Tutorial](#pytorch_tutorial)
+   01. [Object tracking](#feature_extractor)
    01. [Python notes and links to interesting places](#python_notes)
    01. [Image Processing with Python](#image_processing)
    01. [General object classifier](#object_classifier)
@@ -21,9 +22,15 @@
    01. [Multilanguage for Python](#multilanguage)
    01. [Dynamic menu](#dynamic_menu)</li>
    01. [Rolling window on NumPy arrays](#rolling_window)
-   01. [Object tracking](#feature_extractor)
    01. [Tkinter progressbar](#progressbar)
 
+
+----------------
+### <a name="coral_tpu" />[Coral TPU](coral_tpu)
+
+Python scripts for Google Coral USB Accelerator.
+
+<img src="coral_tpu/data/google-coral-usb-accelerator.jpg" alt="Google Coral USB Accelerator" width="300" />
 
 ----------------
 ### <a name="pytorch_tutorial" />[PyTorch Tutorial](pytorch_tutorial)
@@ -35,6 +42,18 @@ replica of [this](https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3
 original course.
 
 ![Aladdin Persson logo](data/logo_aladdin_persson.jpg)
+
+----------------
+### <a name="feature_extractor" />[Object tracking](feature_extractor)
+Object tracking using OpenCV
+*feature detectors* (detectors) and *descriptor extractors* (descriptors)
+algorithms with GUI for fun, tests and education. 
+
+![Snapshot from application](feature_extractor/data/snapshot.jpg)
+
+Previous simple script is here
+[SIFT object tracking](simple_scripts/sift_tracking.py).
+SIFT algorithm became free since March 2020.
 
 ----------------
 ### <a name="python_notes" />[Python notes and links to interesting places](notes_and_links.md)
@@ -156,18 +175,6 @@ It has zero Python cycles inside, so the speed is the same as in **C** programmi
 
 My previous examples of the rolling window for 2D array are
 [here](rolling_window_advanced.py) and [here](rolling_window.py).
-
-----------------
-### <a name="feature_extractor" />[Object tracking](feature_extractor)
-Object tracking using OpenCV
-*feature detectors* (detectors) and *descriptor extractors* (descriptors)
-algorithms with GUI for fun, tests and education. 
-
-![Snapshot from application](feature_extractor/data/snapshot.jpg)
-
-Previous simple script is here
-[SIFT object tracking](simple_scripts/sift_tracking.py).
-SIFT algorithm became free since March 2020.
 
 ----------------
 ### <a name="progressbar" />[Tkinter progressbar](tkinter_progressbar.py)

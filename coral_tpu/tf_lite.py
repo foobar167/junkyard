@@ -2,7 +2,7 @@
 # Use tflite_runtime library or TF library.
 #
 # Execute command:
-#   python benchmarks/tf_lite.py --tf -m test_data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite -i test_data/cat-test.bmp
+#   python tf_lite.py --tf -m data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite -i data/cat_720p.jpg
 # Links:
 #     PyCoral GitHub: https://github.com/google-coral/pycoral
 #     Test Data for Coral TPU: https://github.com/google-coral/test_data/tree/104342d2d3480b3e66203073dac24f4e2dbb4c41
@@ -32,19 +32,19 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     '-i',
     '--image',
-    default='test_data/parrot.jpg',
+    default='data/parrot.jpg',
     help='Image to be classified',
 )
 parser.add_argument(
     '-m',
     '--model',
-    default='test_data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite',
+    default='data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite',
     help='TensorFlow Lite model to be executed'
 )
 parser.add_argument(
     '-l',
     '--labels',
-    default='test_data/imagenet_labels.txt',
+    default='data/imagenet_labels.txt',
     help='Name of file containing labels'
 )
 parser.add_argument(

@@ -1,9 +1,9 @@
-# Benchmarks
-#     CPU vs TPU
-#     Desktop, Pi4 and CoolPi
-#     Windows and Linux
-# Execute:
-#     python benchmarks/tf_lite_benchmarks.py
+# Benchmarks are made for:
+#   * CPU vs TPU
+#   * Desktop PC Intel i7-4770, Raspberry Pi 4 Model B and Cool Pi 4 Model B
+#   * Windows and Linux
+# Execute command:
+#     python tf_lite_benchmarks.py
 # Links:
 #     PyCoral GitHub: https://github.com/google-coral/pycoral
 #     Test Data for Coral TPU: https://github.com/google-coral/test_data/tree/104342d2d3480b3e66203073dac24f4e2dbb4c41
@@ -18,13 +18,13 @@ info = {
 print()  # new line
 os.system(command=info)  # get info about the hardware
 
-model_tpu = 'test_data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite'
-model_cpu = 'test_data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite'
-image = 'test_data/parrot.jpg'  # 'cat-test.bmp'
+model_tpu = 'data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite'
+model_cpu = 'data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite'
+image = 'data/parrot.jpg'  # 'cat_720p.jpg'
 count = 22
 
 message = lambda msg: f'''python -c "print('\\n--- {msg} ---')"'''
-command = lambda m, i=image, c=count, tf='': f'python benchmarks/tf_lite.py -m {m} -i {i} -c {c} {tf}'
+command = lambda m, i=image, c=count, tf='': f'python tf_lite.py -m {m} -i {i} -c {c} {tf}'
 
 tests = (
     message('Run on Coral TPU'),
