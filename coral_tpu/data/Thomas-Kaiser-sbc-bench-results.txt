@@ -1,0 +1,531 @@
+Links:
+   * Khadas Edge2 benchmarks in Linux:
+       https://www.cnx-software.com/2022/09/20/khadas-edge2-pro-review-rockchip-rk3588s-sbc-ubuntu-22-04/#khadas-edge2-benchmarks-in-linux
+   * sbc-bench: https://github.com/ThomasKaiser/sbc-bench
+
+
+Raspberry Pi 4
+  OS: Debian GNU/Linux 11 (bullseye)
+  CPU: ARM Cortex-A72, 1800 MHz, 4 cores
+  Chipset: Broadcom BCM2711, Quad core Cortex-A72 (ARM v8) 64-bit SoC @ 1.8GHz
+
+memcpy: 2469,4 (MB/s)
+memset: 3076,5 (MB/s)
+7-zip: 5720 (avg MIPS)
+AES-256: 36,2 (16KB, Mh/s)
+Throttling: No
+
+  * memcpy: 2469.4 MB/s, memchr: 4082.1 MB/s, memset: 3076.5 MB/s
+  * 16M latency: 153.0 154.5 154.2 154.5 155.2 155.8 160.7 198.2
+  * 128M latency: 169.2 177.8 168.7 170.3 169.9 176.4 185.0 213.9
+  * 7-zip MIPS (3 consecutive runs): 5689, 5731, 5750 (5720 avg), single-threaded: 1742
+  * `aes-256-cbc      33392.48k    35268.61k    36005.46k    36201.47k    36255.06k    36241.41k`
+  * `aes-256-cbc      33431.02k    35256.36k    36006.31k    36196.69k    36233.22k    36252.33k`
+
+
+Cool Pi 4B
+  OS: Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish)
+  CPU: ARM Cortex-A76, 2400 MHz, 4 cores
+         and
+       ARM Cortex-A55, 1800 MHz, 4 cores
+  Chipset: Rockchip RK3588s - https://www.rock-chips.com/uploads/pdf/2022.8.26/192/RK3588%20Brief%20Datasheet.pdf
+
+memcpy: 7829,2 (MB/s) == (5751,0*4 + 9885,0*2 + 9929,8*2) / 8 = (23004+19770+19859,6)/8 = 62633,6/8
+memset: 24766,1 (MB/s) == (22020,1*4 + 26888,0*2 + 28136,0*2) / 8 = 198128,4/8 = (88080,4+53776+56272)/8
+7-zip: 15100 (avg MIPS)
+AES-256: 1091,2 (16KB, Mh/s) == (846,55582*4 + 1333,55383*2 + 1338,25058*2) / 8 = (3386,22328+2667,10766+2676,50116)/8 = 8729,8321/8
+Throttling: Yes
+
+  * cpu0 (Cortex-A55): memcpy: 5751.0 MB/s, memchr: 2776.2 MB/s, memset: 22020.1 MB/s
+  * cpu1 (Cortex-A76): memcpy: 9885.0 MB/s, memchr: 13413.1 MB/s, memset: 26888.0 MB/s
+  * cpu3 (Cortex-A76): memcpy: 9929.8 MB/s, memchr: 13473.5 MB/s, memset: 28136.0 MB/s
+  * cpu0 (Cortex-A55) 16M latency: 123.2 123.8 119.7 126.1 119.0 128.3 210.4 391.2
+  * cpu1 (Cortex-A76) 16M latency: 124.8 112.8 123.4 113.1 121.7 110.9 112.8 111.6
+  * cpu3 (Cortex-A76) 16M latency: 123.0 112.7 131.4 116.1 121.4 113.0 111.3 111.2
+  * cpu0 (Cortex-A55) 128M latency: 146.5 147.3 146.1 147.4 145.8 151.1 235.1 413.6
+  * cpu1 (Cortex-A76) 128M latency: 140.4 141.3 140.2 141.0 139.8 135.1 132.8 139.3
+  * cpu3 (Cortex-A76) 128M latency: 137.2 138.2 137.2 138.2 136.8 133.0 131.4 137.4
+  * 7-zip MIPS (3 consecutive runs): 15941, 14836, 14531 (15100 avg), single-threaded: 3144
+  * `aes-256-cbc     148128.30k   388634.99k   654257.58k   791737.69k   842918.57k   846555.82k (Cortex-A55)`
+  * `aes-256-cbc     598978.65k  1024057.49k  1240825.17k  1306669.40k  1330973.35k  1333553.83k (Cortex-A76)`
+  * `aes-256-cbc     599670.44k  1029485.18k  1246080.77k  1311001.60k  1335847.59k  1338250.58k (Cortex-A76)`
+
+
+Desktop
+  OS: Windows 10
+  CPU: Intel i7-4770, 3600 MHz, 4 cores
+  Motherboard Chipset: Intel Lynx Point Z87, Intel Haswell
+
+memcpy: 7407,3 (MB/s)
+memset: 14722,0 (MB/s)
+7-zip: 16870 (avg MIPS)
+AES-256: 583,6 (16KB, Mh/s)
+Throttling: Yes
+
+  * memcpy: 7407.3 MB/s, memchr: 11359.1 MB/s, memset: 14722.0 MB/s
+  * 16M latency: 96.98 96.17 99.21 97.52 94.58 91.90 93.71 97.70
+  * 128M latency: 112.8 112.6 114.8 116.3 113.0 112.5 114.1 121.8
+  * 7-zip MIPS (3 consecutive runs): 16967, 16761, 16896 (16870 avg), single-threaded: 3520
+  * `aes-256-cbc     533338.44k   570051.43k   579639.72k   584924.16k   584245.25k   585558.70k`
+  * `aes-256-cbc     535661.33k   570910.59k   576461.91k   579273.39k   581746.69k   581582.85k`
+
+
+=========================================
+===============  Desktop  ===============
+=========================================
+
+docker pull ubuntu
+docker run -it ubuntu
+apt update
+apt upgrade
+
+wget https://raw.githubusercontent.com/ThomasKaiser/sbc-bench/master/sbc-bench.sh
+sudo /bin/bash ./sbc-bench.sh -r
+
+/bin/bash ./sbc-bench.sh -r
+Starting to examine hardware/software for review purposes...
+dmesg: read kernel buffer failed: Operation not permitted
+
+sbc-bench v0.9.45
+
+Installing needed tools: apt -f -qq -y install gcc make build-essential lm-sensors curl dmidecode git sysstat lshw binutils pciutils usbutils mmc-utils smartmontools stress-ng udev p7zip, tinymembench, ramlat, mhz, cpuminer..../sbc-bench.sh: line 2910: /proc/sys/vm/drop_caches: Read-only file system
+ Done.
+Checking cpufreq OPP. Done.
+Executing tinymembench. Done.
+Executing RAM latency tester. Done.
+Executing OpenSSL benchmark. Done.
+Executing 7-zip benchmark. Done.
+Throttling test: heating up the device, 5 more minutes to wait. Done.
+Checking cpufreq OPP again...System has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+ Done (11 minutes elapsed).
+
+sed: -e expression #1, char 0: no previous regular expression
+stat: cannot statx '/swap': No such file or directory
+Results validation:
+
+  * No swapping
+  * Background activity (%system) OK
+  * Throttling occured
+
+# Hyper-V Hyper-V UEFI Release v4.0 VM
+
+
+
+
+
+Tested with sbc-bench v0.9.45 on Sun, 03 Sep 2023 14:54:30 +0000.
+
+### General information:
+
+    i7-4770 @ 3.40GHz, Kernel: x86_64, Userland: amd64
+
+    CPU sysfs topology (clusters, cpufreq members, clockspeeds)
+                     cpufreq   min    max
+     CPU    cluster  policy   speed  speed   core type
+      0        0        0       -      -     i7-4770 @ 3.40GHz
+      1        0        0       -      -     i7-4770 @ 3.40GHz
+      2        0        0       -      -     i7-4770 @ 3.40GHz
+      3        0        0       -      -     i7-4770 @ 3.40GHz
+      4        0        0       -      -     i7-4770 @ 3.40GHz
+      5        0        0       -      -     i7-4770 @ 3.40GHz
+      6        0        0       -      -     i7-4770 @ 3.40GHz
+      7        0        0       -      -     i7-4770 @ 3.40GHz
+
+7957 KB available RAM
+
+### Clockspeeds (idle vs. heated up):
+
+Before:
+
+    cpu0: Measured: 3646
+
+After:
+
+    cpu0: Measured: 3659
+
+### Performance baseline
+
+  * memcpy: 7407.3 MB/s, memchr: 11359.1 MB/s, memset: 14722.0 MB/s
+  * 16M latency: 96.98 96.17 99.21 97.52 94.58 91.90 93.71 97.70
+  * 128M latency: 112.8 112.6 114.8 116.3 113.0 112.5 114.1 121.8
+  * 7-zip MIPS (3 consecutive runs): 16967, 16761, 16896 (16870 avg), single-threaded: 3520
+  * `aes-256-cbc     533338.44k   570051.43k   579639.72k   584924.16k   584245.25k   585558.70k`
+  * `aes-256-cbc     535661.33k   570910.59k   576461.91k   579273.39k   581746.69k   581582.85k`
+
+### PCIe devices:
+
+
+
+### Swap configuration:
+
+  * /swap on /dev/sr0: 2.0G (0K used)
+
+### Software versions:
+
+  *
+  * Compiler: /usr/bin/gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 / x86_64-linux-gnu
+  * OpenSSL 3.0.2, built on 15 Mar 2022 (Library: OpenSSL 3.0.2 15 Mar 2022)
+
+### Kernel info:
+
+  * `/proc/cmdline: BOOT_IMAGE=/boot/kernel console=tty0 linuxkit.unified_cgroup_hierarchy=1 vsyscall=emulate panic=1 nospec_store_bypass_disable noibrs noibpb no_stf_barrier mitigations=off vpnkit.connect=connect://2/1999 root=/dev/sr0 text`
+  * Vulnerability Itlb multihit:     KVM: Mitigation: VMX unsupported
+  * Vulnerability L1tf:              Mitigation; PTE Inversion
+  * Vulnerability Mds:               Vulnerable; SMT Host state unknown
+  * Vulnerability Meltdown:          Vulnerable
+  * Vulnerability Spec store bypass: Vulnerable
+  * Vulnerability Spectre v1:        Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+  * Vulnerability Spectre v2:        Vulnerable, IBPB: disabled, STIBP: disabled
+  * Vulnerability Srbds:             Unknown: Dependent on hypervisor status
+  * Kernel 5.15.49-linuxkit-pr / CONFIG_HZ=1000
+./sbc-bench.sh: line 7571: /proc/sys/vm/drop_caches: Read-only file system
+
+All known settings adjusted for performance. Device now ready for benchmarking.
+Once finished stop with [ctrl]-[c] to get info about throttling, frequency cap
+and too high background activity all potentially invalidating benchmark scores.
+All changes with storage and PCIe devices as well as suspicious dmesg contents
+will be reported too.
+
+Time      CPU n/a    load %cpu %sys %usr %nice %io %irq   Temp
+14:54:30: n/a MHz    7.57  42%   1%  41%   0%   0%   0%      °C
+14:55:30: n/a MHz    2.78   0%   0%   0%   0%   0%   0%      °C
+14:56:30: n/a MHz    1.02   0%   0%   0%   0%   0%   0%      °C
+
+
+=========================================
+===============    Pi4    ===============
+=========================================
+
+
+sudo /bin/bash ./sbc-bench.sh -r
+Starting to examine hardware/software for review purposes...
+
+Average load and/or CPU utilization too high (too much background activity). Waiting...
+
+Too busy for benchmarking: 19:34:08 up 1 min,  2 users,  load average: 0.68, 0.32, 0.12,  cpu: 13%
+Too busy for benchmarking: 19:34:13 up 1 min,  2 users,  load average: 0.63, 0.32, 0.12,  cpu: 0%
+Too busy for benchmarking: 19:34:18 up 1 min,  2 users,  load average: 0.58, 0.31, 0.12,  cpu: 0%
+Too busy for benchmarking: 19:34:23 up 1 min,  2 users,  load average: 0.53, 0.31, 0.11,  cpu: 0%
+Too busy for benchmarking: 19:34:28 up 1 min,  2 users,  load average: 0.49, 0.30, 0.11,  cpu: 0%
+Too busy for benchmarking: 19:34:33 up 1 min,  2 users,  load average: 0.45, 0.29, 0.11,  cpu: 0%
+Too busy for benchmarking: 19:34:38 up 1 min,  2 users,  load average: 0.41, 0.29, 0.11,  cpu: 0%
+
+sbc-bench v0.9.45
+
+Installing needed tools: apt -f -qq -y install mmc-utils smartmontools. Done.
+Checking cpufreq OPP. Done.
+Executing tinymembench. Done.
+Executing RAM latency tester. Done.
+Executing OpenSSL benchmark. Done.
+Executing 7-zip benchmark. Done.
+Throttling test: heating up the device, 5 more minutes to wait. Done.
+Checking cpufreq OPP again. Done (14 minutes elapsed).
+
+Results validation:
+
+  * Measured clockspeed not lower than advertised max CPU clockspeed
+  * No swapping
+  * Background activity (%system) OK
+  * No throttling
+
+Full results uploaded to http://ix.io/4F7z
+
+
+
+
+
+# RPi 4 Model B Rev 1.4 / BCM2711 Rev C0 or later
+
+Tested with sbc-bench v0.9.45 on Fri, 01 Sep 2023 19:48:38 +0300. Full info: [http://ix.io/4F7z](http://ix.io/4F7z)
+
+### General information:
+
+    BCM2711C0 or later, RPi 4 Model B Rev 1.4 / BCM2711 Rev C0 or later, Kernel: aarch64, Userland: arm64
+
+    CPU sysfs topology (clusters, cpufreq members, clockspeeds)
+                     cpufreq   min    max
+     CPU    cluster  policy   speed  speed   core type
+      0        0        0      600    1800   Cortex-A72 / r0p3
+      1        0        0      600    1800   Cortex-A72 / r0p3
+      2        0        0      600    1800   Cortex-A72 / r0p3
+      3        0        0      600    1800   Cortex-A72 / r0p3
+
+3794 KB available RAM
+
+### Governors/policies (performance vs. idle consumption):
+
+Original governor settings:
+
+    cpufreq-policy0: ondemand / 1800 MHz (conservative ondemand userspace powersave performance schedutil / 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800)
+
+Tuned governor settings:
+
+    cpufreq-policy0: performance / 1800 MHz
+
+### Clockspeeds (idle vs. heated up):
+
+Before at 42.4°C:
+
+    cpu0 (Cortex-A72): OPP: 1800, ThreadX: 1800, Measured: 1798
+
+After at 65.7°C:
+
+    cpu0 (Cortex-A72): OPP: 1800, ThreadX: 1800, Measured: 1798
+
+### Performance baseline
+
+  * memcpy: 2469.4 MB/s, memchr: 4082.1 MB/s, memset: 3076.5 MB/s
+  * 16M latency: 153.0 154.5 154.2 154.5 155.2 155.8 160.7 198.2
+  * 128M latency: 169.2 177.8 168.7 170.3 169.9 176.4 185.0 213.9
+  * 7-zip MIPS (3 consecutive runs): 5689, 5731, 5750 (5720 avg), single-threaded: 1742
+  * `aes-256-cbc      33392.48k    35268.61k    36005.46k    36201.47k    36255.06k    36241.41k`
+  * `aes-256-cbc      33431.02k    35256.36k    36006.31k    36196.69k    36233.22k    36252.33k`
+
+### PCIe and storage devices:
+
+  * VIA VL805/806 xHCI USB 3.0: Speed 5GT/s (ok), Width x1 (ok), driver in use: xhci_hcd
+  * 59.5GB "SanDisk SC64G" UHS DDR50 SDXC card as /dev/mmcblk0: date 12/2020, manfid/oemid: 0x000003/0x5344, hw/fw rev: 0x8/0x0
+
+### Swap configuration:
+
+  * /var/swap on /dev/mmcblk0p2: 100.0M (0K used) on ultra slow SD card storage
+
+### Software versions:
+
+  * Debian GNU/Linux 11 (bullseye)
+  * Build scripts: http://archive.raspberrypi.org/debian/ bullseye main
+  * Compiler: /usr/bin/gcc (Debian 10.2.1-6) 10.2.1 20210110 / aarch64-linux-gnu
+  * OpenSSL 1.1.1n, built on 15 Mar 2022
+  * ThreadX: 82f3750a65fadae9a38077e3c2e217ad158c8d54 / Mar 17 2023 10:50:39
+
+### Kernel info:
+
+  * `/proc/cmdline: coherent_pool=1M 8250.nr_uarts=0 snd_bcm2835.enable_headphones=0 snd_bcm2835.enable_headphones=1 snd_bcm2835.enable_hdmi=1 snd_bcm2835.enable_hdmi=0  smsc95xx.macaddr=E4:5F:01:3F:05:39 vc_mem.mem_base=0x3ec00000 vc_mem.mem_size=0x40000000  console=ttyS0,115200 console=tty1 root=PARTUUID=715e4d36-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles`
+  * Vulnerability Spec store bypass: Vulnerable
+  * Vulnerability Spectre v1:        Mitigation; __user pointer sanitization
+  * Vulnerability Spectre v2:        Vulnerable
+  * Kernel 6.1.21-v8+ / CONFIG_HZ=250
+
+Kernel 6.1.21 is not latest 6.1.50 LTS that was released on 2023-08-30.
+
+See https://endoflife.date/linux for details. It is somewhat likely that some
+exploitable vulnerabilities exist for this kernel as well as many unfixed bugs.
+
+All known settings adjusted for performance. Device now ready for benchmarking.
+Once finished stop with [ctrl]-[c] to get info about throttling, frequency cap
+and too high background activity all potentially invalidating benchmark scores.
+All changes with storage and PCIe devices as well as suspicious dmesg contents
+will be reported too.
+
+=========================================
+===============  CoolPi   ===============
+=========================================
+
+wget https://raw.githubusercontent.com/ThomasKaiser/sbc-bench/master/sbc-bench.sh
+sudo /bin/bash ./sbc-bench.sh -r
+
+[sudo] password for lab225:
+Starting to examine hardware/software for review purposes...
+
+Average load and/or CPU utilization too high (too much background activity). Waiting...
+
+Too busy for benchmarking: 19:33:31 up 1 min,  2 users,  load average: 0.17, 0.08, 0.03,  cpu: 5%
+Too busy for benchmarking: 19:33:36 up 1 min,  2 users,  load average: 0.15, 0.08, 0.03,  cpu: 0%
+Too busy for benchmarking: 19:33:41 up 1 min,  2 users,  load average: 0.14, 0.08, 0.03,  cpu: 0%
+Too busy for benchmarking: 19:33:46 up 1 min,  2 users,  load average: 0.13, 0.07, 0.02,  cpu: 0%
+Too busy for benchmarking: 19:33:51 up 1 min,  2 users,  load average: 0.12, 0.07, 0.02,  cpu: 0%
+Too busy for benchmarking: 19:33:56 up 1 min,  2 users,  load average: 0.11, 0.07, 0.02,  cpu: 0%
+
+sbc-bench v0.9.45
+
+Installing needed tools: Done.
+Checking cpufreq OPP. Done.
+Executing tinymembench. Done.
+Executing RAM latency tester. Done.
+Executing OpenSSL benchmark. Done.
+Executing 7-zip benchmark. Done.
+Throttling test: heating up the device, 5 more minutes to wait. Done.
+Checking cpufreq OPP again. Done (20 minutes elapsed).
+
+Results validation:
+
+  * Advertised vs. measured max CPU clockspeed: -1.8% before, -3.4% after
+  * Background activity (%system) OK
+  * Too much other background activity: 0% avg, 15% max
+  * Throttling occured
+
+
+
+
+
+# RK3588S CoolPi 4B Board
+
+Tested with sbc-bench v0.9.45 on Fri, 01 Sep 2023 19:53:10 +0300.
+
+### General information:
+
+The CPU features 3 clusters of different core types:
+
+    Rockchip RK3588/RK3588s (35880000), Kernel: aarch64, Userland: arm64
+
+    CPU sysfs topology (clusters, cpufreq members, clockspeeds)
+                     cpufreq   min    max
+     CPU    cluster  policy   speed  speed   core type
+      0        0        0      408    1800   Cortex-A55 / r2p0
+      1        1        1      408    2400   Cortex-A76 / r4p0
+      2        1        1      408    2400   Cortex-A76 / r4p0
+      3        2        3      408    2400   Cortex-A76 / r4p0
+      4        2        3      408    2400   Cortex-A76 / r4p0
+      5        0        3      408    2400   Cortex-A55 / r2p0
+      6        0        3      408    2400   Cortex-A55 / r2p0
+      7        0        3      408    2400   Cortex-A55 / r2p0
+
+3714 KB available RAM
+
+### Governors/policies (performance vs. idle consumption):
+
+Original governor settings:
+
+    cpufreq-policy0: performance / 1800 MHz (conservative ondemand userspace powersave performance schedutil / 408 600 816 1008 1200 1416 1608 1800)
+    cpufreq-policy1: performance / 2400 MHz (conservative ondemand userspace powersave performance schedutil / 408 600 816 1008 1200 1416 1608 1800 2016 2208 2400)
+    cpufreq-policy3: performance / 2400 MHz (conservative ondemand userspace powersave performance schedutil / 408 600 816 1008 1200 1416 1608 1800 2016 2208 2400)
+    fb000000.gpu: performance / 1000 MHz (rknpu_ondemand userspace powersave performance simple_ondemand / 300 400 500 600 700 800 900 1000)
+    fdab0000.npu: rknpu_ondemand / 1000 MHz (rknpu_ondemand userspace powersave performance simple_ondemand / 300 400 500 600 700 800 900 1000)
+
+Tuned governor settings:
+
+    cpufreq-policy0: performance / 1800 MHz
+    cpufreq-policy1: performance / 2400 MHz
+    cpufreq-policy3: performance / 2400 MHz
+    fb000000.gpu: performance / 1000 MHz
+    fdab0000.npu: performance / 1000 MHz
+
+Status of performance related policies found below /sys:
+
+    /sys/devices/platform/fb000000.gpu/power_policy: [coarse_demand] always_on
+    /sys/module/pcie_aspm/parameters/policy: default [performance] powersave powersupersave
+
+### Clockspeeds (idle vs. heated up):
+
+Before at 47.2°C:
+
+    cpu0 (Cortex-A55): OPP: 1800, Measured: 1819      (+1.1%)
+    cpu1-cpu2 (Cortex-A76): OPP: 2400, Measured: 2357      (-1.8%)
+    cpu3-cpu7 (Cortex-A76): OPP: 2400, Measured: 2365      (-1.5%)
+
+After at 83.2°C (throttled):
+
+    cpu0 (Cortex-A55): OPP: 1800, Measured: 1795
+    cpu1-cpu2 (Cortex-A76): OPP: 2400, Measured: 2319      (-3.4%)
+    cpu3-cpu7 (Cortex-A76): OPP: 2400, Measured: 2328      (-3.0%)
+
+### Performance baseline
+
+  * cpu0 (Cortex-A55): memcpy: 5751.0 MB/s, memchr: 2776.2 MB/s, memset: 22020.1 MB/s
+  * cpu1 (Cortex-A76): memcpy: 9885.0 MB/s, memchr: 13413.1 MB/s, memset: 26888.0 MB/s
+  * cpu3 (Cortex-A76): memcpy: 9929.8 MB/s, memchr: 13473.5 MB/s, memset: 28136.0 MB/s
+  * cpu0 (Cortex-A55) 16M latency: 123.2 123.8 119.7 126.1 119.0 128.3 210.4 391.2
+  * cpu1 (Cortex-A76) 16M latency: 124.8 112.8 123.4 113.1 121.7 110.9 112.8 111.6
+  * cpu3 (Cortex-A76) 16M latency: 123.0 112.7 131.4 116.1 121.4 113.0 111.3 111.2
+  * cpu0 (Cortex-A55) 128M latency: 146.5 147.3 146.1 147.4 145.8 151.1 235.1 413.6
+  * cpu1 (Cortex-A76) 128M latency: 140.4 141.3 140.2 141.0 139.8 135.1 132.8 139.3
+  * cpu3 (Cortex-A76) 128M latency: 137.2 138.2 137.2 138.2 136.8 133.0 131.4 137.4
+  * 7-zip MIPS (3 consecutive runs): 15941, 14836, 14531 (15100 avg), single-threaded: 3144
+  * `aes-256-cbc     148128.30k   388634.99k   654257.58k   791737.69k   842918.57k   846555.82k (Cortex-A55)`
+  * `aes-256-cbc     598978.65k  1024057.49k  1240825.17k  1306669.40k  1330973.35k  1333553.83k (Cortex-A76)`
+  * `aes-256-cbc     599670.44k  1029485.18k  1246080.77k  1311001.60k  1335847.59k  1338250.58k (Cortex-A76)`
+
+### PCIe and storage devices:
+
+  * Realtek RTL8111/8168/8411 PCI Express Gigabit Ethernet: Speed 2.5GT/s (ok), Width x1 (ok), driver in use: r8168
+  * 58.2GB "AT2S9C" HS400 eMMC 5.1 card as /dev/mmcblk0: date 01/2023, manfid/oemid: 0x0000ec/0x2900, hw/fw rev: 0x0/0x0702f00000000000
+
+### Software versions:
+
+  * Ubuntu 22.04.3 LTS
+  * Compiler: /usr/bin/gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 / aarch64-linux-gnu
+
+### Kernel info:
+
+  * `/proc/cmdline: root=LABEL=writable rw rootfstype=ext4 console=ttyS0,115200n81 quiet splash plymouth.ignore-serial-consoles vt.global_cursor_default=1 irqchip.gicv3_pseudo_nmi=0 net.ifnames=0
+ rtleth=ethaddr:2a:b7:21:5d:18:8c`
+  * Vulnerability Spec store bypass: Mitigation; Speculative Store Bypass disabled via prctl
+  * Vulnerability Spectre v1:        Mitigation; __user pointer sanitization
+  * Vulnerability Spectre v2:        Mitigation; CSV2, BHB
+  * Kernel 5.10.110 / CONFIG_HZ=300
+
+Kernel 5.10.110 is not latest 5.10.193 LTS that was released on 2023-08-30.
+
+See https://endoflife.date/linux for details. It is somewhat likely that
+a lot of exploitable vulnerabilities exist for this kernel as well as many
+unfixed bugs.
+
+But this version string doesn't matter since this is not an official LTS Linux
+from kernel.org. This device runs a Rockchip vendor/BSP kernel.
+
+This kernel is based on a mixture of Android GKI and other sources. Also some
+community attempts to do version string cosmetics might have happened, see
+https://tinyurl.com/2p8fuubd for example. To examine how far away this 5.10.110
+is from an official LTS of same version someone would have to reapply Rockchip's
+thousands of patches to a clean 5.10.110 LTS.
+
+All known settings adjusted for performance. Device now ready for benchmarking.
+Once finished stop with [ctrl]-[c] to get info about throttling, frequency cap
+and too high background activity all potentially invalidating benchmark scores.
+All changes with storage and PCIe devices as well as suspicious dmesg contents
+will be reported too.
+
+Time       big.LITTLE   load %cpu %sys %usr %nice %io %irq   Temp
+19:53:22: 2400/1800MHz  5.14  42%   0%  42%   0%   0%   0%  67.5°C
+19:54:22: 2400/1800MHz  1.89   0%   0%   0%   0%   0%   0%  56.4°C
+19:55:22: 2400/1800MHz  0.69   0%   0%   0%   0%   0%   0%  52.7°C
+19:56:22: 2400/1800MHz  0.25   0%   0%   0%   0%   0%   0%  49.9°C
+19:57:22: 2400/1800MHz  0.09   0%   0%   0%   0%   0%   0%  48.1°C
+19:58:22: 2400/1800MHz  0.03   0%   0%   0%   0%   0%   0%  47.2°C
+19:59:22: 2400/1800MHz  0.01   0%   0%   0%   0%   0%   0%  46.2°C
+20:00:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  45.3°C
+20:01:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+20:02:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+20:03:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+20:04:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:05:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+20:06:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+
+Time       big.LITTLE   load %cpu %sys %usr %nice %io %irq   Temp
+20:07:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:08:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:09:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:10:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:11:22: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:12:22: 2400/1800MHz  0.03   0%   0%   0%   0%   0%   0%  43.5°C
+20:13:23: 2400/1800MHz  0.01   0%   0%   0%   0%   0%   0%  43.5°C
+20:14:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:15:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:16:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:17:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:18:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+20:19:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+20:20:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:21:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  44.4°C
+
+Time       big.LITTLE   load %cpu %sys %usr %nice %io %irq   Temp
+20:22:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+20:23:23: 2400/1800MHz  0.00   0%   0%   0%   0%   0%   0%  43.5°C
+^C
+
+Cleaning up. Done.
+Checking cpufreq OPP again. Done.
+
+Clockspeeds now at 46.2°C:
+
+    cpu0 (Cortex-A55): OPP: 1800, Measured: 1822      (+1.2%)
+    cpu1-cpu2 (Cortex-A76): OPP: 2400, Measured: 2361      (-1.6%)
+    cpu3-cpu7 (Cortex-A76): OPP: 2400, Measured: 2350      (-2.1%)
+
+Results validation:
+
+  * Advertised vs. measured max CPU clockspeed: -1.8% before, -3.4% after
+  * Background activity (%system) OK
+  * No throttling
+

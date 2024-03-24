@@ -1,0 +1,901 @@
+Raspberry Pi 4
+  OS: Debian GNU/Linux 11 (bullseye)
+  CPU: ARM Cortex-A72, 1800 MHz, 4 cores
+  Chipset: Broadcom BCM2711, Quad core Cortex-A72 (ARM v8) 64-bit SoC @ 1.8GHz
+
+CPU Stress: 392,2 Bogo Ops/s +- 0,63%
+Matrix Math: 1341,8 Bogo Ops/s +- 3,21%
+Memory Copying: 394,7 Bogo Ops/s +- 0,07%
+
+Cool Pi 4B
+  OS: Ubuntu Linux 22.04.3 LTS (Jammy Jellyfish)
+  CPU: ARM Cortex-A76, 2400 MHz, 4 cores
+         and
+       ARM Cortex-A55, 1800 MHz, 4 cores
+  Chipset: Rockchip RK3588s - https://www.rock-chips.com/uploads/pdf/2022.8.26/192/RK3588%20Brief%20Datasheet.pdf
+
+CPU Stress: 851,6 Bogo Ops/s +- 5,22%
+Matrix Math: 14837,5 Bogo Ops/s +- 3,03%
+Memory Copying: 718,7 Bogo Ops/s +- 1,19%
+
+Desktop
+  OS: Windows 10 + Docker image with Ubuntu 20.04.4 LTS
+  CPU: Intel i7-4770, 3600 MHz, 4 cores
+  Motherboard Chipset: Intel Lynx Point Z87, Intel Haswell
+
+CPU Stress: 6805,7 Bogo Ops/s +- 3,15%
+Matrix Math: 18741,5 Bogo Ops/s +- 1,05%
+Memory Copying: 1260,2 Bogo Ops/s +- 0,24%
+
+
+=========================================
+===============  Desktop  ===============
+=========================================
+
+docker pull phoronix/pts
+docker run -it phoronix/pts
+# phoronix-test-suite install stress-ng
+phoronix-test-suite run stress-ng
+
+docker pull ubuntu
+docker run -it ubuntu
+apt update
+apt upgrade
+
+apt install wget
+wget https://raw.githubusercontent.com/ThomasKaiser/sbc-bench/master/sbc-bench.sh
+sudo /bin/bash ./sbc-bench.sh -r
+
+apt install sysbench
+
+docker images
+
+phoronix-test-suite system-info
+
+  PROCESSOR:              Intel Core i7-4770 @ 3.40GHz
+    Core Count:           4
+    Thread Count:         8
+    Cache Size:           1024 MB
+    Microcode:            0000000025000000
+    Core Family:          Haswell
+
+  GRAPHICS:               Intel HD 4600 + NVIDIA GeForce GTX 760 2GB
+    Display Driver:       457.51 (20.19.15.4835)
+    Monitor:              V650wb
+    Screen:               1920x1200
+
+  MOTHERBOARD:            Gigabyte Z87-DS3H
+    BIOS Version:         F3
+    Audio:                Pro 9000
+                          + NVIDIA HD Audio
+                          + Realtek HD Audio
+                          + NVIDIA Virtual Audio Device (Wave Extensible) (WDM)
+                          + Intel Display Audio
+    Network:              TeamViewer VPN
+
+  MEMORY:                 2 x 8192 MB 1600MHz SP008GBLTU160N01
+
+  DISK:                   1397GB ST31500341AS + 477GB TOSHIBA THNSNJ512GCST
+    File-System:          NTFS
+
+  OPERATING SYSTEM:       Microsoft Windows 10 Pro Build 18362
+    Kernel:               10.0.18362.657 (x86_64)
+    Compiler:             GCC 11.3.0
+    Security:             __user pointer sanitization: Disabled
+                          + Retpoline: Full
+                          + IBPB: Always
+                          + IBRS: Enabled
+                          + STIBP: Enabled
+                          + KPTI Enabled: Yes
+                          + PTE Inversion: Yes
+                          + VBS: Enabled and running
+
+To Install:    pts/stress-ng-1.11.0
+
+    Determining File Requirements .......................................................................................................................................................................................................
+    Searching Download Caches ...........................................................................................................................................................................................................
+
+    1 Test To Install
+        1 File To Download [3.74MB]
+        18MB Of Disk Space Is Needed
+        1 Minute, 2 Seconds Estimated Install Time
+
+    pts/stress-ng-1.11.0:
+        Test Installation 1 of 1
+        1 File Needed [3.74 MB]
+        Downloading: stress-ng-0.16.04.tar.gz                                                                                                                                                                                    [3.74MB]
+        Downloading .....................................................................................................................................................................................................................
+        Approximate Install Size: 18 MB
+        Estimated Install Time: 1 Minute, 2 Seconds
+        Installing Test @ 15:32:48
+
+
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0
+    System Test Configuration
+        1:  CPU Stress
+        2:  Crypto
+        3:  Memory Copying
+        4:  Glibc Qsort Data Sorting
+        5:  Glibc C String Functions
+        6:  Vector Math
+        7:  Matrix Math
+        8:  Forking
+        9:  System V Message Passing
+        10: Semaphores
+        11: Socket Activity
+        12: Context Switching
+        13: Atomic
+        14: CPU Cache
+        15: Malloc
+        16: MEMFD
+        17: MMAP
+        18: NUMA
+        19: x86_64 RdRand
+        20: SENDFILE
+        21: IO_uring
+        22: Futex
+        23: Mutex
+        24: Function Call
+        25: Poll
+        26: Hash
+        27: Pthread
+        28: Zlib
+        29: Floating Point
+        30: Fused Multiply-Add
+        31: Pipe
+        32: Matrix 3D Math
+        33: AVL Tree
+        34: Vector Floating Point
+        35: Vector Shuffle
+        36: Wide Vector Math
+        37: Cloning
+        38: AVX-512 VNNI
+        39: Mixed Scheduler
+        40: Test All Options
+        ** Multiple items can be selected, delimit by a comma. **
+        Test: 1,3,7                                                2023-09-01-strress-ng
+
+If desired, enter a new description below to better describe this result set / system configuration under test.
+Press ENTER to proceed without changes.
+
+Current Description: Docker testing on Ubuntu 20.04.4 LTS via the Phoronix Test Suite.
+  PROCESSOR:              Intel Core i7-4770
+New Description:          4
+    Thread Count:         8
+Stress-NG 0.16.04:        SSE 4.2 + AVX2 + AVX + RDRAND + FSGSBASE
+    pts/stress-ng-1.11.0 [Test: CPU Stress]
+    Test 1 of 3           0xffffffff
+    Estimated Trial Run Count:    3
+    Estimated Test Run-Time:      3 Minutes
+    Estimated Time To Completion: 8 Minutes [15:45 UTC]
+    Screen:               1024x768
+
+  MOTHERBOARD:            Microsoft Virtual Machine
+    BIOS Version:         Hyper-V UEFI v4.0
+
+  MEMORY:                 8GB
+
+  DISK:                   69GB Virtual Disk
+    File-System:          overlayfs
+        Started Run 1 @ 15:37:58
+
+  OPERATING SYSTEM:       Ubuntu 20.04.4 LTS
+    Kernel:               5.15.49-linuxkit-pr (x86_64)
+    Compiler:             GCC 9.4.0
+    System Layer:         Docker
+    Security:             itlb_multihit: KVM: Mitigation of VMX unsupported
+                          + l1tf: Mitigation of PTE Inversion
+                          + mds: Vulnerable; SMT Host state unknown
+                          + meltdown: Vulnerable
+                          + mmio_stale_data: Not affected
+                          + spec_store_bypass: Vulnerable
+                          + spectre_v1: Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+                          + spectre_v2: Vulnerable IBPB: disabled STIBP: disabled
+                          + srbds: Unknown: Dependent on hypervisor status
+                          + tsx_async_abort: Not affected
+
+    Would you like to save these test results (Y/n): Y
+    Enter a name for the result file: 2023-09-01-stress-ng
+    Enter a unique name to describe this test run / configuration: 0
+
+        Started Run 2 @ 15:38:32
+        Started Run 3 @ 15:39:06
+        Started Run 4 @ 15:39:40 *
+        Started Run 5 @ 15:40:14 *
+        Started Run 6 @ 15:40:48 *
+        Started Run 7 @ 15:41:22 *
+        Started Run 8 @ 15:41:56 *
+        Started Run 9 @ 15:42:30 *
+        Started Run 10 @ 15:43:04 *
+        Started Run 11 @ 15:43:38 *
+        Started Run 12 @ 15:44:12 *
+        Started Run 13 @ 15:44:46 *
+        Started Run 14 @ 15:45:20 *
+        Started Run 15 @ 15:45:54 *
+
+    Test: CPU Stress:
+        6237.93
+        6351.71
+        6881
+        6912.19
+        6887.95
+        6880.01
+        6917.77
+        6858.37
+        6929.75
+        6714.25
+        6907.33
+        6886.01
+        6903.62
+        6896.68
+        6921.44
+
+    Average: 6805.73 Bogo Ops/s
+    Deviation: 3.15%
+    Samples: 15
+
+    Comparison of 94 OpenBenchmarking.org samples since 14 August; median result: 20886 Bogo Ops/s. Box plot of samples:
+    [--*---##!#################*#####*##---*------------------------------------------------------------------------------*---*-------------------------------------------------------------------------------------------------------|     ]
+       ^ This Result (17th Percentile): 6806
+                               ^ AMD Ryzen 9 7950X: 62409                                               AMD EPYC 9754: 280347 ^
+                                                                                    2 x Intel Xeon Platinum 8490H: 270633 ^
+                  2 x AMD EPYC 9124: 88785 ^
+               AMD EPYC 9384X: 76267 ^
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: Matrix Math]
+    Test 2 of 3
+    Estimated Trial Run Count:    3
+    Estimated Test Run-Time:      2 Minutes
+    Estimated Time To Completion: 4 Minutes [15:49 UTC]
+        Started Run 1 @ 15:46:35
+        Started Run 2 @ 15:47:09
+        Started Run 3 @ 15:47:44
+
+    Test: Matrix Math:
+        18521.51
+        18903.72
+        18799.27
+
+    Average: 18741.50 Bogo Ops/s
+    Deviation: 1.05%
+
+    Comparison of 71 OpenBenchmarking.org samples since 14 August; median result: 83517 Bogo Ops/s. Box plot of samples:
+    [---*--############!##########*#######*#*#########-----------------------------------------------------------------------------*-------*--------------------------------------------------------------------------------------------|   ]
+        ^ This Result (16th Percentile): 18742
+                                  ^ AMD Ryzen 9 7950X: 129396                                        2 x Intel Xeon Platinum 8490H: 584458 ^
+                                                                                                             AMD EPYC 9754: 552415 ^
+                  2 x AMD EPYC 9124: 173910 ^
+                   AMD EPYC 9384X: 166861 ^
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: Memory Copying]
+    Test 3 of 3
+    Estimated Trial Run Count:    3
+    Estimated Time To Completion: 2 Minutes [15:49 UTC]
+        Started Run 1 @ 15:48:25
+        Started Run 2 @ 15:48:59
+        Started Run 3 @ 15:49:33
+
+    Test: Memory Copying:
+        1256.85
+        1261.11
+        1262.58
+
+    Average: 1260.18 Bogo Ops/s
+    Deviation: 0.24%
+
+    Comparison of 10 OpenBenchmarking.org samples since 17 August; median result: 13430 Bogo Ops/s. Box plot of samples:
+    [ |-*-------------------------------------!#########################################################################################################################################################################################|#  ]
+        ^ This Result (9th Percentile): 1260
+
+    Do you want to view the text results of the testing (Y/n): 2023-09-01-stress-ng
+Docker testing on Ubuntu 20.04.4 LTS via the Phoronix Test Suite.
+
+
+2023-09-01-strress-ng:
+
+        Processor: Intel Core i7-4770 (4 Cores / 8 Threads), Motherboard: Microsoft Virtual Machine (Hyper-V UEFI v4.0 BIOS), Memory: 8GB, Disk: 69GB Virtual Disk, Graphics: hyperv_fb
+
+        OS: Ubuntu 20.04.4 LTS, Kernel: 5.15.49-linuxkit-pr (x86_64), Compiler: GCC 9.4.0, File-System: overlayfs, Screen Resolution: 1024x768, System Layer: Docker
+
+
+    Stress-NG 0.16.04
+    Test: CPU Stress
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-strress-ng . 6805.73 |========================================================================================================================================================================================================
+
+
+    Stress-NG 0.16.04
+    Test: Matrix Math
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-strress-ng . 18741.50 |=======================================================================================================================================================================================================
+
+
+    Stress-NG 0.16.04
+    Test: Memory Copying
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-strress-ng . 1260.18 |========================================================================================================================================================================================================
+
+    Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n):     Would you like to upload the results to OpenBenchmarking.org (y/n): y
+    Would you like to attach the system logs (lspci, dmesg, lsusb, etc) to the test result (y/n): y
+
+    Results Uploaded To: https://openbenchmarking.org/result/2309037-NE-20230901S52
+
+
+ CPU Usage (Summary): 0.75 %          Memory Usage: 546  MB         System Uptime 106  M
+
+Phoronix Test Suite command to run or help for all possible options, commands for a quick overview of options, interactive for a guided experience, system-info to view system hardware/software information, exit to exit. For new users, benchmark is the simplest and most important sub-command. Tab auto-completion support available.
+
+
+=========================================
+===============    Pi4    ===============
+=========================================
+
+phoronix-test-suite system-info
+
+  PROCESSOR:              ARMv8 Cortex-A72 @ 1.80GHz
+    Core Count:           4
+    Scaling Driver:       cpufreq-dt ondemand
+
+  GRAPHICS:
+
+  MOTHERBOARD:            BCM2835 Raspberry Pi 4 Model B Rev 1.4
+    Chipset:              Broadcom BCM2711
+
+  MEMORY:                 4096MB
+
+  DISK:                   64GB SC64G
+    File-System:          ext4
+    Mount Options:        noatime rw
+    Disk Details:         Block Size: 4096
+
+  OPERATING SYSTEM:       Debian 11
+    Kernel:               6.1.21-v8+ (aarch64)
+    Display Server:       X Server 1.20.11
+    Compiler:             GCC 10.2.1 20210110
+    Security:             itlb_multihit: Not affected
+                          + l1tf: Not affected
+                          + mds: Not affected
+                          + meltdown: Not affected
+                          + mmio_stale_data: Not affected
+                          + retbleed: Not affected
+                          + spec_store_bypass: Vulnerable
+                          + spectre_v1: Mitigation of __user pointer sanitization
+                          + spectre_v2: Vulnerable
+                          + srbds: Not affected
+                          + tsx_async_abort: Not affected
+
+
+phoronix-test-suite run stress-ng
+
+
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0
+    System Test Configuration
+        1:  CPU Stress
+        2:  Crypto
+        3:  Memory Copying
+        4:  Glibc Qsort Data Sorting
+        5:  Glibc C String Functions
+        6:  Vector Math
+        7:  Matrix Math
+        8:  Forking
+        9:  System V Message Passing
+        10: Semaphores
+        11: Socket Activity
+        12: Context Switching
+        13: Atomic
+        14: CPU Cache
+        15: Malloc
+        16: MEMFD
+        17: MMAP
+        18: NUMA
+        19: SENDFILE
+        20: IO_uring
+        21: Futex
+        22: Mutex
+        23: Function Call
+        24: Poll
+        25: Hash
+        26: Pthread
+        27: Zlib
+        28: Floating Point
+        29: Fused Multiply-Add
+        30: Pipe
+        31: Matrix 3D Math
+        32: AVL Tree
+        33: Vector Floating Point
+        34: Vector Shuffle
+        35: Wide Vector Math
+        36: Cloning
+        37: AVX-512 VNNI
+        38: Mixed Scheduler
+        39: Test All Options
+        ** Multiple items can be selected, delimit by a comma. **
+        Test: 1,3,7
+
+
+Phoronix Test Suite v10.8.4
+System Information
+
+
+  PROCESSOR:              ARMv8 Cortex-A72 @ 1.80GHz
+    Core Count:           4
+    Scaling Driver:       cpufreq-dt ondemand
+
+  GRAPHICS:
+
+  MOTHERBOARD:            BCM2835 Raspberry Pi 4 Model B Rev 1.4
+    Chipset:              Broadcom BCM2711
+
+  MEMORY:                 4096MB
+
+  DISK:                   64GB SC64G
+    File-System:          ext4
+    Mount Options:        noatime rw
+    Disk Details:         Block Size: 4096
+
+  OPERATING SYSTEM:       Debian 11
+    Kernel:               6.1.21-v8+ (aarch64)
+    Display Server:       X Server 1.20.11
+    Compiler:             GCC 10.2.1 20210110
+    Security:             itlb_multihit: Not affected
+                          + l1tf: Not affected
+                          + mds: Not affected
+                          + meltdown: Not affected
+                          + mmio_stale_data: Not affected
+                          + retbleed: Not affected
+                          + spec_store_bypass: Vulnerable
+                          + spectre_v1: Mitigation of __user pointer sanitization
+                          + spectre_v2: Vulnerable
+                          + srbds: Not affected
+                          + tsx_async_abort: Not affected
+
+    Would you like to save these test results (Y/n): y
+    Enter a name for the result file: 2023-09-01-stress-ng
+    Enter a unique name to describe this test run / configuration: 2023-09-01-stress-ng-01
+
+If desired, enter a new description below to better describe this result set / system configuration under test.
+Press ENTER to proceed without changes.
+
+Current Description: ARMv8 Cortex-A72 testing on Debian 11 via the Phoronix Test Suite.
+
+New Description:
+
+        [Performance Tip] The CPU scaling governor is currently not set to performance. It's possible to obtain greater performance if using the performance governor.
+
+        To change behavior, run:
+
+        echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+
+        Reference: https://openbenchmarking.org/result/1706268-TR-CPUGOVERN32
+
+
+        To stop showing performance tips, run: phoronix-test-suite unload-module perf_tips
+
+        Continuing in 5 seconds or press CTRL-C to stop the testing process.
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: CPU Stress]
+    Test 1 of 3
+    Estimated Trial Run Count:    3
+    Estimated Test Run-Time:      3 Minutes
+    Estimated Time To Completion: 8 Minutes [14:02 UTC]
+        Started Run 1 @ 13:55:22
+        Started Run 2 @ 13:55:57
+        Started Run 3 @ 13:56:31
+
+    Test: CPU Stress:
+        394.84
+        391.7
+        390
+
+    Average: 392.18 Bogo Ops/s
+    Deviation: 0.63%
+
+    Comparison of 92 OpenBenchmarking.org samples since 14 August; median result: 20886 Bogo Ops/s. Box plot of samples:
+    [----#*!############*###*###*-------------------------------------------------------------*---------------------------------------------------------------------------|   ]
+                                ^ 2 x AMD EPYC 9124: 88785              AMD EPYC 9754: 280347 ^
+                            ^ AMD EPYC 9384X: 76267
+                        ^ AMD Ryzen 9 7950X: 62409
+          ^ AMD Ryzen 7 7840U: 17646
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: Matrix Math]
+    Test 2 of 3
+    Estimated Trial Run Count:    3
+    Estimated Test Run-Time:      2 Minutes
+    Estimated Time To Completion: 4 Minutes [14:00 UTC]
+        Started Run 1 @ 13:57:13
+        Started Run 2 @ 13:57:47
+        Started Run 3 @ 13:58:21
+        Started Run 4 @ 13:58:55 *
+        Started Run 5 @ 13:59:29 *
+        Started Run 6 @ 14:00:04 *
+        Started Run 7 @ 14:00:38 *
+        Started Run 8 @ 14:01:12 *
+        Started Run 9 @ 14:01:46 *
+        Started Run 10 @ 14:02:20 *
+        Started Run 11 @ 14:02:54 *
+        Started Run 12 @ 14:03:28 *
+        Started Run 13 @ 14:04:02 *
+        Started Run 14 @ 14:04:36 *
+        Started Run 15 @ 14:05:10 *
+
+    Test: Matrix Math:
+        1266.37
+        1371.98
+        1381.67
+        1423.3
+        1305.43
+        1333.95
+        1403.24
+        1320.65
+        1294.33
+        1382.8
+        1328.25
+        1342.63
+        1314.4
+        1340.77
+        1316.77
+
+    Average: 1341.77 Bogo Ops/s
+    Deviation: 3.21%
+    Samples: 15
+
+    Comparison of 69 OpenBenchmarking.org samples since 14 August; median result: 107140 Bogo Ops/s. Box plot of samples:
+    [----##*#*########!###*######*#######--------------------------------------------------------------*--------------------------------------------------------------------| ]
+                                 ^ 2 x AMD EPYC 9124: 173910     2 x Intel Xeon Platinum 8490H: 584458 ^
+                          ^ AMD Ryzen 9 7950X: 129396
+             ^ Intel Xeon E-2388G: 50229
+           ^ AMD Ryzen 7 7840U: 38646
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: Memory Copying]
+    Test 3 of 3
+    Estimated Trial Run Count:    3
+    Estimated Time To Completion: 2 Minutes [14:07 UTC]
+        Started Run 1 @ 14:05:54
+        Started Run 2 @ 14:06:28
+        Started Run 3 @ 14:07:02
+
+    Test: Memory Copying:
+        394.43
+        394.6
+        394.97
+
+    Average: 394.67 Bogo Ops/s
+    Deviation: 0.07%
+
+    Comparison of 10 OpenBenchmarking.org samples since 17 August; median result: 13430 Bogo Ops/s. Box plot of samples:
+    [|----------------------------#!########################################################################################################################################| ]
+
+    Do you want to view the text results of the testing (Y/n): y
+2023-09-01-stress-ng
+ARMv8 Cortex-A72 testing on Debian 11 via the Phoronix Test Suite.
+
+
+2023-09-01-stress-ng-01:
+
+        Processor: ARMv8 Cortex-A72 @ 1.80GHz (4 Cores), Motherboard: BCM2835 Raspberry Pi 4 Model B Rev 1.4, Chipset: Broadcom BCM2711, Memory: 4096MB, Disk: 64GB SC64G
+
+        OS: Debian 11, Kernel: 6.1.21-v8+ (aarch64), Display Server: X Server 1.20.11, Compiler: GCC 10.2.1 20210110, File-System: ext4
+
+
+    Stress-NG 0.16.04
+    Test: CPU Stress
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-stress-ng-01 . 392.18 |=========================================================================================================================================
+
+
+    Stress-NG 0.16.04
+    Test: Matrix Math
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-stress-ng-01 . 1341.77 |========================================================================================================================================
+
+
+    Stress-NG 0.16.04
+    Test: Memory Copying
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-stress-ng-01 . 394.67 |=========================================================================================================================================
+
+    Would you like to upload the results to OpenBenchmarking.org (y/n): y
+    Would you like to attach the system logs (lspci, dmesg, lsusb, etc) to the test result (y/n): y
+
+    Results Uploaded To: https://openbenchmarking.org/result/2309019-NE-20230901S09
+
+
+
+=========================================
+===============  CoolPi   ===============
+=========================================
+
+phoronix-test-suite system-info
+
+  PROCESSOR:              Rockchip RK3588(S) CoolPi @ 1.80GHz
+    Core Count:           8
+    Cache Size:           3 MB
+    Scaling Driver:       cpufreq-dt performance
+
+  GRAPHICS:
+
+  MOTHERBOARD:            RK3588S CoolPi 4B Board
+    Network:              Realtek RTL8111/8168/8411
+
+  MEMORY:                 4096MB
+
+  DISK:                   63GB AT2S9C
+    File-System:          ext4
+    Mount Options:        relatime rw
+    Disk Details:         Block Size: 4096
+
+  OPERATING SYSTEM:       Ubuntu 22.04
+    Kernel:               5.10.110 (aarch64)
+    Display Server:       X Server 1.21.1.4
+    Compiler:             GCC 11.4.0
+    Security:             itlb_multihit: Not affected
+                          + l1tf: Not affected
+                          + mds: Not affected
+                          + meltdown: Not affected
+                          + spec_store_bypass: Mitigation of SSB disabled via prctl
+                          + spectre_v1: Mitigation of __user pointer sanitization
+                          + spectre_v2: Mitigation of CSV2 BHB
+                          + srbds: Not affected
+                          + tsx_async_abort: Not affected
+
+
+phoronix-test-suite run stress-ng
+
+
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0
+    System Test Configuration
+        1:  CPU Stress
+        2:  Crypto
+        3:  Memory Copying
+        4:  Glibc Qsort Data Sorting
+        5:  Glibc C String Functions
+        6:  Vector Math
+        7:  Matrix Math
+        8:  Forking
+        9:  System V Message Passing
+        10: Semaphores
+        11: Socket Activity
+        12: Context Switching
+        13: Atomic
+        14: CPU Cache
+        15: Malloc
+        16: MEMFD
+        17: MMAP
+        18: NUMA
+        19: SENDFILE
+        20: IO_uring
+        21: Futex
+        22: Mutex
+        23: Function Call
+        24: Poll
+        25: Hash
+        26: Pthread
+        27: Zlib
+        28: Floating Point
+        29: Fused Multiply-Add
+        30: Pipe
+        31: Matrix 3D Math
+        32: AVL Tree
+        33: Vector Floating Point
+        34: Vector Shuffle
+        35: Wide Vector Math
+        36: Cloning
+        37: AVX-512 VNNI
+        38: Mixed Scheduler
+        39: Test All Options
+        ** Multiple items can be selected, delimit by a comma. **
+        Test: 1,3,7
+
+
+Phoronix Test Suite v10.8.4
+System Information
+
+
+  PROCESSOR:              Rockchip RK3588(S) CoolPi @ 1.80GHz
+    Core Count:           8
+    Cache Size:           3 MB
+    Scaling Driver:       cpufreq-dt performance
+
+  GRAPHICS:
+
+  MOTHERBOARD:            RK3588S CoolPi 4B Board
+    Network:              Realtek RTL8111/8168/8411
+
+  MEMORY:                 4096MB
+
+  DISK:                   63GB AT2S9C
+    File-System:          ext4
+    Mount Options:        relatime rw
+    Disk Details:         Block Size: 4096
+
+  OPERATING SYSTEM:       Ubuntu 22.04
+    Kernel:               5.10.110 (aarch64)
+    Display Server:       X Server 1.21.1.4
+    Compiler:             GCC 11.4.0
+    Security:             itlb_multihit: Not affected
+                          + l1tf: Not affected
+                          + mds: Not affected
+                          + meltdown: Not affected
+                          + spec_store_bypass: Mitigation of SSB disabled via prctl
+                          + spectre_v1: Mitigation of __user pointer sanitization
+                          + spectre_v2: Mitigation of CSV2 BHB
+                          + srbds: Not affected
+                          + tsx_async_abort: Not affected
+
+    Would you like to save these test results (Y/n): y
+    Enter a name for the result file: 2023-09-01-stress-ng
+    Enter a unique name to describe this test run / configuration: 2023-09-01-stress-ng-01
+
+If desired, enter a new description below to better describe this result set / system configuration under test.
+Press ENTER to proceed without changes.
+
+Current Description: Rockchip RK3588(S) CoolPi testing on Ubuntu 22.04 via the Phoronix Test Suite.
+
+New Description:
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: CPU Stress]
+    Test 1 of 3
+    Estimated Trial Run Count:    3
+    Estimated Test Run-Time:      3 Minutes
+    Estimated Time To Completion: 8 Minutes [14:07 UTC]
+        Started Run 1 @ 14:00:04
+        Started Run 2 @ 14:00:40
+        Started Run 3 @ 14:01:14
+        Started Run 4 @ 14:01:48 *
+        Started Run 5 @ 14:02:22 *
+        Started Run 6 @ 14:02:56 *
+        Started Run 7 @ 14:03:30 *
+        Started Run 8 @ 14:04:04 *
+        Started Run 9 @ 14:04:39 *
+        Started Run 10 @ 14:05:13 *
+        Started Run 11 @ 14:05:47 *
+        Started Run 12 @ 14:06:21 *
+        Started Run 13 @ 14:06:55 *
+        Started Run 14 @ 14:07:29 *
+        Started Run 15 @ 14:08:04 *
+
+    Test: CPU Stress:
+        971.88
+        927.48
+        886.21
+        865.69
+        845.3
+        831.46
+        829.5
+        822.42
+        816.56
+        821.44
+        827.11
+        832.82
+        837.65
+        830.58
+        827.94
+
+    Average: 851.60 Bogo Ops/s
+    Deviation: 5.22%
+    Samples: 15
+
+    Comparison of 92 OpenBenchmarking.org samples since 14 August; median result: 20886 Bogo Ops/s. Box plot of samples:
+    [----##!############*###*###*----------------------------------------------------------*--*---------------------------------------------------------------------------|   ]
+                        ^ AMD Ryzen 9 7950X: 62409                      AMD EPYC 9754: 280347 ^
+                                                     2 x Intel Xeon Platinum 8490H: 270633 ^
+                                ^ 2 x AMD EPYC 9124: 88785
+                            ^ AMD EPYC 9384X: 76267
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: Matrix Math]
+    Test 2 of 3
+    Estimated Trial Run Count:    3
+    Estimated Test Run-Time:      2 Minutes
+    Estimated Time To Completion: 4 Minutes [14:11 UTC]
+        Started Run 1 @ 14:08:46
+        Started Run 2 @ 14:09:20
+        Started Run 3 @ 14:09:54
+        Started Run 4 @ 14:10:28 *
+        Started Run 5 @ 14:11:02 *
+        Started Run 6 @ 14:11:36 *
+        Started Run 7 @ 14:12:10 *
+        Started Run 8 @ 14:12:44 *
+        Started Run 9 @ 14:13:18 *
+        Started Run 10 @ 14:13:52 *
+        Started Run 11 @ 14:14:26 *
+        Started Run 12 @ 14:15:00 *
+        Started Run 13 @ 14:15:34 *
+        Started Run 14 @ 14:16:08 *
+        Started Run 15 @ 14:16:42 *
+
+    Test: Matrix Math:
+        16010.12
+        15395.43
+        15225.73
+        14717.09
+        15093.28
+        14649.29
+        14657.8
+        14436.36
+        14829.86
+        15015.43
+        14587.44
+        14379.93
+        14624.61
+        14659.67
+        14280.09
+
+    Average: 14837.48 Bogo Ops/s
+    Deviation: 3.03%
+    Samples: 15
+
+    Comparison of 69 OpenBenchmarking.org samples since 14 August; median result: 107140 Bogo Ops/s. Box plot of samples:
+    [--*-#*###########!###*##############---------------------------------------------------------*----*--------------------------------------------------------------------| ]
+       ^ This Result (14th Percentile): 14837
+                          ^ AMD Ryzen 9 7950X: 129396
+          ^ AMD Ryzen 9 5900HX: 34591
+                                                                 2 x Intel Xeon Platinum 8490H: 584458 ^
+                                                                            AMD EPYC 9754: 552415 ^
+
+Stress-NG 0.16.04:
+    pts/stress-ng-1.11.0 [Test: Memory Copying]
+    Test 3 of 3
+    Estimated Trial Run Count:    3
+    Estimated Time To Completion: 2 Minutes [14:18 UTC]
+        Started Run 1 @ 14:17:25
+        Started Run 2 @ 14:17:59
+        Started Run 3 @ 14:18:33
+
+    Test: Memory Copying:
+        728.02
+        716.86
+        711.14
+
+    Average: 718.67 Bogo Ops/s
+    Deviation: 1.19%
+
+    Comparison of 10 OpenBenchmarking.org samples since 17 August; median result: 13430 Bogo Ops/s. Box plot of samples:
+    [|*---------------------------#!########################################################################################################################################| ]
+      ^ This Result (9th Percentile): 719
+
+    Do you want to view the text results of the testing (Y/n): y
+2023-09-01-stress-ng
+Rockchip RK3588(S) CoolPi testing on Ubuntu 22.04 via the Phoronix Test Suite.
+
+
+2023-09-01-stress-ng-01:
+
+        Processor: Rockchip RK3588(S) CoolPi @ 1.80GHz (8 Cores), Motherboard: RK3588S CoolPi 4B Board, Memory: 4096MB, Disk: 63GB AT2S9C, Network: Realtek RTL8111/8168/8411
+
+        OS: Ubuntu 22.04, Kernel: 5.10.110 (aarch64), Display Server: X Server 1.21.1.4, Compiler: GCC 11.4.0, File-System: ext4
+
+
+    Stress-NG 0.16.04
+    Test: CPU Stress
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-stress-ng-01 . 851.60 |=========================================================================================================================================
+
+
+    Stress-NG 0.16.04
+    Test: Matrix Math
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-stress-ng-01 . 14837.48 |=======================================================================================================================================
+
+
+    Stress-NG 0.16.04
+    Test: Memory Copying
+    Bogo Ops/s > Higher Is Better
+    2023-09-01-stress-ng-01 . 718.67 |=========================================================================================================================================
+
+    Would you like to upload the results to OpenBenchmarking.org (y/n): y
+    Would you like to attach the system logs (lspci, dmesg, lsusb, etc) to the test result (y/n): y
+
+    Results Uploaded To: https://openbenchmarking.org/result/2309016-NE-20230901S59
