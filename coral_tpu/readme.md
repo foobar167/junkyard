@@ -41,3 +41,11 @@ The benchmark software is located in the files
 [tf_lite.py](tf_lite.py) and
 [tf_lite_benchmarks.py](tf_lite_benchmarks.py).
 Log file with [test results](data/2023.09.01-coral-tpu-benchmark-results.txt).
+
+Jupyter Notebooks:
+  * `get_data_for_tests.ipynb` gets data for performance tests;
+  * `run_tf_on_cpu_gpu_tpu.ipynb` additional performance tests;
+  * `performance_tests.ipynb` performance tests;
+  * `coral_tpu_tests.ipynb` TF and `tflite_runtime` library
+     can not run in the same environment, so run Coral tests separately.
+
