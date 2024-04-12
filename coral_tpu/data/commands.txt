@@ -6,6 +6,7 @@ python tf_lite.py --tf -m models/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite    
 python -m pip install tflite-runtime
 python -m pip install --extra-index-url https://google-coral.github.io/py-repo/ pycoral~=2.0
 #pip install pycoral-2.0.0-cp39-cp39-win_amd64.whl --force-reinstall
+# Unzip  edgetpu_runtime_20221024.zip and run install.bat file.
 
 # Install libraries for virtual environment
 pip install tensorflow==2.15.* tensorflow-datasets tensorflow-hub matplotlib scipy numpy opencv-python pillow scikit-learn scikit-image pandas ipython jupyter tqdm graphviz nodejs ipyparallel

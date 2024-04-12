@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image
 
 
-_EDGETPU_SHARED_LIB = {
+EDGETPU_SHARED_LIB = {
     'Linux': 'libedgetpu.so.1',
     'Darwin': 'libedgetpu.1.dylib',
     'Windows': 'edgetpu.dll',
@@ -82,7 +82,7 @@ else:  # use tflite_runtime library
     get_interpreter = tflite.Interpreter
 
 try:  # try to calculate on TPU (or CPU for CPU-model)
-    delegate = load_delegate(library=_EDGETPU_SHARED_LIB, options={})
+    delegate = load_delegate(library=EDGETPU_SHARED_LIB, options={})
     interpreter = get_interpreter(model_path=args.model, experimental_delegates=[delegate])
 except ValueError:  # calculate on CPU
     print('Error: can not load delegate. Calculate on CPU')
