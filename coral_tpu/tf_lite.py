@@ -1,5 +1,5 @@
 # Run TensorFlow Lite model on Coral USB Accelerator or CPU
-# Use tflite_runtime library or TF library.
+# Use tflite_runtime library or TF library. Cannot use both in the same environment.
 #
 # Execute command:
 #   python tf_lite.py --tf -m models/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite         -i pictures/parrot.jpg
