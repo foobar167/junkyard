@@ -7,12 +7,12 @@ and is an application-specific integrated circuit
 developed by Google and designed for use with the
 TensorFlow Lite machine learning library.
 
-<img src="data/google-coral-usb-accelerator.jpg" alt="Google Coral USB Accelerator" width="300" />
+<img src="pictures/google-coral-usb-accelerator.jpg" alt="Google Coral USB Accelerator" width="300" />
 
 Performance tests for Coral NPU and CPU on various computers
 are shown on the diagram below. Less is better
 
-![Google Coral benchmarks diagram](data/coral-tpu-benchmarks.jpg)
+![Google Coral benchmarks diagram](pictures/coral-tpu-benchmarks.jpg)
 
    * Pi4 – **Raspberry Pi 4 Model B** single board computer (SBC) with
 Broadcom BCM2711 chipset running the Debian GNU/Linux 11 (bullseye)

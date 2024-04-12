@@ -2,7 +2,8 @@
 # Use tflite_runtime library or TF library.
 #
 # Execute command:
-#   python tf_lite.py --tf -m data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite -i data/cat_720p.jpg
+#   python tf_lite.py --tf -m models/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite         -i pictures/parrot.jpg
+#   python tf_lite.py      -m models/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite -i pictures/parrot.jpg
 # Links:
 #     PyCoral GitHub: https://github.com/google-coral/pycoral
 #     Test Data for Coral TPU: https://github.com/google-coral/test_data/tree/104342d2d3480b3e66203073dac24f4e2dbb4c41
@@ -70,6 +71,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+# TF and tflite_runtime library can not run simultaneously in the same environment.
 if args.tf:  # use TensorFlow library
     import tensorflow as tf
     load_delegate = tf.lite.experimental.load_delegate

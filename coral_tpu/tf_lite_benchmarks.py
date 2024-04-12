@@ -18,9 +18,9 @@ info = {
 print()  # new line
 os.system(command=info)  # get info about the hardware
 
-model_tpu = 'data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite'
-model_cpu = 'data/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite'
-image = 'data/parrot.jpg'  # 'cat_720p.jpg'
+model_tpu = 'models/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite'
+model_cpu = 'models/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite'
+image = 'pictures/parrot.jpg'  # 'cat_720p.jpg'
 count = 22
 
 message = lambda msg: f'''python -c "print('\\n--- {msg} ---')"'''
