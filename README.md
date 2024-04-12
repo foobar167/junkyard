@@ -30,7 +30,7 @@
 
 Python scripts for Google Coral USB Accelerator.
 
-<img src="coral_tpu/data/google-coral-usb-accelerator.jpg" alt="Google Coral USB Accelerator" width="300" />
+<img src="coral_tpu/pictures/google-coral-usb-accelerator.jpg" alt="Google Coral USB Accelerator" width="300" />
 
 ----------------
 ### <a name="pytorch_tutorial" />[PyTorch Tutorial](pytorch_tutorial)
