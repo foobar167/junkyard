@@ -71,7 +71,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-# TF and tflite_runtime library can not run simultaneously in the same environment.
+# TF and tflite_runtime library cannot run simultaneously in the same environment.
 if args.tf:  # use TensorFlow library
     import tensorflow as tf
     load_delegate = tf.lite.experimental.load_delegate
@@ -85,7 +85,7 @@ try:  # try to calculate on TPU (or CPU for CPU-model)
     delegate = load_delegate(library=EDGETPU_SHARED_LIB, options={})
     interpreter = get_interpreter(model_path=args.model, experimental_delegates=[delegate])
 except ValueError:  # calculate on CPU
-    print('Error: can not load delegate. Calculate on CPU')
+    print('Error: cannot load delegate. Calculate on CPU')
     interpreter = get_interpreter(model_path=args.model)
 
 interpreter.allocate_tensors()
@@ -134,7 +134,7 @@ print('-------- RESULTS --------')
 labels = load_labels(args.labels)
 results = interpreter.tensor(output_details['index'])().flatten()
 if np.issubdtype(output_details['dtype'], np.integer):
-    # Usually scale == 1/256 and zero_point == 0
+    # Usually, scale == 1/256 and zero_point == 0
     scale, zero_point = output_details['quantization']
     # Always convert to np.int64 to avoid overflow on subtraction.
     results = scale * (results.astype(np.int64) - zero_point)

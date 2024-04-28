@@ -46,6 +46,6 @@ Jupyter Notebooks:
   * `get_data_for_tests.ipynb` gets data for performance tests;
   * `run_tf_on_cpu_gpu_tpu.ipynb` additional performance tests;
   * `performance_tests.ipynb` performance tests;
-  * `coral_tpu_tests.ipynb` TF and `tflite_runtime` library
-     can not run in the same environment, so run Coral tests separately.
+  * `coral_tpu_tests.ipynb` TF and `tflite_runtime` (TFLite) libraries
+     cannot run in the same environment, so run Coral tests separately.
 
