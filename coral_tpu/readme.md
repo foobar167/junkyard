@@ -1,4 +1,4 @@
-#### Coral TPU project
+#### Coral TPU Project
 
 [Google Coral USB Accelerator](https://coral.ai/products/accelerator)
 belongs to the Neural Processing Unit (NPU) class
