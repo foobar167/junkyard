@@ -5,6 +5,7 @@
 **Under construction...**
 -->
 
+   01. [Coral TPU](#coral_tpu)
    01. [PyTorch Tutorial](#pytorch_tutorial)
    01. [Object tracking](#feature_extractor)
    01. [Python notes and links to interesting places](#python_notes)
