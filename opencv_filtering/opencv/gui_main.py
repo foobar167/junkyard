@@ -32,7 +32,7 @@ class MainGUI(ttk.Frame):
         self.buttons = None  # buttons at the bottom of the GUI
         self.fullscreen = False  # enable/disable fullscreen mode
         self._bugfix = False  # BUG! when change: fullscreen --> zoomed --> normal
-        self._filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
+        self._filter = Image.BICUBIC  # could be: NEAREST, BOX, BILINEAR, HAMMING, BICUBIC, LANCZOS
         self.previous_state = 0  # previous state of the event
         self.shortcuts = None  # define hot-keys
         self.ctrl_shortcuts = None
