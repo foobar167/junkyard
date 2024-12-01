@@ -5,6 +5,7 @@
 **Under construction...**
 -->
 
+   01. [LLM experiments](#llm_experiments)
    01. [Coral TPU](#coral_tpu)
    01. [PyTorch Tutorial](#pytorch_tutorial)
    01. [Object tracking](#feature_extractor)
@@ -25,6 +26,11 @@
    01. [Rolling window on NumPy arrays](#rolling_window)
    01. [Tkinter progressbar](#progressbar)
 
+
+----------------
+### <a name="llm_experiments" />[LLM experiments](llm_experiments)
+
+Large Language Models Experiments.
 
 ----------------
 ### <a name="coral_tpu" />[Coral TPU](coral_tpu)

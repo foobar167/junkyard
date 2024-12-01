@@ -65,8 +65,8 @@ class Display:
             shape = (int(w2), max(1, int(w2 / aspect_ratio1)))
         else:  # aspect_ratio1 < aspect_ratio2
             shape = (max(1, int(h2 * aspect_ratio1)), int(h2))
-        # Interpolation could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
-        return cv2.resize(image, shape, interpolation=Image.ANTIALIAS)
+        # Interpolation could be: NEAREST, BOX, BILINEAR, HAMMING, BICUBIC, LANCZOS
+        return cv2.resize(image, shape, interpolation=Image.BICUBIC)
 
     def get_snapshot(self):
         """ Take a new snapshot. Save it to the file. Pass the name of the new file to the application """

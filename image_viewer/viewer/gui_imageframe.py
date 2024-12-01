@@ -66,7 +66,7 @@ class ImageFrame():
         #
         self.__w, self.__h = self.__image.size  # image width and height
         self.__min_side = min(self.__w, self.__h)  # get the smaller image side
-        self.__filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
+        self.__filter = Image.BICUBIC  # could be: NEAREST, BOX, BILINEAR, HAMMING, BICUBIC, LANCZOS
         self.__show_image()  # show image on the canvas
         self.__canvas.event_generate('<Enter>')  # set focus on the canvas
 

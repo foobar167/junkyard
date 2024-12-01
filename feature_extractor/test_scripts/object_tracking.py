@@ -65,8 +65,8 @@ class Application:
             dim = (int(w2), max(1, int(w2 / aspect_ratio1)))
         else:  # aspect_ratio1 < aspect_ratio2
             dim = (max(1, int(h2 * aspect_ratio1)), int(h2))
-        # Interpolation could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
-        return cv2.resize(image, dim, interpolation=Image.ANTIALIAS)
+        # Interpolation could be: NEAREST, BOX, BILINEAR, HAMMING, BICUBIC, LANCZOS
+        return cv2.resize(image, dim, interpolation=Image.BICUBIC)
 
     def get_snapshot(self):
         """ Get snapshot """
