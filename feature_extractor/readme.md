@@ -6,6 +6,11 @@ algorithms with GUI for fun, tests and education.
 
 ![Snapshot from the application:](./data/snapshot.jpg)
 
+This application only processes one image.
+Good object tracker processes sequence of images in a video.
+For example, this
+[OpenCV object tracking](https://pyimagesearch.com/2018/07/30/opencv-object-tracking/) algorithms.
+
 **Only OpenCV** integrated detectors, descriptors and
 detector-descriptors are used.
 
