@@ -535,6 +535,9 @@ class Filters:
     def filter_swap_rgb(self):
         """ Chaotic swap of the RGB channels """
         bgr = cv2.split(self.frame)
+        # Tuples are immutable data structures, meaning their elements
+        #   cannot be changed with `shuffle` function.
+        bgr = list(bgr)  # convert tuple to a list
         random.shuffle(bgr)  # randomly shuffle color channels
         return cv2.merge(bgr)
 
