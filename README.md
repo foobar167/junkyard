@@ -5,6 +5,8 @@
 **Under construction...**
 -->
 
+   01. [Examples of fine-tuning models](#fine_tuning)
+   01. [Examples of data visualization](#data_visualization)
    01. [LLM experiments](#llm_experiments)
    01. [Coral TPU](#coral_tpu)
    01. [PyTorch Tutorial](#pytorch_tutorial)
@@ -26,6 +28,16 @@
    01. [Rolling window on NumPy arrays](#rolling_window)
    01. [Tkinter progressbar](#progressbar)
 
+
+----------------
+### <a name="fine_tuning" />[Examples of fine-tuning models](fine_tuning)
+
+Examples of fine-tuning models using [timm](https://timm.fast.ai/) library.
+
+----------------
+### <a name="data_visualization" />[Examples of data visualization](data_visualization)
+
+Examples of data visualization using [matplotlib](https://matplotlib.org/) library.
 
 ----------------
 ### <a name="llm_experiments" />[LLM experiments](llm_experiments)
