@@ -5,6 +5,7 @@
 **Under construction...**
 -->
 
+   01. [Study topics and tasks for students](#students_exercises)
    01. [Fine-tuning and feature extraction](#fine_tuning)
    01. [Examples of data visualization](#data_visualization)
    01. [LLM experiments](#llm_experiments)
@@ -28,6 +29,11 @@
    01. [Rolling window on NumPy arrays](#rolling_window)
    01. [Tkinter progressbar](#progressbar)
 
+
+----------------
+### <a name="students_exercises" />[Study topics and tasks for students](students_exercises)
+
+???
 
 ----------------
 ### <a name="fine_tuning" />[Fine-tuning and feature extraction](fine_tuning)
