@@ -41,7 +41,7 @@ After fine-tuning, the feature extractor is performed.
 
 Examples of data visualization using [matplotlib](https://matplotlib.org/) library.
 
-<img src="./data_visualization/pictures/real_generated_ViT_UMAP_v2.png" alt="UMAP presentation of features" width="1000" />
+![UMAP presentation of features](/data_visualization/pictures/real_generated_ViT_UMAP_v2.png)
 
 ----------------
 ### <a name="llm_experiments" />[LLM experiments](llm_experiments)
