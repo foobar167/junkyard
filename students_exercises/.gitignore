@@ -1,0 +1,4 @@
+# Directories to ignore for Students Exercises
+**/temp/
+**/models/
+
