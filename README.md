@@ -5,7 +5,7 @@
 **Under construction...**
 -->
 
-   01. [Fine-tuning and feature extraction](#feature_extraction)
+   01. [Fine-tuning and feature extraction](#fine_tuning)
    01. [Examples of data visualization](#data_visualization)
    01. [LLM experiments](#llm_experiments)
    01. [Coral TPU](#coral_tpu)
@@ -30,7 +30,7 @@
 
 
 ----------------
-### <a name="feature_extraction" />[Fine-tuning and feature extraction](feature_extraction)
+### <a name="fine_tuning" />[Fine-tuning and feature extraction](fine_tuning)
 
 Examples of fine-tuning models using [timm](https://timm.fast.ai/) library.
 
