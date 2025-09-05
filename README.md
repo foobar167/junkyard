@@ -145,10 +145,10 @@ program cuts rectangle images from the bigger image.
 manual_image_annotation2/data/2019.01.03-manual-image-annotation-with-rectangles.png)
 
 ----------------
-### <a name="image_viewer" />[Image viewer](image_viewer)
+### <a name="image_viewer" />[Image viewer](scripts_advanced/image_viewer)
 Image viewer shows image and prints coordinates of the rectangular area in the console.
 
-![Image viewer](image_viewer/data/2019.01.03-image-viewer.png)
+![Image viewer](scripts_advanced/image_viewer/data/2019.01.03-image-viewer.png)
 
 ----------------
 ### <a name="zoom" />[Advanced zoom](scripts_advanced/zoom_advanced3.py)
@@ -158,7 +158,7 @@ from small to huge up to several GB.
 ![Advanced zoom](data/2019.01.03-advanced-zoom.png)
 
 ----------------
-### <a name="c_extension" />[**C** extension for Python](co-occurrence_matrix/C_extension_for_Python)
+### <a name="c_extension" />[**C** extension for Python](scripts_advanced/co-occurrence_matrix/C_extension_for_Python)
 _**C**_ language extension for Python language by example of
 co-occurrence matrix calculation.
 

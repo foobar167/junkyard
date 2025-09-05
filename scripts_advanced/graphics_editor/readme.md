@@ -1,6 +1,6 @@
 #### Simple Python graphics editor
 
-![Under construction](../data/2019.09.25-under-construction-icon.png)
+![Under construction](../../data/2019.09.25-under-construction-icon.png)
 
 **Under construction...**
 
