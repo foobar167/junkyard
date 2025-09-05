@@ -70,7 +70,7 @@ Here is the [online CoLab](https://drive.google.com/drive/folders/1z6dXh0qPMzgPK
 replica of [this](https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz)
 original course.
 
-![Aladdin Persson logo](data/logo_aladdin_persson.jpg)
+![Aladdin Persson logo](various/logo_aladdin_persson.jpg)
 
 ----------------
 ### <a name="feature_extractor" />[Object tracking](feature_extractor)
@@ -93,7 +93,7 @@ Bookmarks to remember and re-visit.
 [My replica](https://colab.research.google.com/drive/1M6j5FyqwQtAe85RtbOXkqjQldY8eoT7a)
 of this original course: [Image Processing with Python](https://datacarpentry.org/image-processing/).
 
-![Image Processing with Python](data/2019.12.03_dice_contours.jpg)
+![Image Processing with Python](various/2019.12.03_dice_contours.jpg)
 
 ----------------
 ### <a name="object_classifier" />[General object classifier](object_classifier)
@@ -130,7 +130,7 @@ enhanced Tkinter controls for user-friendly OpenCV real-time filters demonstrati
 ### <a name="send_email" />[Sending emails with Python](send_email)
 Sending emails with Python.
 
-![Sending emails with Python](data/2019.12.27_gmail_python.jpg)
+![Sending emails with Python](various/2019.12.27_gmail_python.jpg)
 
 ----------------
 ### <a name="manual_annotation1" />[Manual image annotation with polygons](manual_image_annotation1)
@@ -163,7 +163,7 @@ Image viewer shows image and prints coordinates of the rectangular area in the c
 Advanced zoom for images of various formats and sizes
 from small to huge up to several GB.
 
-![Advanced zoom](data/2019.01.03-advanced-zoom.png)
+![Advanced zoom](various/2019.01.03-advanced-zoom.png)
 
 ----------------
 ### <a name="c_extension" />[**C** extension for Python](scripts_advanced/co-occurrence_matrix/C_extension_for_Python)
@@ -175,7 +175,7 @@ co-occurrence matrix calculation.
 Take shapshot using webcamera, OpenCV and Tkinter.
 Example is well documented and has many comments inside.
 
-![OpenCV + Tkinter snapshot GUI](data/2019.01.03-opencv-tkinter.png)
+![OpenCV + Tkinter snapshot GUI](various/2019.01.03-opencv-tkinter.png)
 
 ----------------
 ### <a name="opencv_features" />[OpenCV features](scripts_advanced/camera_features.py)
@@ -183,7 +183,7 @@ Demo of various OpenCV features.
 Application is tested for Windows OS and requires webcam.
 There is a [newer version with GUI](opencv_filtering).
 
-![OpenCV features](data/2019.01.03-opencv-features.png)
+![OpenCV features](various/2019.01.03-opencv-features.png)
 
 ----------------
 ### <a name="multilanguage" />[Multilanguage for Python](translation)
@@ -200,7 +200,7 @@ General examples for 1D, 2D, 3D and MD rolling window arrays in the on-line
 
 It has zero Python cycles inside, so the speed is the same as in **C** programming language.
 
-![Rolling window on NumPy arrays](data/2020.02.24-rolling-window-3d.png)
+![Rolling window on NumPy arrays](various/2020.02.24-rolling-window-3d.png)
 
 My previous examples of the rolling window for 2D array are
 [here](scripts_advanced/rolling_window_advanced.py) and [here](scripts_advanced/rolling_window.py).
@@ -209,4 +209,4 @@ My previous examples of the rolling window for 2D array are
 ### <a name="progressbar" />[Tkinter progressbar](scripts_advanced/tkinter_progressbar.py)
 Example of the Tkinter progressbar GUI.
 
-![Tkinter progressbar](data/2019.01.03-tkinter-progressbar.png)
+![Tkinter progressbar](various/2019.01.03-tkinter-progressbar.png)

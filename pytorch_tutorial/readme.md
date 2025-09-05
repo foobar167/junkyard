@@ -7,5 +7,5 @@ Here is the [online CoLab](https://drive.google.com/drive/folders/1z6dXh0qPMzgPK
 replica of [this](https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz)
 original course.
 
-![Aladdin Persson logo](../data/logo_aladdin_persson.jpg)
+![Aladdin Persson logo](../various/logo_aladdin_persson.jpg)
 

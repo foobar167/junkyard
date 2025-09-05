@@ -1,5 +1,5 @@
 ### Sending emails with Python
-![Sending emails with Python](../data/2019.12.27_gmail_python.jpg)
+![Sending emails with Python](../various/2019.12.27_gmail_python.jpg)
 
 #### Links
    * [Sending Emails With Python](https://realpython.com/python-send-email)

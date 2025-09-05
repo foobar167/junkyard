@@ -47,7 +47,7 @@ message["Bcc"] = receiver_email  # recommended for mass emails
 message.attach(MIMEText(text, 'plain'))
 message.attach(MIMEText(html, 'html'))
 
-filepath = '../data/doge2.jpg'
+filepath = '../various/doge2.jpg'
 filename = os.path.basename(filepath)
 
 # Open file in binary mode
