@@ -33,7 +33,9 @@
 ----------------
 ### <a name="students_exercises" />[Study topics and tasks for students](students_exercises)
 
-???
+Exercises for students and programmers with independent work on assignment.
+
+![DCGAN fake celebrities](./students_exercises/pictures/dcgan_fake_celebrities_5_epochs.png)
 
 ----------------
 ### <a name="fine_tuning" />[Fine-tuning and feature extraction](fine_tuning)
