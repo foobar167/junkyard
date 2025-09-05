@@ -34,7 +34,7 @@ of the current `feature_extractor` folder.
 Overall the GUI source code is not as elegant as I would like, but it works :-).
 
 Previous simple script is here
-[SIFT object tracking](../simple_scripts/sift_tracking.py).
+[SIFT object tracking](../scripts_simple/sift_tracking.py).
 SIFT algorithm became free since March 2020.
 SURF algorithm is patented and is excluded from OpenCV.
 Now SURF is for Python version 3.4.2.16 and older.
