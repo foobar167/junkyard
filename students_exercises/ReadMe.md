@@ -41,3 +41,5 @@ Maps segmentation using the pipeline in file [`./additional_data/UNet_image_segm
 Maps generation using the pipeline in file [`./additional_data/Pix2Pix_GAN_implementation.ipynb`](./additional_data/Pix2Pix_GAN_implementation.ipynb).
 
 After your internship, you can continue your studies with the following course: "Practical Deep Learning for Coders" (https://course.fast.ai/).
+
+P.S. There is no `models` directory, because models took up too much space.
