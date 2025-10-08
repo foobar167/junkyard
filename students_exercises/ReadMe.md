@@ -43,3 +43,5 @@ Maps generation using the pipeline in file [`./additional_data/Pix2Pix_GAN_imple
 After your internship, you can continue your studies with the following course: "Practical Deep Learning for Coders" (https://course.fast.ai/).
 
 P.S. There is no `models` directory, because models took up too much space.
+
+P.P.S. Simpler tasks are placed in [`simple_tasks`](simple_tasks) directory.
