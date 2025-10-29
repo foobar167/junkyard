@@ -40,9 +40,11 @@ Exercises for students and programmers with independent work on assignment.
 ----------------
 ### <a name="fine_tuning" />[Fine-tuning and feature extraction](fine_tuning)
 
-Examples of fine-tuning models using [timm](https://timm.fast.ai/) library.
+Image-to-text training pipeline.
+Feature extractors, i.e., dots in the feature space,
+for ViT, ResNet50 and VAE models.
 
-After fine-tuning, the feature extractor is performed.
+![Image Captioning Task Scheme](./fine_tuning/data/Image_Captioning_scheme.png)
 
 ----------------
 ### <a name="data_visualization" />[Examples of data visualization](data_visualization)
