@@ -44,7 +44,7 @@ Image-to-text training pipeline.
 Feature extractors, i.e., dots in the feature space,
 for ViT, ResNet50 and VAE models.
 
-![Image Captioning Task Scheme](./fine_tuning/data/Image_Captioning_scheme.png)
+![Image Captions Task Scheme](./fine_tuning/data/Image_Captions_scheme.png)
 
 ----------------
 ### <a name="data_visualization" />[Examples of data visualization](data_visualization)
