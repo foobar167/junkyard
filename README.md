@@ -8,7 +8,6 @@
    01. [Study topics and tasks for students](#students_exercises)
    01. [Fine-tuning and feature extraction](#fine_tuning)
    01. [Examples of data visualization](#data_visualization)
-   01. [LLM experiments](#llm_experiments)
    01. [Coral TPU](#coral_tpu)
    01. [PyTorch Tutorial](#pytorch_tutorial)
    01. [Object tracking](#feature_extractor)
@@ -52,11 +51,6 @@ for ViT, ResNet50 and VAE models.
 Examples of data visualization using [matplotlib](https://matplotlib.org/) library.
 
 ![UMAP presentation of features](/data_visualization/pictures/real_generated_ViT_UMAP_v2.png)
-
-----------------
-### <a name="llm_experiments" />[LLM experiments](llm_experiments)
-
-Large Language Models Experiments.
 
 ----------------
 ### <a name="coral_tpu" />[Coral TPU](coral_tpu)
