@@ -6,7 +6,7 @@ for ViT, ResNet50 and VAE models.
 
 ![Image Captions Task Scheme](./data/Image_Captions_scheme.png)
 
-   * [Qwen2-VL-7B image-text fine-tuning using the LaTeX OCR dataset](2026.02.27_Qwen2-VL-7B_image-text_fine-tuning.ipynb)
+   * [Qwen2-VL-7B image-text fine-tuning using the LaTeX OCR dataset](2026.02.27_Qwen2_VL_7B_image_text_fine_tuning.ipynb)
    * [Chest X-Ray Captions Using Transformers and the ReXGradient-160K Dataset](CXR_Captions_v1.ipynb)
    * [Some experiments on how to Build an AI Agent from Scratch in Raw Python](2025.06.23_AI_Agent.ipynb)
    * [Very simple Attention mechanism implementation](Attention_study.ipynb)
