@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   image_picker:
-  http:
+  http: any
   rflutter_alert: ^1.0.2
 
 
