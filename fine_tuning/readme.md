@@ -19,8 +19,8 @@ is an image-to-text training pipeline.
 using Vision Encoder Decoder (ViT + GPT2) model that fine-tuned on
 flickr8k-dataset for image-to-text task.
    * [Vision Transformer (ViT)](ViT_Fine_Tuning.ipynb)
-[Colab](https://drive.google.com/file/d/1YlzOF8SWG9e5sCYpXZcvjVNKa2EQ8hk7/)
 fine-tuning ViT model using [timm](https://timm.fast.ai/) library.
 After fine-tuning, the feature extractor is performed.
+[Colab](https://drive.google.com/file/d/1YlzOF8SWG9e5sCYpXZcvjVNKa2EQ8hk7/)
    * [ResNet50](ResNet50_Fine_Tuning.ipynb) fine-tuning and feature extractor.
    * [Variational Autoencoder (VAE)](VAE_feature_extractor.ipynb) feature extractor.
