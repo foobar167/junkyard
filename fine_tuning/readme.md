@@ -9,6 +9,7 @@ for ViT, ResNet50 and VAE models.
    * [Qwen 3.5 4B image-text fine-tuning using the LaTeX OCR dataset](2026.03.19_Qwen3.5_4B_image_text_fine_tuning.ipynb)
 [Colab](https://colab.research.google.com/drive/1TUR3OqHqm0E9SrhvBOER1ehqWlxfL0pS)
    * [Chest X-Ray Captions Using Transformers and the ReXGradient-160K Dataset](CXR_Captions_v1.ipynb)
+[Colab](https://drive.google.com/file/d/1-OPP9PZ4xRaukW-HSzt-nM_ln6ECMTMv/)
    * [Some experiments on how to Build an AI Agent from Scratch in Raw Python](2025.06.23_AI_Agent.ipynb)
    * [Very simple Attention mechanism implementation](Attention_study.ipynb)
    * [Image Captions Using ViT and GPT2 Transformers](Image_Captions_with_ViT_GPT2.ipynb)
@@ -18,6 +19,7 @@ is an image-to-text training pipeline.
 using Vision Encoder Decoder (ViT + GPT2) model that fine-tuned on
 flickr8k-dataset for image-to-text task.
    * [Vision Transformer (ViT)](ViT_Fine_Tuning.ipynb)
+[Colab](https://drive.google.com/file/d/1YlzOF8SWG9e5sCYpXZcvjVNKa2EQ8hk7/)
 fine-tuning ViT model using [timm](https://timm.fast.ai/) library.
 After fine-tuning, the feature extractor is performed.
    * [ResNet50](ResNet50_Fine_Tuning.ipynb) fine-tuning and feature extractor.
