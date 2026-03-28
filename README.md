@@ -5,8 +5,8 @@
 **Under construction...**
 -->
 
-   01. [Study topics and tasks for students](#students_exercises)
    01. [Fine-tuning and feature extraction](#fine_tuning)
+   01. [Study topics and tasks for students](#students_exercises)
    01. [Examples of data visualization](#data_visualization)
    01. [Coral TPU](#coral_tpu)
    01. [PyTorch Tutorial](#pytorch_tutorial)
@@ -30,13 +30,6 @@
 
 
 ----------------
-### <a name="students_exercises" />[Study topics and tasks for students](students_exercises)
-
-Exercises for students and programmers with independent work on assignment.
-
-![DCGAN fake celebrities](./students_exercises/pictures/dcgan_fake_celebrities_5_epochs.png)
-
-----------------
 ### <a name="fine_tuning" />[Fine-tuning and feature extraction](fine_tuning)
 
 Image-to-text training pipeline.
@@ -44,6 +37,13 @@ Feature extractors, i.e., dots in the feature space,
 for ViT, ResNet50 and VAE models.
 
 ![Image Captions Task Scheme](./fine_tuning/data/Image_Captions_scheme.png)
+
+----------------
+### <a name="students_exercises" />[Study topics and tasks for students](students_exercises)
+
+Exercises for students and programmers with independent work on assignment.
+
+![DCGAN fake celebrities](./students_exercises/pictures/dcgan_fake_celebrities_5_epochs.png)
 
 ----------------
 ### <a name="data_visualization" />[Examples of data visualization](data_visualization)
