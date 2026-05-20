@@ -6,7 +6,9 @@ for ViT, ResNet50 and VAE models.
 
 ![Image Captions Task Scheme](./data/Image_Captions_scheme.png)
 
-   * [Qwen 3.5 4B image-text fine-tuning using the LaTeX OCR dataset](2026.03.19_Qwen3.5_4B_image_text_fine_tuning.ipynb)
+   * [Chest X-Ray Captions Using Qwen and ReXGradient-160K Dataset](CXR_Captions_v2.ipynb)
+[Colab](https://colab.research.google.com/drive/1XNLpU1jjJxCWigOqQaKKEu7ZZR1kxRKb)
+   * [Qwen2-VL-7B image-text fine-tuning using the LaTeX OCR dataset](2026.02.27_Qwen2_VL_7B_image_text_fine_tuning.ipynb)
 [Colab](https://colab.research.google.com/drive/1fyAYaqiDUlWfEMvvbgsDt2Ro3QpsGWbx)
    * [Chest X-Ray Captions Using Transformers and the ReXGradient-160K Dataset](CXR_Captions_v1.ipynb)
 [Colab](https://colab.research.google.com/drive/1-OPP9PZ4xRaukW-HSzt-nM_ln6ECMTMv)
