@@ -1,9 +1,9 @@
 # Text Evaluation Metrics
 
-The metrics are ranked below in decreasing order of clinical importance and reliability
-for radiological reports:
+The metrics are ranked below in decreasing order of clinical importance
+and reliability for radiological reports:
 
-* Leaders in RRG evaluation:
+* Leaders in Radiology Report Generation (RRG) evaluation:
    * GREEN (Generative Radiology Report Evaluation and Error Notation) is the most advanced metric in the field of RRG to date, developed by Stanford researchers (Stanford AIMI) in late 2024. It operates on the LLM-as-a-judge principle;
    * RadCliQ_Inv (Radiology Report Clinical Quality Inverted) is an automated inverted composite evaluation metric designed to measure the clinical accuracy and quality of AI-generated radiology reports. By aligning closely with radiologists’ expert judgments, it overcomes the limitations of traditional, surface-level language metrics;
    * RaTEScore (Radiological Report Text Evaluation) was explicitly designed to fix RadGraph's flaws;
