@@ -1,5 +1,7 @@
 # Text Evaluation Metrics
 
+![Evaluation results with maximum (orange) and minimum (blue) values](../data/2026.06.30_Evaluation_metrics_Maximums.png)
+
 The metrics are ranked below in decreasing order of clinical importance
 and reliability for radiological reports:
 
