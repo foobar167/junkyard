@@ -6,6 +6,7 @@ for ViT, ResNet50 and VAE models.
 
 ![Image Captions Task Scheme](./data/Image_Captions_scheme.png)
 
+   * [Source code for the text evaluation metrics](./text_evaluation_metrics)
    * [Chest X-Ray Captions Using Qwen and ReXGradient-160K Dataset](CXR_Captions_v2.ipynb)
 [Colab](https://colab.research.google.com/drive/1XNLpU1jjJxCWigOqQaKKEu7ZZR1kxRKb)
    * [Qwen2-VL-7B image-text fine-tuning using the LaTeX OCR dataset](2026.02.27_Qwen2_VL_7B_image_text_fine_tuning.ipynb)
