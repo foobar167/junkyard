@@ -1,5 +1,9 @@
 # Text Evaluation Metrics
 
+PDF file:
+[Comparative Analysis of Radiology Report Generation Architectures
+on the Belarusian Screening Dataset](2026.08.26_metrics_report.pdf)
+
 ![Evaluation results with maximum (orange) and minimum (blue) values](../data/2026.08.26_Evaluation_metrics_Maximums.png)
 
 The metrics are ranked below *in decreasing order* of clinical importance
@@ -26,7 +30,3 @@ and reliability for radiological reports:
    * METEOR (Advanced Lexical Overlap);
    * ROUGE-L (Longest Common Subsequence Lexical Overlap);
    * BLEU-4 (4-Gram Lexical Precision).
-
-PDF file.
-[Comparative Analysis of Radiology Report Generation Architectures
-on the Belarusian Screening Dataset](2026.08.26_metrics_report.pdf)
