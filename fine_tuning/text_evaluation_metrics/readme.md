@@ -27,6 +27,6 @@ and reliability for radiological reports:
    * ROUGE-L (Longest Common Subsequence Lexical Overlap);
    * BLEU-4 (4-Gram Lexical Precision).
 
-The final report is in the file
+PDF file.
 [Comparative Analysis of Radiology Report Generation Architectures
 on the Belarusian Screening Dataset](2026.08.26_metrics_report.pdf)
