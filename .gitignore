@@ -5,9 +5,15 @@
 **/temp/
 **/__pycache__/
 
+# Ignore local virtual environment checkpoints
+**/venv/
+**/.venv/
+
 # Files to ignore for GIT
-*.tmp
 *.pyc
+*.pyo
+*.pyd
+*.tmp
 
 # temp MS Word files
 ~$*.docx
