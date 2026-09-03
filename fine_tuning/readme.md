@@ -16,21 +16,21 @@ or via [Colab](https://colab.research.google.com/drive/1ZeZUw_Y05rtzDrE7WEYvlhoF
 or via [Colab](https://colab.research.google.com/drive/19sro6kvoAv7KsM0jtMHkFgUD8daDNGT5)
    * [Chest X-Ray Captions Using Qwen and ReXGradient-160K Dataset](CXR_Captions_v2.ipynb)
 or via [Colab](https://colab.research.google.com/drive/1XNLpU1jjJxCWigOqQaKKEu7ZZR1kxRKb)
-   * [Qwen2-VL-7B image-text fine-tuning using the LaTeX OCR dataset](2026.02.27_Qwen2_VL_7B_image_text_fine_tuning.ipynb)
-or via [Colab](https://colab.research.google.com/drive/1fyAYaqiDUlWfEMvvbgsDt2Ro3QpsGWbx)
    * [Chest X-Ray Captions Using Transformers and the ReXGradient-160K Dataset](CXR_Captions_v1.ipynb)
 or via [Colab](https://colab.research.google.com/drive/1-OPP9PZ4xRaukW-HSzt-nM_ln6ECMTMv)
+   * [Qwen2-VL-7B image-text fine-tuning using the LaTeX OCR dataset](2026.02.27_Qwen2_VL_7B_image_text_fine_tuning.ipynb)
+or via [Colab](https://colab.research.google.com/drive/1fyAYaqiDUlWfEMvvbgsDt2Ro3QpsGWbx)
    * [Some experiments on how to Build an AI Agent from Scratch in Raw Python](2025.06.23_AI_Agent.ipynb)
    * [Very simple Attention mechanism implementation](Attention_study.ipynb)
    * [Image Captions Using ViT and GPT2 Transformers](Image_Captions_with_ViT_GPT2.ipynb)
 is an image-to-text training pipeline.
 Also, here is a [draft](Image_Captions_with_ViT_and_GPT2_draft.ipynb) that doesn't work.
-   * [Example of text augmentations](Text_Augmentations.ipynb)
+   * [Examples of text augmentations](Text_Augmentations.ipynb)
    * [Image Captions with Minimal Details](Image_Captions_Min_Detailes.ipynb)
 using Vision Encoder Decoder (ViT + GPT2) model that fine-tuned on
 flickr8k-dataset for image-to-text task.
-   * [Vision Transformer (ViT)](ViT_Fine_Tuning.ipynb)
-fine-tuning ViT model using [timm](https://timm.fast.ai/) library.
+   * [Vision Transformer fine-tuning for classification on medical images](ViT_Fine_Tuning.ipynb).
+Fine-tuning ViT model using [timm](https://timm.fast.ai/) library.
 After fine-tuning, the feature extractor is performed.
 Or via [Colab](https://colab.research.google.com/drive/1YlzOF8SWG9e5sCYpXZcvjVNKa2EQ8hk7)
    * [ResNet50](ResNet50_Fine_Tuning.ipynb) fine-tuning and feature extractor.
