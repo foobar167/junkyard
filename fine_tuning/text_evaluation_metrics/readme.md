@@ -1,8 +1,10 @@
 # Text Evaluation Metrics
 
-PDF file:
+* PDF report
 [Comparative Analysis of Radiology Report Generation Architectures
-on the Belarusian Screening Dataset](2026.08.26_metrics_report.pdf)
+on the Belarusian Screening Dataset](2026.08.31_metrics_report.pdf)
+* [Excel table](2026.08.12_test_all_metrics_summary.xlsx)
+* [Colab directory](https://drive.google.com/drive/folders/1jcWfnT9MmrB2j2Vt_gvnqluV0AR8aaNy)
 
 ![Evaluation results with maximum (orange) and minimum (blue) values](../data/2026.08.26_Evaluation_metrics_Maximums.png)
 
