@@ -6,7 +6,7 @@ on the Belarusian Screening Dataset](2026.08.31_metrics_report.pdf)
 * [Excel table](2026.08.12_test_all_metrics_summary.xlsx)
 * [Colab directory](https://drive.google.com/drive/folders/1jcWfnT9MmrB2j2Vt_gvnqluV0AR8aaNy)
 
-![Evaluation results with maximum (orange) and minimum (blue) values](../data/2026.08.26_Evaluation_metrics_Maximums.png)
+![Evaluation results with maximum (orange) and minimum (blue) values](../data/2026.09.15_Evaluation_metrics_Maximums_v2.png)
 
 The metrics are ranked below *in decreasing order* of clinical importance
 and reliability for radiological reports:
