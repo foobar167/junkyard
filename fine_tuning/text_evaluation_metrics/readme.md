@@ -32,4 +32,3 @@ and reliability for radiological reports:
    * METEOR (Advanced Lexical Overlap);
    * ROUGE-L (Longest Common Subsequence Lexical Overlap);
    * BLEU-4 (4-Gram Lexical Precision).
-
